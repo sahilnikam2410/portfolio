@@ -86,10 +86,11 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
             className="relative"
           >
-            {/* offset outline copy — depth without a drop shadow */}
+            {/* offset outline copy — must be w-full or it sizes to max-content
+                and overflows instead of wrapping with the solid copy */}
             <span
               aria-hidden="true"
-              className="display ghost pointer-events-none absolute left-0 top-0 translate-x-[3px] translate-y-[3px] select-none"
+              className="display ghost pointer-events-none absolute left-0 top-0 w-full translate-x-[3px] translate-y-[3px] select-none"
             >
               {identity.name}
             </span>

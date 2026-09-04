@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import Scramble from './Scramble';
 
@@ -38,12 +39,48 @@ export function SectionHeading({ index, title, subtitle }) {
   );
 }
 
+/**
+ * Scroll-in reveal.
+ *
+ * Deliberately not framer's `whileInView`: that leaves content stuck at
+ * opacity 0 when an element is already on screen at mount — which happens on
+ * a deep link to #coverage, a command-palette jump, a browser-restored scroll
+ * position, or a hot reload. Content that never appears is worse than content
+ * that never animates, so this drives itself and fails open.
+ */
 export function Reveal({ children, delay = 0 }) {
+  const ref = useRef(null);
+  const [shown, setShown] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    // already on screen at mount: show it now, no observer, no animation debt
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      setShown(true);
+      return;
+    }
+
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShown(true);
+          obs.disconnect();
+        }
+      },
+      { rootMargin: '0px 0px -60px 0px' }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y: 18 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-80px' }}
+      animate={shown ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
       transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}

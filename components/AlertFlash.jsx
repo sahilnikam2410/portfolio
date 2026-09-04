@@ -27,13 +27,14 @@ export default function AlertFlash() {
           />
 
           <motion.div
-            initial={{ y: -40, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -40, opacity: 0 }}
+            initial={{ x: 40, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 40, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 260, damping: 24 }}
             data-print="hide"
             role="status"
-            className="fixed left-1/2 top-20 z-[66] w-[min(92vw,560px)] -translate-x-1/2 border border-[rgba(255,95,87,0.5)] bg-[rgba(10,4,5,0.94)] shadow-[0_0_50px_rgba(255,95,87,0.18)]"
+            // bottom-right: never covers the heading or the table it describes
+            className="fixed bottom-6 right-6 z-[66] w-[min(92vw,420px)] border border-[rgba(255,95,87,0.5)] bg-[rgba(10,4,5,0.94)] shadow-[0_0_50px_rgba(255,95,87,0.18)]"
           >
             <div className="flex items-center gap-3 border-b border-[rgba(255,95,87,0.3)] px-4 py-2 text-[11px]">
               <span className="relative flex h-2 w-2">

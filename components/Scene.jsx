@@ -134,10 +134,10 @@ function arcPoints(a, b, radius, segments = 44) {
 
 /* ── holographic globe ───────────────────────────────────────── */
 
-function HoloGlobe({ radius = 2.1 }) {
+function HoloGlobe({ radius = 1.75 }) {
   const mat = useRef(null);
   const inner = useRef(null);
-  const geo = useMemo(() => new THREE.IcosahedronGeometry(radius, 32), [radius]);
+  const geo = useMemo(() => new THREE.IcosahedronGeometry(radius, 14), [radius]);
   const wire = useMemo(
     () => new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(radius * 1.02, 3)),
     [radius]
@@ -193,7 +193,7 @@ function HoloGlobe({ radius = 2.1 }) {
       </mesh>
 
       <lineSegments ref={inner} geometry={wire}>
-        <lineBasicMaterial color={CYAN} transparent opacity={0.12} depthWrite={false} />
+        <lineBasicMaterial color={CYAN} transparent opacity={0.32} depthWrite={false} />
       </lineSegments>
     </group>
   );
@@ -201,7 +201,7 @@ function HoloGlobe({ radius = 2.1 }) {
 
 /* ── node network + hover ────────────────────────────────────── */
 
-function Nodes({ radius = 2.14, count = 90 }) {
+function Nodes({ radius = 1.79, count = 90 }) {
   const mesh = useRef(null);
   const [hovered, setHovered] = useState(-1);
   const dummy = useMemo(() => new THREE.Object3D(), []);
@@ -303,7 +303,7 @@ function Arc({ points, delay, speed }) {
   );
 }
 
-function Traffic({ radius = 2.14, count = 10 }) {
+function Traffic({ radius = 1.79, count = 10 }) {
   const arcs = useMemo(() => {
     const rand = makeRandom(0x5eed_1a7c);
     const anchors = fibonacciSphere(26, radius);
@@ -622,8 +622,8 @@ export default function Scene() {
           ) : (
             <EffectComposer multisampling={0}>
               <Bloom
-                intensity={1.15}
-                luminanceThreshold={0.1}
+                intensity={0.75}
+                luminanceThreshold={0.22}
                 luminanceSmoothing={0.5}
                 mipmapBlur
               />

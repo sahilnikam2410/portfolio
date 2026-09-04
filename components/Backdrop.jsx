@@ -21,16 +21,18 @@ export default function Backdrop() {
     let raf = 0;
     const loop = () => {
       raf = requestAnimationFrame(loop);
-      const p = useSceneStore.getState().progress;
+      const { progress, alert } = useSceneStore.getState();
 
       // 0 at the top, 1 once the hero is gone (~12% of the page)
-      const past = Math.min(1, p / 0.12);
+      const past = Math.min(1, progress / 0.12);
 
+      // during the incident the scene is the point — pull the scrim back
+      // so the red globe and shockwaves are actually visible
       if (layer.current) {
-        layer.current.style.opacity = String(1 - past * 0.62);
+        layer.current.style.opacity = String(alert ? 0.95 : 1 - past * 0.62);
       }
       if (scrim.current) {
-        scrim.current.style.opacity = String(0.18 + past * 0.62);
+        scrim.current.style.opacity = String(alert ? 0.3 : 0.18 + past * 0.62);
       }
     };
     raf = requestAnimationFrame(loop);

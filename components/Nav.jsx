@@ -76,7 +76,7 @@ export default function Nav() {
             <button
               onClick={togglePalette}
               data-cursor="⌘k"
-              className="ml-2 border border-[rgba(53,255,158,0.2)] px-3 py-2 text-[var(--color-dim)] transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)]"
+              className="ml-2 whitespace-nowrap border border-[rgba(53,255,158,0.2)] px-3 py-2 text-[var(--color-dim)] transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)]"
             >
               ctrl k
             </button>
@@ -84,7 +84,7 @@ export default function Nav() {
           <li>
             <a
               href={identity.resumeUrl}
-              className="ml-1 border border-[rgba(53,255,158,0.35)] px-3 py-2 text-[var(--color-acid)] transition-colors hover:bg-[rgba(53,255,158,0.1)]"
+              className="ml-1 whitespace-nowrap border border-[rgba(53,255,158,0.35)] px-3 py-2 text-[var(--color-acid)] transition-colors hover:bg-[rgba(53,255,158,0.1)]"
             >
               resume.pdf
             </a>

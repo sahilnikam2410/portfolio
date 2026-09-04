@@ -87,10 +87,12 @@ body::after {
 
 /* display type — the hero name, sized off the viewport rather than a scale */
 .display {
-  font-size: clamp(2.8rem, 9.5vw, 8rem);
-  line-height: 0.92;
+  /* mono is a wide face — 9.5vw overflowed a 16-character name at 800px */
+  font-size: clamp(2.1rem, 6.8vw, 6rem);
+  line-height: 0.95;
   letter-spacing: -0.045em;
   font-weight: 700;
+  overflow-wrap: break-word;
 }
 
 /* outlined ghost copy that sits behind the solid one */

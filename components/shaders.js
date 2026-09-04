@@ -118,7 +118,11 @@ void main() {
   float pulse = smoothstep(0.985, 1.0, sin(vPos.y * 5.0 - uTime * 1.6) * 0.5 + 0.5);
 
   vec3 col = mix(uColorA, uColorB, clamp(fres * 1.4 + vNoise * 0.3, 0.0, 1.0));
-  float alpha = fres * 0.85 + scan * 0.16 + pulse * 0.6;
+
+  // The shell is additive and double-sided, so front and back faces stack.
+  // Keep the body near-transparent and put the light in the rim, or the
+  // globe reads as a glowing blob instead of a wireframe hologram.
+  float alpha = fres * 0.5 + scan * 0.09 + pulse * 0.3;
   alpha *= uOpacity;
 
   // glitch tints the whole shell toward cyan and lifts alpha
