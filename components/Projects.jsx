@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { projects } from '@/data/content';
 import { Section, Panel, Tag, Reveal } from './ui';
@@ -85,16 +86,26 @@ export default function Projects() {
                   ))}
                 </div>
 
-                {current.href && (
-                  <a
-                    href={current.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-8 inline-block border border-[rgba(53,255,158,0.35)] px-4 py-2 text-[13px] text-[var(--color-acid)] transition-colors hover:bg-[rgba(53,255,158,0.1)]"
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link
+                    href={`/work/${current.id}`}
+                    data-cursor="read"
+                    className="border border-[rgba(53,255,158,0.35)] px-4 py-2 text-[13px] text-[var(--color-acid)] transition-colors hover:bg-[rgba(53,255,158,0.1)]"
                   >
-                    open →
-                  </a>
-                )}
+                    case study →
+                  </Link>
+
+                  {(current.repo || current.site) && (
+                    <a
+                      href={current.repo ?? current.site}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="border border-[rgba(53,255,158,0.2)] px-4 py-2 text-[13px] text-[var(--color-bone)] transition-colors hover:border-[var(--color-acid)]"
+                    >
+                      {current.repo ? 'repository' : 'live site'} ↗
+                    </a>
+                  )}
+                </div>
               </motion.div>
             </AnimatePresence>
           </Panel>

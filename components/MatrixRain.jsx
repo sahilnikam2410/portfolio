@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 
 /** Subtle katakana/hex rain, drawn on a 2D canvas behind the content. */
-export default function MatrixRain({ opacity = 0.16 }) {
+export default function MatrixRain({ opacity = 0.08 }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {

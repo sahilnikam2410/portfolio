@@ -66,7 +66,7 @@ export default function Hero() {
     <section id="top" className="relative flex min-h-screen items-center px-5 pt-28 pb-16">
       <div className="mx-auto grid w-full max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
         {/* left: identity */}
-        <div>
+        <div className="readable">
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}

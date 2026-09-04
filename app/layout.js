@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/next';
 import { JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { identity } from '@/data/content';
@@ -51,6 +52,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={mono.variable}>
       <body style={{ fontFamily: 'var(--font-jetbrains), ui-monospace, monospace' }}>
         {children}
+        <Analytics />
       </body>
     </html>
   );

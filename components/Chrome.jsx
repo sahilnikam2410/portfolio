@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import SmoothScroll from './SmoothScroll';
 import HUD from './HUD';
 import CommandPalette from './CommandPalette';
+import Konami from './Konami';
 
 // browser-only extras
 const Preloader = dynamic(() => import('./Preloader'), { ssr: false });
@@ -18,6 +19,7 @@ export default function Chrome() {
       <Cursor />
       <HUD />
       <CommandPalette />
+      <Konami />
     </>
   );
 }

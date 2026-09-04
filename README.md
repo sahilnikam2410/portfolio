@@ -31,6 +31,9 @@ sequence all read from it.
 | Camera path | `WAYPOINTS` in `components/Scene.jsx` |
 | Shell commands | `createShell()` in `components/Terminal.jsx` |
 | Palette entries | `items` in `components/CommandPalette.jsx` |
+| Case studies | `caseStudies` in `data/content.js` → rendered at `/work/<id>` |
+| Screenshots | drop in `public/artifacts`, list in `caseStudies[id].artifacts` |
+| Repo links | set `repo:` (or `site:`) on a project — the button only renders if present |
 
 ## What's in it
 
@@ -56,8 +59,25 @@ sequence all read from it.
 - Corner HUD: scroll depth, live FPS, hovered 3D node, pointer coords.
 - ⌘K / Ctrl-K command palette — sections, projects, links, CVs, copy-email.
 - Interactive shell: real filesystem built from `content.js`, tab completion,
-  `↑`/`↓` history, `ls`/`cd`/`cat`/`tree`, plus `nmap`, which refuses any target
-  outside the lab ranges.
+  `↑`/`↓` history, `ls`/`cd`/`cat`/`tree`, `resume`, `hire`, plus `nmap`, which
+  refuses any target outside the lab ranges.
+- Hovering a detection-coverage row lights the node it maps to in the 3D scene.
+- Case-study pages at `/work/<id>`, statically generated, one per engagement.
+- Konami code flattens the globe. `sudo su` in the shell has an opinion.
+- Vercel Analytics, terminal-styled 404, generated OG card, sitemap, robots.
+
+## Checks
+
+```bash
+npm run lint
+npm run build
+```
+
+`react-hooks/set-state-in-effect` is off by design — several components read
+browser-only state (`matchMedia`, `hardwareConcurrency`, element geometry) that
+does not exist during render, so the first paint is corrected from an effect.
+All scene geometry uses a seeded PRNG rather than `Math.random()`, so a
+double-render under concurrent React produces an identical scene.
 
 ## Performance / accessibility
 

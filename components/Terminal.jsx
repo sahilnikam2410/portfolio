@@ -43,7 +43,9 @@ function buildFs() {
         `${p.id}.md`,
         `# ${p.title}\n[${p.kind}]\n\n${p.summary}\n\n${p.highlights
           .map((h) => `- ${h}`)
-          .join('\n')}\n\nstack: ${p.stack.join(', ')}\nlink:  ${p.href}`,
+          .join('\n')}\n\nstack: ${p.stack.join(', ')}\ncase study: /work/${p.id}${
+          p.repo ? `\nrepo:  ${p.repo}` : p.site ? `\nsite:  ${p.site}` : ''
+        }`,
       ])
     ),
     coverage: Object.fromEntries(
@@ -83,6 +85,7 @@ function createShell({ fs, setCwd, clear, openLink }) {
       '  resume          list the role-targeted CVs',
       '  nmap <target>   scan a lab host',
       '  open <name>     open a link (github, youtube, linkedin, resume)',
+      '  hire            start a prefilled email',
       '  banner          print the banner',
       '  history         command history',
       '  clear           clear the screen',
@@ -248,6 +251,27 @@ function createShell({ fs, setCwd, clear, openLink }) {
       return ['sudo: a password is required'];
     },
 
+    hire: () => {
+      const subject = encodeURIComponent(`Role for ${identity.name}`);
+      const body = encodeURIComponent(
+        [
+          'Hi Sahil,',
+          '',
+          'Role: ',
+          'Location / mode: ',
+          'Stack we run: ',
+          '',
+          'Found you via your portfolio.',
+        ].join('\n')
+      );
+      openLink(`mailto:${identity.email}?subject=${subject}&body=${body}`);
+      return [
+        `opening a draft to ${identity.email} ...`,
+        `phone: ${identity.phone}`,
+        'resumes: run `resume`',
+      ];
+    },
+
     exit: () => ['there is no exit. scroll instead.'],
     pwd: (_a, cwd) => ['/home/sahil/portfolio' + (cwd.length ? '/' + cwd.join('/') : '')],
     date: () => [new Date().toString()],
@@ -276,7 +300,7 @@ function createShell({ fs, setCwd, clear, openLink }) {
 /* ── component ──────────────────────────────────────────────── */
 
 export default function Terminal() {
-  const fs = useMemo(buildFs, []);
+  const fs = useMemo(() => buildFs(), []);
   const [cwd, setCwd] = useState([]);
   const [lines, setLines] = useState([
     { kind: 'sys', text: 'portfolio shell — type `help` for commands' },
@@ -423,7 +447,7 @@ export default function Terminal() {
             ref={scrollRef}
             onClick={() => inputRef.current?.focus()}
             data-cursor="type"
-            className="h-[420px] overflow-y-auto px-4 py-4 text-[13px] leading-[1.55]"
+            className="h-[300px] overflow-y-auto px-4 py-4 text-[12px] leading-[1.55] sm:h-[420px] sm:text-[13px]"
           >
             {lines.map((l, i) => (
               <div
@@ -449,12 +473,24 @@ export default function Terminal() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={onKeyDown}
-                onFocus={() => setFocused(true)}
+                onFocus={(e) => {
+                  setFocused(true);
+                  // on phones the soft keyboard covers the panel — pull it up
+                  if (window.innerWidth < 640) {
+                    setTimeout(
+                      () => e.target.scrollIntoView({ block: 'center', behavior: 'smooth' }),
+                      250
+                    );
+                  }
+                }}
                 onBlur={() => setFocused(false)}
                 spellCheck={false}
                 autoComplete="off"
+                autoCapitalize="none"
+                autoCorrect="off"
+                enterKeyHint="send"
                 aria-label="terminal input"
-                className="ml-2 w-full flex-1 bg-transparent outline-none"
+                className="ml-2 w-full min-w-0 flex-1 bg-transparent outline-none"
               />
             </div>
           </div>

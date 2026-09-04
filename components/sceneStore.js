@@ -11,6 +11,7 @@ export const useSceneStore = create((set) => ({
   section: 'top',
   morph: 0,        // 0 = sphere, 1 = flattened disc
   label: null,     // hovered 3D node id, mirrored into the HUD
+  highlight: -1,   // coverage row index currently hovered in the DOM
   booted: false,
   paletteOpen: false,
 
@@ -18,6 +19,7 @@ export const useSceneStore = create((set) => ({
   setSection: (section) => set({ section }),
   setMorph: (morph) => set({ morph }),
   setLabel: (label) => set({ label }),
+  setHighlight: (highlight) => set({ highlight }),
   setBooted: (booted) => set({ booted }),
   setPaletteOpen: (paletteOpen) => set({ paletteOpen }),
   togglePalette: () => set((s) => ({ paletteOpen: !s.paletteOpen })),

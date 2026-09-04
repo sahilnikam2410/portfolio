@@ -70,6 +70,22 @@ extend({ HoloMaterial, FieldMaterial, GridMaterial });
 
 /* ── geometry helpers ────────────────────────────────────────── */
 
+/**
+ * Seeded PRNG. Geometry is built during render, so Math.random() there would
+ * produce different results on a double-render under concurrent React.
+ * mulberry32 keeps the scene identical every pass.
+ */
+function makeRandom(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 function fibonacciSphere(count, radius) {
   const pts = [];
   const golden = Math.PI * (3 - Math.sqrt(5));
@@ -164,8 +180,13 @@ function Nodes({ radius = 2.14, count = 90 }) {
   useFrame(({ clock }) => {
     if (!mesh.current) return;
     const t = clock.elapsedTime;
+
+    // a coverage row hovered in the DOM lights the node it maps to
+    const rowHighlight = useSceneStore.getState().highlight;
+    const linked = rowHighlight < 0 ? -1 : (rowHighlight * 13) % count;
+
     nodes.forEach((p, i) => {
-      const isHot = i === hovered;
+      const isHot = i === hovered || i === linked;
       const pulse = 1 + Math.sin(t * 2 + i * 0.7) * 0.18;
       const s = (isHot ? 0.075 : 0.022) * pulse;
       dummy.position.copy(p).multiplyScalar(isHot ? 1.06 : 1);
@@ -247,17 +268,18 @@ function Arc({ points, delay, speed }) {
 
 function Traffic({ radius = 2.14, count = 10 }) {
   const arcs = useMemo(() => {
+    const rand = makeRandom(0x5eed_1a7c);
     const anchors = fibonacciSphere(26, radius);
     return Array.from({ length: count }, (_, i) => {
-      const a = anchors[Math.floor(Math.random() * anchors.length)];
-      const b = anchors[Math.floor(Math.random() * anchors.length)];
+      const a = anchors[Math.floor(rand() * anchors.length)];
+      const b = anchors[Math.floor(rand() * anchors.length)];
       const from = a;
       const to = a.equals(b) ? anchors[(anchors.indexOf(a) + 7) % anchors.length] : b;
       return {
         key: i,
         points: arcPoints(from, to, radius),
         delay: (i / count) * 3,
-        speed: 0.4 + Math.random() * 0.35,
+        speed: 0.4 + rand() * 0.35,
       };
     });
   }, [radius, count]);
@@ -273,16 +295,17 @@ function Field({ count = 26000 }) {
   const smoothed = useRef(new THREE.Vector2());
 
   const geometry = useMemo(() => {
+    const rand = makeRandom(0xc0ff_ee11);
     const g = new THREE.BufferGeometry();
     const pos = new Float32Array(count * 3);
     const seed = new Float32Array(count);
     const scale = new Float32Array(count);
     for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 34;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 20;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 28;
-      seed[i] = Math.random();
-      scale[i] = 0.4 + Math.random() * 1.5;
+      pos[i * 3] = (rand() - 0.5) * 34;
+      pos[i * 3 + 1] = (rand() - 0.5) * 20;
+      pos[i * 3 + 2] = (rand() - 0.5) * 28;
+      seed[i] = rand();
+      scale[i] = 0.4 + rand() * 1.5;
     }
     g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     g.setAttribute('aSeed', new THREE.BufferAttribute(seed, 1));
@@ -406,14 +429,36 @@ function ScrollBridge() {
 export default function Scene() {
   const [mode, setMode] = useState('full'); // full | lite | off
   const [dpr, setDpr] = useState(1.5);
+  const [generation, setGeneration] = useState(0); // bumped to rebuild after context loss
+  const [lost, setLost] = useState(false);
 
   useEffect(() => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const small = window.innerWidth < 640;
+    const small = window.innerWidth < 768;
     const cores = navigator.hardwareConcurrency ?? 4;
-    if (reduce) setMode('off');
-    else if (small || cores <= 4) setMode('lite');
+    if (reduce) {
+      setMode('off');
+    } else if (small || cores <= 4) {
+      setMode('lite');
+      setDpr(1.25);
+    }
   }, []);
+
+  /**
+   * A GPU context can be lost on sleep/resume, driver reset, or when the
+   * browser reclaims memory. Without this the canvas stays blank forever.
+   */
+  const onCreated = ({ gl }) => {
+    const canvas = gl.domElement;
+    canvas.addEventListener('webglcontextlost', (e) => {
+      e.preventDefault(); // required, or the context can never be restored
+      setLost(true);
+    });
+    canvas.addEventListener('webglcontextrestored', () => {
+      setLost(false);
+      setGeneration((g) => g + 1);
+    });
+  };
 
   if (mode === 'off') {
     return (
@@ -429,7 +474,10 @@ export default function Scene() {
     <div className="fixed inset-0 -z-10">
       <div className="absolute inset-0 grid-lines opacity-30" />
       <Canvas
+        key={generation}
         dpr={dpr}
+        onCreated={onCreated}
+        style={{ visibility: lost ? 'hidden' : 'visible' }}
         gl={{ antialias: false, powerPreference: 'high-performance', alpha: false }}
         camera={{ position: [0, 0, 6.6], fov: 46 }}
       >
@@ -446,27 +494,41 @@ export default function Scene() {
         <Suspense fallback={null}>
           <Rig>
             <HoloGlobe />
-            <Nodes count={lite ? 46 : 90} />
-            <Traffic count={lite ? 5 : 10} />
+            <Nodes count={lite ? 42 : 90} />
+            <Traffic count={lite ? 4 : 10} />
             <Grid />
           </Rig>
-          <Field count={lite ? 6000 : 26000} />
+          <Field count={lite ? 4000 : 26000} />
 
-          <EffectComposer multisampling={0}>
-            <Bloom
-              intensity={lite ? 0.7 : 1.15}
-              luminanceThreshold={0.1}
-              luminanceSmoothing={0.5}
-              mipmapBlur
-            />
-            <ChromaticAberration
-              offset={[0.0006, 0.0009]}
-              blendFunction={BlendFunction.NORMAL}
-            />
-            <Scanline density={1.1} opacity={0.05} blendFunction={BlendFunction.OVERLAY} />
-            <Noise opacity={0.035} blendFunction={BlendFunction.OVERLAY} />
-            <Vignette offset={0.24} darkness={0.9} />
-          </EffectComposer>
+          {/* phones and low-core machines get bloom only — the other three
+              passes are full-screen reads they cannot spare */}
+          {lite ? (
+            <EffectComposer multisampling={0}>
+              <Bloom
+                intensity={0.7}
+                luminanceThreshold={0.12}
+                luminanceSmoothing={0.5}
+                mipmapBlur
+              />
+              <Vignette offset={0.26} darkness={0.85} />
+            </EffectComposer>
+          ) : (
+            <EffectComposer multisampling={0}>
+              <Bloom
+                intensity={1.15}
+                luminanceThreshold={0.1}
+                luminanceSmoothing={0.5}
+                mipmapBlur
+              />
+              <ChromaticAberration
+                offset={[0.0006, 0.0009]}
+                blendFunction={BlendFunction.NORMAL}
+              />
+              <Scanline density={1.1} opacity={0.05} blendFunction={BlendFunction.OVERLAY} />
+              <Noise opacity={0.035} blendFunction={BlendFunction.OVERLAY} />
+              <Vignette offset={0.24} darkness={0.9} />
+            </EffectComposer>
+          )}
         </Suspense>
       </Canvas>
 

@@ -112,7 +112,7 @@ export const projects = [
       'Detected via log correlation, custom alert rules, triage and threat hunting',
       'Exposed detection gaps, then closed them with new rules',
     ],
-    href: 'https://github.com/sahilnikam2410',
+    // repo: 'https://github.com/sahilnikam2410/silent-operator', // set when the repo is public
   },
   {
     id: 'protocol-honeypot',
@@ -126,7 +126,7 @@ export const projects = [
       'Correlates attacker behaviour into actionable alerts',
       'Profiles technique patterns rather than single events',
     ],
-    href: 'https://github.com/sahilnikam2410',
+    // repo: 'https://github.com/sahilnikam2410/protocol-honeypot',
   },
   {
     id: 'protocol-cinema',
@@ -140,7 +140,7 @@ export const projects = [
       'Converted observed TTPs into detection logic',
       'Lab-only — no live third-party infrastructure involved',
     ],
-    href: 'https://github.com/sahilnikam2410',
+    // repo: 'https://github.com/sahilnikam2410/protocol-cinema',
   },
   {
     id: 'monitoring-lab',
@@ -154,7 +154,7 @@ export const projects = [
       'Simulated attack traffic analysed to find detection gaps',
       'Dashboards built for network and system telemetry',
     ],
-    href: 'https://github.com/sahilnikam2410',
+    // repo: 'https://github.com/sahilnikam2410/monitoring-lab',
   },
   {
     id: 'vrikaan',
@@ -168,7 +168,7 @@ export const projects = [
       'Attacker techniques turned into automated classification logic',
       'Recognised in "The Cyber 50 — India\'s Elite Founders List"',
     ],
-    href: 'https://vrikaan.com',
+    site: 'https://vrikaan.com',
   },
 ];
 
@@ -277,6 +277,94 @@ export const timeline = [
     body: 'CGPA 8.53 / 10. Final-year work: The Silent Operator, a SOC detection and red-team simulation lab.',
   },
 ];
+
+/**
+ * Long-form case studies, rendered at /work/<id>.
+ * Every line below is drawn from the resumes — do not add anything you
+ * cannot defend in an interview. `artifacts` renders a screenshot strip:
+ * drop redacted images in /public/artifacts and reference them here.
+ */
+export const caseStudies = {
+  'silent-operator': {
+    objective:
+      'Find out whether a detection stack I built myself would actually catch a red-team run — and record honestly where it did not.',
+    environment: ['Wazuh SIEM', 'Sysmon', 'Kali Linux', 'Windows 10', 'VirtualBox', 'MITRE ATT&CK'],
+    approach: [
+      'Built the lab end to end: Wazuh manager, agents on every endpoint, Sysmon and system logs forwarded into centralised dashboards.',
+      'Executed controlled red-team attacks against the lab hosts, one technique at a time.',
+      'Mapped each technique to its MITRE ATT&CK ID before running it, so the expected telemetry was written down in advance.',
+      'Hunted from the defender side: log correlation, custom alert rules, triage, threat hunting.',
+    ],
+    outcome: [
+      'Techniques that fired an alert were recorded with the rule that caught them.',
+      'Techniques that produced nothing were recorded as gaps, then closed with new rules and re-run.',
+    ],
+    artifacts: [],
+  },
+
+  'protocol-honeypot': {
+    objective:
+      'Turn unsolicited scanning and access attempts into structured, actionable alerts instead of raw log noise.',
+    environment: ['Network IDS', 'Honeypot', 'Linux', 'Log correlation'],
+    approach: [
+      'Designed and deployed a network-based IDS alongside a honeypot to attract and capture unauthorised access attempts.',
+      'Logged reconnaissance traffic and correlated repeated behaviour into attacker profiles rather than isolated events.',
+    ],
+    outcome: [
+      'Recon and unauthorised access attempts surfaced as alerts an analyst can triage.',
+      'Attacker behaviour profiled by pattern, not by single hits.',
+    ],
+    artifacts: [],
+  },
+
+  'protocol-cinema': {
+    objective:
+      'Understand a covert command-and-control channel well enough to write the detection for it.',
+    environment: ['Authorised lab', 'Public API traffic', 'MITRE ATT&CK'],
+    approach: [
+      'Studied a steganographic technique that tunnels data through legitimate public APIs, entirely inside an authorised lab.',
+      'Characterised the resulting traffic behaviour rather than the payload, since the payload is the part that hides.',
+      'Translated the observed behaviour into detection logic for anomalous outbound channels and mapped it to ATT&CK.',
+    ],
+    outcome: [
+      'Detection logic for covert exfiltration over web protocols.',
+      'No live third-party infrastructure was involved at any point.',
+    ],
+    artifacts: [],
+  },
+
+  'monitoring-lab': {
+    objective:
+      'Get full-fleet visibility across a mixed Windows and Linux estate, then test whether that visibility is real.',
+    environment: ['Windows 10', 'Kali Linux', 'VirtualBox', 'Wazuh agents', 'Splunk'],
+    approach: [
+      'Deployed and configured endpoint agents across several hosts with agent-based log forwarding into centralised dashboards.',
+      'Covered network configuration and host connectivity as part of the build, not as an afterthought.',
+      'Pushed simulated attack traffic through the estate to see what the dashboards actually surfaced.',
+    ],
+    outcome: [
+      'Centralised network and system telemetry across the fleet.',
+      'Detection gaps identified from the simulated traffic and closed.',
+    ],
+    artifacts: [],
+  },
+
+  vrikaan: {
+    objective:
+      'Build consumer-facing threat detection that holds up against live phishing and scam campaigns.',
+    environment: ['Phishing analysis', 'Real-time monitoring', 'Dark-web exposure scanning'],
+    approach: [
+      'Analysed live phishing and social-engineering campaigns and converted the attacker techniques into automated detection and classification logic.',
+      'Designed a multi-tier routing architecture balancing heavy threat-reasoning workloads against high-volume classification.',
+      'Led security engineering and production service reliability for the platform.',
+    ],
+    outcome: [
+      'Live platform covering phishing detection, monitoring and dark-web exposure scanning.',
+      'Recognised in "The Cyber 50 — India\'s Elite Founders List" (Indian Startup Times).',
+    ],
+    artifacts: [],
+  },
+};
 
 export const ethics = {
   title: 'Scope & ethics',

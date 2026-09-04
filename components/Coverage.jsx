@@ -2,6 +2,7 @@
 
 import { coverage } from '@/data/content';
 import { Section, Reveal } from './ui';
+import { useSceneStore } from './sceneStore';
 
 const STATUS = {
   detected: {
@@ -19,6 +20,19 @@ const STATUS = {
 };
 
 export default function Coverage() {
+  const setHighlight = useSceneStore((s) => s.setHighlight);
+  const setLabel = useSceneStore((s) => s.setLabel);
+
+  // hovering a row lights the matching node out in the 3D scene
+  const enter = (i, r) => () => {
+    setHighlight(i);
+    setLabel(r.id);
+  };
+  const leave = () => {
+    setHighlight(-1);
+    setLabel(null);
+  };
+
   const counts = coverage.reduce((acc, r) => {
     acc[r.status] = (acc[r.status] ?? 0) + 1;
     return acc;
@@ -62,9 +76,11 @@ export default function Coverage() {
               </tr>
             </thead>
             <tbody>
-              {coverage.map((r) => (
+              {coverage.map((r, i) => (
                 <tr
                   key={r.id}
+                  onMouseEnter={enter(i, r)}
+                  onMouseLeave={leave}
                   className="border-b border-[rgba(53,255,158,0.08)] transition-colors last:border-0 hover:bg-[rgba(53,255,158,0.04)]"
                 >
                   <td className="whitespace-nowrap px-4 py-3 text-[var(--color-cyan)]">{r.id}</td>
