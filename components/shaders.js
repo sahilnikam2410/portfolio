@@ -64,11 +64,13 @@ ${noise3D}
 uniform float uTime;
 uniform float uGlitch;
 uniform float uMorph;
+uniform vec3  uPointer;
 
 varying vec3 vNormalW;
 varying vec3 vViewDir;
 varying vec3 vPos;
 varying float vNoise;
+varying float vRipple;
 
 void main() {
   vec3 pos = position;
@@ -78,6 +80,15 @@ void main() {
 
   // breathing displacement, stronger while a glitch is firing
   pos += normal * n * (0.045 + uGlitch * 0.12);
+
+  // Ripple radiating from where the pointer aims at the sphere. Keep it a
+  // tight cap: a wide falloff lights the whole front hemisphere and the
+  // hologram collapses back into a solid blob.
+  float aim = max(dot(normalize(position), normalize(uPointer)), 0.0);
+  float cap = smoothstep(0.86, 1.0, aim);
+  float ripple = cap * sin(aim * 40.0 - uTime * 5.0);
+  pos += normal * ripple * 0.05;
+  vRipple = cap;
 
   // horizontal tear: a thin band offsets sideways
   float band = smoothstep(0.02, 0.0, abs(fract(uTime * 0.35) * 2.6 - 1.3 - position.y * 0.5));
@@ -106,6 +117,7 @@ varying vec3 vNormalW;
 varying vec3 vViewDir;
 varying vec3 vPos;
 varying float vNoise;
+varying float vRipple;
 
 void main() {
   // fresnel rim — the hologram edge
@@ -122,7 +134,7 @@ void main() {
   // The shell is additive and double-sided, so front and back faces stack.
   // Keep the body near-transparent and put the light in the rim, or the
   // globe reads as a glowing blob instead of a wireframe hologram.
-  float alpha = fres * 0.5 + scan * 0.09 + pulse * 0.3;
+  float alpha = fres * 0.5 + scan * 0.09 + pulse * 0.3 + vRipple * 0.18;
   alpha *= uOpacity;
 
   // glitch tints the whole shell toward cyan and lifts alpha
@@ -217,7 +229,9 @@ void main() {
 export const gridFragment = /* glsl */ `
 uniform float uTime;
 uniform vec3  uColor;
+uniform vec3  uSweepColor;
 uniform float uOpacity;
+uniform float uAlert;
 
 varying vec2 vUv;
 varying vec3 vPos;
@@ -235,11 +249,31 @@ void main() {
   float fine  = gridLine(uv, 60.0, 1.0) * 0.35;
   float major = gridLine(uv, 12.0, 1.2) * 0.8;
 
-  // radial fade so the plane never shows an edge
-  float fade = 1.0 - smoothstep(0.15, 0.5, length(vUv - 0.5));
+  vec2  c   = vUv - 0.5;
+  float dist = length(c);
 
-  float a = (fine + major) * fade * uOpacity;
+  // radial fade so the plane never shows an edge
+  float fade = 1.0 - smoothstep(0.15, 0.5, dist);
+
+  // ── radar sweep: a rotating arm, brightest at its leading edge, with a
+  //    decaying tail behind it — the same read as a console radar display
+  float ang    = atan(c.y, c.x);
+  float sweep  = uTime * 0.55;
+  float delta  = mod(sweep - ang, 6.28318);
+  float arm    = exp(-delta * 2.6);            // tail falls off behind the arm
+  float radar  = arm * smoothstep(0.5, 0.05, dist);
+
+  // ── ping rings expanding out of the centre on the same period
+  float ringT  = fract(uTime * 0.0875);
+  float ring   = smoothstep(0.012, 0.0, abs(dist - ringT * 0.5)) * (1.0 - ringT);
+
+  float grid = (fine + major) * fade;
+  float a = (grid + radar * 0.5 + ring * 0.6) * uOpacity;
   if (a < 0.004) discard;
-  gl_FragColor = vec4(uColor, a);
+
+  // the sweep carries its own colour so an alert can turn the floor red
+  vec3 col = mix(uColor, uSweepColor, clamp(radar + ring + uAlert * 0.5, 0.0, 1.0));
+  gl_FragColor = vec4(col, a);
 }
 `;
+

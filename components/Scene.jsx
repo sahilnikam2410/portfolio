@@ -59,6 +59,7 @@ const HoloMaterial = shaderMaterial(
     uGlitch: 0,
     uMorph: 0,
     uOpacity: 1,
+    uPointer: new THREE.Vector3(0, 0, 1),
     uColorA: ACID.clone(),
     uColorB: CYAN.clone(),
   },
@@ -80,7 +81,13 @@ const FieldMaterial = shaderMaterial(
 );
 
 const GridMaterial = shaderMaterial(
-  { uTime: 0, uOpacity: 1, uColor: ACID.clone() },
+  {
+    uTime: 0,
+    uOpacity: 1,
+    uAlert: 0,
+    uColor: ACID.clone(),
+    uSweepColor: CYAN.clone(),
+  },
   gridVertex,
   gridFragment
 );
@@ -137,6 +144,8 @@ function arcPoints(a, b, radius, segments = 44) {
 function HoloGlobe({ radius = 1.75 }) {
   const mat = useRef(null);
   const inner = useRef(null);
+  const { pointer, camera } = useThree();
+  const aim = useMemo(() => new THREE.Vector3(), []);
   const geo = useMemo(() => new THREE.IcosahedronGeometry(radius, 14), [radius]);
   const wire = useMemo(
     () => new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(radius * 1.02, 3)),
@@ -173,6 +182,11 @@ function HoloGlobe({ radius = 1.75 }) {
       );
       mat.current.uColorA.lerp(alert ? RED : state.a, 1 - Math.pow(0.02, delta));
       mat.current.uColorB.lerp(alert ? AMBER : state.b, 1 - Math.pow(0.02, delta));
+
+      // where the pointer is aiming, in the globe's own space — drives the
+      // ripple, so the hologram reacts to the cursor without a raycast
+      aim.set(pointer.x, pointer.y, 0.5).unproject(camera).sub(camera.position).normalize();
+      mat.current.uPointer.lerp(aim, 1 - Math.pow(0.005, delta));
     }
     if (inner.current) {
       inner.current.rotation.y += delta * 0.05;
@@ -377,11 +391,13 @@ function Field({ count = 26000 }) {
 
 function Grid() {
   const mat = useRef(null);
-  useFrame(({ clock }) => {
-    if (mat.current) {
-      mat.current.uTime = clock.elapsedTime;
-      mat.current.uOpacity = 0.5 + useSceneStore.getState().progress * 0.5;
-    }
+  useFrame(({ clock }, delta) => {
+    if (!mat.current) return;
+    const { progress, alert } = useSceneStore.getState();
+    mat.current.uTime = clock.elapsedTime;
+    mat.current.uOpacity = 0.5 + progress * 0.5;
+    mat.current.uAlert = THREE.MathUtils.damp(mat.current.uAlert, alert ? 1 : 0, 4, delta);
+    mat.current.uSweepColor.lerp(alert ? RED : CYAN, 1 - Math.pow(0.02, delta));
   });
 
   return (

@@ -28,6 +28,8 @@ export default function AlertFlash() {
             className="pointer-events-none fixed inset-0 z-[62] bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(255,95,87,0.22)_100%)]"
           />,
 
+          /* bottom-right: never covers the heading or the table it describes */
+
           <motion.div
             key="banner"
             initial={{ x: 40, opacity: 0 }}
@@ -36,7 +38,6 @@ export default function AlertFlash() {
             transition={{ type: 'spring', stiffness: 260, damping: 24 }}
             data-print="hide"
             role="status"
-            // bottom-right: never covers the heading or the table it describes
             className="fixed bottom-6 right-6 z-[66] w-[min(92vw,420px)] border border-[rgba(255,95,87,0.5)] bg-[rgba(10,4,5,0.94)] shadow-[0_0_50px_rgba(255,95,87,0.18)]"
           >
             <div className="flex items-center gap-3 border-b border-[rgba(255,95,87,0.3)] px-4 py-2 text-[11px]">
