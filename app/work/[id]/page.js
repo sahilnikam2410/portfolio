@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { projects, caseStudies, identity, ethics } from '@/data/content';
 import ReadingProgress from '@/components/ReadingProgress';
+import { DIAGRAMS } from '@/components/Diagrams';
 
 export function generateStaticParams() {
   return projects.map((p) => ({ id: p.id }));
@@ -132,16 +133,35 @@ export default async function CaseStudy({ params }) {
             </Block>
           )}
 
+          {study?.diagrams?.length > 0 && (
+            <Block label="how it works">
+              <div className="space-y-4">
+                {study.diagrams.map((key) => {
+                  const Diagram = DIAGRAMS[key];
+                  return Diagram ? <Diagram key={key} /> : null;
+                })}
+              </div>
+            </Block>
+          )}
+
           {study?.rules?.length > 0 && (
             <Block label="detection logic">
               <div className="space-y-6">
                 {study.rules.map((r) => (
                   <figure key={r.title}>
-                    <figcaption className="mb-2 text-[12px] text-[var(--color-cyan)]">
+                    <figcaption className="mb-2 flex flex-wrap items-center gap-2 text-[12px] text-[var(--color-cyan)]">
                       {r.title}
-                      {r.lang && (
-                        <span className="ml-2 text-[var(--color-dim)]">· {r.lang}</span>
-                      )}
+                      {r.lang && <span className="text-[var(--color-dim)]">· {r.lang}</span>}
+                      {/* never let a written-but-unrun rule read as proven */}
+                      <span
+                        className={`border px-2 py-0.5 text-[10px] ${
+                          r.status === 'validated'
+                            ? 'border-[rgba(53,255,158,0.4)] text-[var(--color-acid)]'
+                            : 'border-[rgba(255,209,102,0.4)] text-[#ffd166]'
+                        }`}
+                      >
+                        {r.status === 'validated' ? 'validated in lab' : 'draft — not yet run'}
+                      </span>
                     </figcaption>
                     <pre className="overflow-x-auto border border-[rgba(53,255,158,0.14)] bg-[rgba(4,7,10,0.85)] p-4 text-[12px] leading-relaxed text-[var(--color-bone)]">
                       <code>{r.code}</code>
