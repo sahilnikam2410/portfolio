@@ -29,10 +29,12 @@ export default function Backdrop() {
       // during the incident the scene is the point — pull the scrim back
       // so the red globe and shockwaves are actually visible
       if (layer.current) {
-        layer.current.style.opacity = String(alert ? 0.95 : 1 - past * 0.62);
+        layer.current.style.opacity = String(alert ? 0.8 : 1 - past * 0.62);
       }
       if (scrim.current) {
-        scrim.current.style.opacity = String(alert ? 0.3 : 0.18 + past * 0.62);
+        // enough of a pull-back to show the red globe, not so much that the
+        // heading it sits behind stops being readable
+        scrim.current.style.opacity = String(alert ? 0.55 : 0.18 + past * 0.62);
       }
     };
     raf = requestAnimationFrame(loop);

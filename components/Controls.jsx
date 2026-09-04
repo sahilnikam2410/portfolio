@@ -14,6 +14,7 @@ const SHORTCUTS = [
   { keys: ['G'], what: 'bottom of page' },
   { keys: ['/'], what: 'focus the shell' },
   { keys: ['q'], what: 'cycle scene quality — full · lite · off' },
+  { keys: ['r'], what: 'recruiter brief — one screen, no scrolling' },
   { keys: ['p'], what: 'print / save as PDF' },
   { keys: ['?'], what: 'this panel' },
   { keys: ['esc'], what: 'close' },

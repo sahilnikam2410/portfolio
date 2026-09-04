@@ -1,15 +1,34 @@
 'use client';
 
-import { skills, certs } from '@/data/content';
+import { skills, certs, coverage, projects } from '@/data/content';
 import { Section, Panel, Reveal } from './ui';
+import { useSceneStore } from './sceneStore';
+import { coverageMatches, projectMatches } from '@/lib/match';
 
 export default function Skills() {
+  const focusTool = useSceneStore((s) => s.focusTool);
+  const setFocusTool = useSceneStore((s) => s.setFocusTool);
+
+  // a tool is only worth clicking if something on the page actually proves it
+  const evidenceFor = (tool) =>
+    coverage.filter((c) => coverageMatches(c, tool)).length +
+    projects.filter((p) => projectMatches(p, tool)).length;
+
+  const pick = (tool) => () => {
+    const next = focusTool === tool ? null : tool;
+    setFocusTool(next);
+    if (!next) return;
+    const el = document.getElementById('coverage');
+    if (window.__lenis && el) window.__lenis.scrollTo(el, { offset: -80 });
+    else el?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <Section
       id="skills"
       index="02"
       title="toolchain"
-      subtitle="Grouped by where the evidence comes from — certification, internship, or lab. No self-scored percentages."
+      subtitle="Grouped by where the evidence comes from — certification, internship, or lab. No self-scored percentages. Anything with a number beside it is clickable: it filters the detection coverage below to the work that proves it."
     >
       <div className="grid gap-5 md:grid-cols-3">
         {skills.map((g, gi) => (
@@ -24,14 +43,33 @@ export default function Skills() {
               </div>
 
               <ul className="mt-5 flex flex-wrap gap-1.5">
-                {g.items.map((s) => (
-                  <li
-                    key={s}
-                    className="border border-[rgba(53,255,158,0.16)] px-2 py-1 text-[11px] text-[var(--color-bone)] transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)]"
-                  >
-                    {s}
-                  </li>
-                ))}
+                {g.items.map((s) => {
+                  const n = evidenceFor(s);
+                  const active = focusTool === s;
+                  return (
+                    <li key={s}>
+                      {n > 0 ? (
+                        <button
+                          onClick={pick(s)}
+                          data-cursor={active ? 'clear' : 'evidence'}
+                          title={`${n} piece${n === 1 ? '' : 's'} of evidence on this page`}
+                          className={`border px-2 py-1 text-[11px] transition-colors ${
+                            active
+                              ? 'border-[var(--color-acid)] bg-[rgba(53,255,158,0.12)] text-[var(--color-acid)]'
+                              : 'border-[rgba(53,255,158,0.16)] text-[var(--color-bone)] hover:border-[var(--color-acid)] hover:text-[var(--color-acid)]'
+                          }`}
+                        >
+                          {s}
+                          <span className="ml-1.5 text-[var(--color-dim)]">{n}</span>
+                        </button>
+                      ) : (
+                        <span className="inline-block border border-[rgba(53,255,158,0.08)] px-2 py-1 text-[11px] text-[var(--color-dim)]">
+                          {s}
+                        </span>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </Panel>
           </Reveal>

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { projects, caseStudies, identity, ethics } from '@/data/content';
+import ReadingProgress from '@/components/ReadingProgress';
 
 export function generateStaticParams() {
   return projects.map((p) => ({ id: p.id }));
@@ -40,8 +41,14 @@ export default async function CaseStudy({ params }) {
 
   const study = caseStudies[id];
 
+  // wrap-around neighbours so a case study is never a dead end
+  const index = projects.findIndex((p) => p.id === id);
+  const prev = projects[(index - 1 + projects.length) % projects.length];
+  const next = projects[(index + 1) % projects.length];
+
   return (
     <main className="relative min-h-screen px-5 pb-24 pt-24">
+      <ReadingProgress />
       <div className="grid-lines pointer-events-none fixed inset-0 -z-10 opacity-20" />
 
       <article className="mx-auto max-w-3xl">
@@ -215,6 +222,28 @@ export default async function CaseStudy({ params }) {
             ask me about this
           </a>
         </div>
+
+        {/* neighbours — never leave the reader at a dead end */}
+        <nav className="mt-14 grid gap-px border border-[rgba(53,255,158,0.14)] bg-[rgba(53,255,158,0.14)] sm:grid-cols-2">
+          <Link
+            href={`/work/${prev.id}`}
+            className="group bg-[rgba(4,7,10,0.92)] px-5 py-4 transition-colors hover:bg-[rgba(53,255,158,0.07)]"
+          >
+            <div className="text-[11px] text-[var(--color-dim)]">← previous</div>
+            <div className="mt-1 text-[14px] text-[var(--color-bone)] transition-colors group-hover:text-[var(--color-acid)]">
+              {prev.title}
+            </div>
+          </Link>
+          <Link
+            href={`/work/${next.id}`}
+            className="group bg-[rgba(4,7,10,0.92)] px-5 py-4 text-right transition-colors hover:bg-[rgba(53,255,158,0.07)]"
+          >
+            <div className="text-[11px] text-[var(--color-dim)]">next →</div>
+            <div className="mt-1 text-[14px] text-[var(--color-bone)] transition-colors group-hover:text-[var(--color-acid)]">
+              {next.title}
+            </div>
+          </Link>
+        </nav>
       </article>
     </main>
   );

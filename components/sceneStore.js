@@ -13,6 +13,7 @@ export const useSceneStore = create((set) => ({
   label: null,     // hovered 3D node id, mirrored into the HUD
   highlight: -1,   // coverage row index currently hovered in the DOM
   alert: false,    // fires the attack set-piece when coverage enters view
+  focusTool: null, // a tool clicked in the toolchain, filtering the evidence
   quality: 'auto', // auto | lite | off — user override, persisted
   booted: false,
   paletteOpen: false,
@@ -20,6 +21,7 @@ export const useSceneStore = create((set) => ({
   setProgress: (progress) => set({ progress }),
   setSection: (section) => set({ section }),
   setAlert: (alert) => set({ alert }),
+  setFocusTool: (focusTool) => set({ focusTool }),
   setMorph: (morph) => set({ morph }),
   setLabel: (label) => set({ label }),
   setHighlight: (highlight) => set({ highlight }),

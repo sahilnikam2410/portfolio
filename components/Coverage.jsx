@@ -1,8 +1,9 @@
 'use client';
 
-import { coverage } from '@/data/content';
+import { coverage, projects } from '@/data/content';
 import { Section, Reveal } from './ui';
 import { useSceneStore } from './sceneStore';
+import { coverageMatches, projectMatches } from '@/lib/match';
 
 const STATUS = {
   detected: {
@@ -59,6 +60,16 @@ export default function Coverage() {
     return acc;
   }, {});
 
+  const focusTool = useSceneStore((s) => s.focusTool);
+  const setFocusTool = useSceneStore((s) => s.setFocusTool);
+
+  // dim rather than remove: the reader keeps the full picture, and the
+  // filter shows what is *not* covered as clearly as what is
+  const dimmed = (r) => focusTool && !coverageMatches(r, focusTool);
+  const matchingProjects = focusTool
+    ? projects.filter((p) => projectMatches(p, focusTool))
+    : [];
+
   return (
     <Section
       id="coverage"
@@ -66,6 +77,28 @@ export default function Coverage() {
       title="detection coverage"
       subtitle="Techniques executed in an owned lab, mapped to MITRE ATT&CK, then hunted from the defender side. Where nothing fired, that is recorded as a gap and the rule that closed it."
     >
+      {/* active filter, driven from the toolchain above */}
+      {focusTool && (
+        <div className="mb-5 flex flex-wrap items-center gap-3 border border-[rgba(53,224,255,0.3)] bg-[rgba(53,224,255,0.06)] px-4 py-3">
+          <span className="text-[12px] text-[var(--color-cyan)]">
+            filtered to <span className="text-[var(--color-bone)]">{focusTool}</span>
+          </span>
+          <span className="text-[11px] text-[var(--color-dim)]">
+            {coverage.filter((r) => !dimmed(r)).length} technique
+            {coverage.filter((r) => !dimmed(r)).length === 1 ? '' : 's'}
+            {matchingProjects.length > 0 && (
+              <> · {matchingProjects.map((p) => p.title).join(', ')}</>
+            )}
+          </span>
+          <button
+            onClick={() => setFocusTool(null)}
+            className="ml-auto border border-[rgba(53,224,255,0.3)] px-2 py-0.5 text-[11px] text-[var(--color-cyan)] transition-colors hover:bg-[rgba(53,224,255,0.12)]"
+          >
+            clear
+          </button>
+        </div>
+      )}
+
       {/* summary strip */}
       <Reveal>
         <div className="mb-6 flex flex-wrap gap-px border border-[rgba(53,255,158,0.14)] bg-[rgba(53,255,158,0.14)]">
@@ -111,9 +144,9 @@ export default function Coverage() {
                         key={r.id}
                         onMouseEnter={enter(coverage.indexOf(r), r)}
                         onMouseLeave={leave}
-                        className={`cursor-default border px-1.5 py-1 text-[10px] leading-tight ${
+                        className={`cursor-default border px-1.5 py-1 text-[10px] leading-tight transition-opacity ${
                           STATUS[r.status].className
-                        }`}
+                        } ${dimmed(r) ? 'opacity-25' : ''}`}
                         title={`${r.id} — ${r.technique}`}
                       >
                         {r.technique}
@@ -147,7 +180,9 @@ export default function Coverage() {
                   key={r.id}
                   onMouseEnter={enter(i, r)}
                   onMouseLeave={leave}
-                  className="border-b border-[rgba(53,255,158,0.08)] transition-colors last:border-0 hover:bg-[rgba(53,255,158,0.04)]"
+                  className={`border-b border-[rgba(53,255,158,0.08)] transition-all last:border-0 hover:bg-[rgba(53,255,158,0.04)] ${
+                    dimmed(r) ? 'opacity-25' : ''
+                  }`}
                 >
                   <td className="whitespace-nowrap px-4 py-3 text-[var(--color-cyan)]">{r.id}</td>
                   <td className="px-4 py-3 text-[var(--color-bone)]">
@@ -173,7 +208,11 @@ export default function Coverage() {
       <div className="grid gap-3 lg:hidden">
         {coverage.map((r, i) => (
           <Reveal key={r.id} delay={i * 0.04}>
-            <div className="border border-[rgba(53,255,158,0.14)] bg-[rgba(8,13,18,0.72)] p-4">
+            <div
+              className={`border border-[rgba(53,255,158,0.14)] bg-[rgba(8,13,18,0.72)] p-4 transition-opacity ${
+                dimmed(r) ? 'opacity-25' : ''
+              }`}
+            >
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="text-[11px] text-[var(--color-cyan)]">

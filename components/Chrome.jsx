@@ -8,6 +8,7 @@ import Konami from './Konami';
 import Controls from './Controls';
 import SectionTracker from './SectionTracker';
 import AlertFlash from './AlertFlash';
+import RecruiterMode from './RecruiterMode';
 
 // browser-only extras
 const Preloader = dynamic(() => import('./Preloader'), { ssr: false });
@@ -26,6 +27,7 @@ export default function Chrome() {
       <Controls />
       <SectionTracker />
       <AlertFlash />
+      <RecruiterMode />
     </>
   );
 }

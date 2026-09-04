@@ -2,6 +2,7 @@
 
 import { identity, socials, resumes } from '@/data/content';
 import { Section, Panel, Reveal } from './ui';
+import CopyButton from './CopyButton';
 
 export default function Contact() {
   return (
@@ -18,12 +19,15 @@ export default function Contact() {
               <div className="text-[13px] text-[var(--color-dim)]">
                 <span className="text-[var(--color-acid)]">sahil@lab</span>:~$ ./connect --to you
               </div>
-              <a
-                href={`mailto:${identity.email}`}
-                className="glow mt-4 inline-block break-all text-2xl text-[var(--color-acid)] transition-opacity hover:opacity-80 sm:text-4xl"
-              >
-                {identity.email}
-              </a>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <a
+                  href={`mailto:${identity.email}`}
+                  className="glow inline-block break-all text-2xl text-[var(--color-acid)] transition-opacity hover:opacity-80 sm:text-4xl"
+                >
+                  {identity.email}
+                </a>
+                <CopyButton value={identity.email} />
+              </div>
               <p className="mt-5 max-w-md text-[14px] leading-relaxed text-[var(--color-dim)]">
                 Fastest reply is email — {identity.phone} works too. Include the role or the target
                 scope and I will tell you straight whether I am the right fit.
@@ -43,6 +47,7 @@ export default function Contact() {
                 >
                   {identity.phone}
                 </a>
+                <CopyButton value={identity.phone} label="copy number" className="self-center" />
               </div>
 
               {/* role-targeted CVs — recruiters grab the one that matches the req */}
