@@ -1,7 +1,8 @@
 name: lighthouse
 
-# Audits the deployed site rather than a local build, so the numbers are
-# the ones a visitor actually gets — CDN, compression and all.
+# Audits a production build served locally, not the deployed URL.
+# Vercel's bot protection serves a Security Checkpoint page to CI runners,
+# so auditing the live site measured the challenge page rather than the site.
 on:
   workflow_dispatch:
   schedule:
@@ -16,16 +17,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # give the push time to finish deploying before auditing it
-      - name: Wait for deployment
-        run: sleep 90
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Start server
+        run: |
+          npm start &
+          for i in $(seq 1 60); do
+            if curl -sf -o /dev/null http://localhost:3000; then
+              echo "server up"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "server never became reachable"
+          exit 1
 
       - name: Audit
         uses: treosh/lighthouse-ci-action@v12
         with:
           urls: |
-            https://hackwithsahil.vercel.app/
-            https://hackwithsahil.vercel.app/work/silent-operator
+            http://localhost:3000/
+            http://localhost:3000/work/silent-operator
           budgetPath: ./.github/lighthouse-budget.json
           uploadArtifacts: true
           temporaryPublicStorage: true
