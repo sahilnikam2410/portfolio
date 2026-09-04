@@ -173,58 +173,69 @@ export const projects = [
 ];
 
 /**
- * Detection coverage — attack run in an owned lab, then hunted from the
- * defender side. `status` is the honest outcome, not a marketing claim:
- *   detected  → the stack alerted on it as configured
- *   gap→rule  → nothing fired; a rule was written and re-tested
- *   research  → analysed and turned into detection logic, lab only
- * Edit these rows as your lab grows. Do not list anything you have not run.
+ * Detection coverage. Every row below traces to a line in one of the resumes —
+ * see the `source` field, which is not rendered, it exists so you can defend
+ * each claim in an interview.
+ *
+ *   detected → telemetry surfaced it and an alert fired
+ *   assessed → exercised offensively, findings documented with remediation
+ *   research → analysed in an authorised lab and turned into detection logic
+ *
+ * A fourth status, 'gap→rule' (nothing fired, rule written, re-tested), is
+ * supported by the UI but deliberately unused: your resume states gaps were
+ * found and closed, but not which technique. Fill those in yourself and the
+ * badge appears. Do not list anything you have not personally run.
  */
 export const coverage = [
   {
     id: 'T1110',
     technique: 'Brute Force',
     tactic: 'Credential Access',
-    run: 'Repeated failed SSH / RDP authentication against lab endpoints',
-    signal: 'Wazuh auth rules — active response auto-blocked the source',
+    run: 'Repeated failed authentication against monitored endpoints',
+    signal: 'Wazuh alerting, with active response configured to auto-contain the source',
     status: 'detected',
-    where: 'ESCOSS internship + lab',
+    where: 'ESCOSS internship',
+    source: 'Resume: "Configured active-response automation to auto-contain suspicious activity such as brute-force login attempts"',
   },
   {
     id: 'T1059',
     technique: 'Command & Scripting Interpreter',
     tactic: 'Execution',
-    run: 'PowerShell and shell execution during red-team simulation',
-    signal: 'Sysmon process-creation events correlated in Wazuh',
+    run: 'Process execution during controlled red-team simulation',
+    signal: 'Sysmon and system logs correlated in Wazuh; custom alert rules',
     status: 'detected',
     where: 'The Silent Operator',
+    source: 'Resume: Sysmon + system log ingestion, red-team techniques detected via log correlation and custom alert rules',
   },
   {
     id: 'T1046',
     technique: 'Network Service Discovery',
     tactic: 'Discovery',
     run: 'Nmap host discovery and service enumeration across the lab subnet',
-    signal: 'Honeypot capture + IDS alerting on scan patterns',
+    signal: 'Honeypot and network IDS capture, correlated into actionable alerts',
     status: 'detected',
     where: 'Protocol Honeypot',
+    source: 'Resume: IDS + honeypot capturing unauthorised access and reconnaissance traffic',
   },
   {
     id: 'T1190',
     technique: 'Exploit Public-Facing Application',
     tactic: 'Initial Access',
-    run: 'SQL injection against DVWA across all security levels',
-    signal: 'Web request patterns reviewed; remediation documented per finding',
-    status: 'gap→rule',
+    run: 'SQL injection against DVWA across security levels',
+    signal: 'Findings documented with remediation guidance per issue',
+    status: 'assessed',
     where: 'WAPT module',
+    source: 'Resume: WAPT methodology on DVWA, SQL injection, structured vulnerability reporting with remediation guidance',
   },
   {
     id: 'T1071.001',
     technique: 'Application Layer Protocol: Web',
     tactic: 'Command & Control',
-    run: 'Covert channel tunnelling data through public APIs',
-    signal: 'Outbound anomaly logic derived from observed traffic behaviour',
+    run: 'Covert channel tunnelling data through public APIs, in an authorised lab',
+    signal: 'Detection logic for anomalous outbound channels derived from the observed traffic',
     status: 'research',
     where: 'Protocol Cinema',
+    source: 'Resume: steganographic C2 over public APIs, TTPs translated into detection logic mapped to ATT&CK',
   },
   {
     id: 'T1566',
@@ -234,15 +245,17 @@ export const coverage = [
     signal: 'Converted into automated detection and classification logic',
     status: 'detected',
     where: 'Vrikaan',
+    source: 'Resume: analysed live phishing campaigns, converted attacker techniques into automated detection and classification logic',
   },
   {
-    id: 'T1562',
-    technique: 'Impair Defenses',
-    tactic: 'Defense Evasion',
-    run: 'Agent stop / log-clearing attempts on monitored endpoints',
-    signal: 'Agent-disconnect and event-log-cleared rules added after the gap',
-    status: 'gap→rule',
-    where: 'Multi-Endpoint Lab',
+    id: 'T1592',
+    technique: 'Gather Victim Host Information',
+    tactic: 'Reconnaissance',
+    run: 'Security configuration assessment across Windows and Linux endpoints',
+    signal: 'Misconfigurations and hardening gaps identified, remediation documented',
+    status: 'assessed',
+    where: 'ESCOSS internship',
+    source: 'Resume: "Ran security configuration assessments across Windows and Linux endpoints, identifying misconfigurations and hardening gaps"',
   },
 ];
 
@@ -281,8 +294,21 @@ export const timeline = [
 /**
  * Long-form case studies, rendered at /work/<id>.
  * Every line below is drawn from the resumes — do not add anything you
- * cannot defend in an interview. `artifacts` renders a screenshot strip:
- * drop redacted images in /public/artifacts and reference them here.
+ * cannot defend in an interview.
+ *
+ * Two optional fields per study, both empty until you fill them:
+ *
+ *   artifacts: [{ src: '/artifacts/wazuh-agents.png', alt: 'Wazuh agent fleet' }]
+ *              → screenshot strip. Redact hostnames, public IPs, agent keys.
+ *
+ *   rules: [{ title: 'Brute force → active response',
+ *             lang: 'xml',
+ *             code: '<rule id="100210" level="10">…</rule>',
+ *             note: 'Fires after 6 failures in 120s; response blocks the srcip.' }]
+ *              → the actual rules you wrote. One real rule beats three
+ *                paragraphs; it is the single strongest thing on this site.
+ *
+ * A dev-only reminder renders on any study missing both. It never ships.
  */
 export const caseStudies = {
   'silent-operator': {

@@ -9,15 +9,36 @@ const STATUS = {
     label: 'detected',
     className: 'text-[var(--color-acid)] border-[rgba(53,255,158,0.35)]',
   },
+  assessed: {
+    label: 'assessed',
+    className: 'text-[#ffd166] border-[rgba(255,209,102,0.35)]',
+  },
   'gap→rule': {
     label: 'gap → rule',
-    className: 'text-[#ffd166] border-[rgba(255,209,102,0.35)]',
+    className: 'text-[#ff9f6b] border-[rgba(255,159,107,0.35)]',
   },
   research: {
     label: 'research',
     className: 'text-[var(--color-cyan)] border-[rgba(53,224,255,0.35)]',
   },
 };
+
+/** Enterprise tactics in kill-chain order — empty columns are honest gaps. */
+const TACTICS = [
+  'Reconnaissance',
+  'Initial Access',
+  'Execution',
+  'Persistence',
+  'Privilege Escalation',
+  'Defense Evasion',
+  'Credential Access',
+  'Discovery',
+  'Lateral Movement',
+  'Collection',
+  'Command & Control',
+  'Exfiltration',
+  'Impact',
+];
 
 export default function Coverage() {
   const setHighlight = useSceneStore((s) => s.setHighlight);
@@ -52,12 +73,57 @@ export default function Coverage() {
             <div className="text-xl text-[var(--color-acid)]">{coverage.length}</div>
             <div className="text-[11px] text-[var(--color-dim)]">techniques exercised</div>
           </div>
-          {Object.entries(STATUS).map(([key, s]) => (
-            <div key={key} className="flex-1 bg-[rgba(4,7,10,0.9)] px-4 py-3">
-              <div className={`text-xl ${s.className.split(' ')[0]}`}>{counts[key] ?? 0}</div>
-              <div className="text-[11px] text-[var(--color-dim)]">{s.label}</div>
-            </div>
-          ))}
+          {Object.entries(STATUS)
+            .filter(([key]) => counts[key])
+            .map(([key, s]) => (
+              <div key={key} className="flex-1 bg-[rgba(4,7,10,0.9)] px-4 py-3">
+                <div className={`text-xl ${s.className.split(' ')[0]}`}>{counts[key]}</div>
+                <div className="text-[11px] text-[var(--color-dim)]">{s.label}</div>
+              </div>
+            ))}
+        </div>
+      </Reveal>
+
+      {/* ATT&CK matrix — one column per tactic, cells are the techniques covered */}
+      <Reveal delay={0.04}>
+        <div className="mb-6 overflow-x-auto border border-[rgba(53,255,158,0.14)] p-4">
+          <div className="mb-3 text-[11px] uppercase tracking-[0.2em] text-[var(--color-dim)]">
+            ATT&amp;CK matrix — covered tactics
+          </div>
+          <div className="flex min-w-[720px] gap-px bg-[rgba(53,255,158,0.14)]">
+            {TACTICS.map((tactic) => {
+              const rows = coverage.filter((r) => r.tactic === tactic);
+              return (
+                <div key={tactic} className="flex-1 bg-[rgba(4,7,10,0.92)] p-2">
+                  <div
+                    className={`mb-2 text-[10px] leading-tight ${
+                      rows.length ? 'text-[var(--color-cyan)]' : 'text-[rgba(107,132,121,0.45)]'
+                    }`}
+                  >
+                    {tactic}
+                  </div>
+                  <div className="space-y-1">
+                    {rows.length === 0 && (
+                      <div className="h-8 border border-dashed border-[rgba(53,255,158,0.08)]" />
+                    )}
+                    {rows.map((r) => (
+                      <div
+                        key={r.id}
+                        onMouseEnter={enter(coverage.indexOf(r), r)}
+                        onMouseLeave={leave}
+                        className={`cursor-default border px-1.5 py-1 text-[10px] leading-tight ${
+                          STATUS[r.status].className
+                        }`}
+                        title={`${r.id} — ${r.technique}`}
+                      >
+                        {r.technique}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </Reveal>
 

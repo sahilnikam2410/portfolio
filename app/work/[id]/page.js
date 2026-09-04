@@ -125,6 +125,31 @@ export default async function CaseStudy({ params }) {
             </Block>
           )}
 
+          {study?.rules?.length > 0 && (
+            <Block label="detection logic">
+              <div className="space-y-6">
+                {study.rules.map((r) => (
+                  <figure key={r.title}>
+                    <figcaption className="mb-2 text-[12px] text-[var(--color-cyan)]">
+                      {r.title}
+                      {r.lang && (
+                        <span className="ml-2 text-[var(--color-dim)]">· {r.lang}</span>
+                      )}
+                    </figcaption>
+                    <pre className="overflow-x-auto border border-[rgba(53,255,158,0.14)] bg-[rgba(4,7,10,0.85)] p-4 text-[12px] leading-relaxed text-[var(--color-bone)]">
+                      <code>{r.code}</code>
+                    </pre>
+                    {r.note && (
+                      <p className="mt-2 text-[12px] leading-relaxed text-[var(--color-dim)]">
+                        {r.note}
+                      </p>
+                    )}
+                  </figure>
+                ))}
+              </div>
+            </Block>
+          )}
+
           {study?.artifacts?.length > 0 && (
             <Block label="artifacts">
               <div className="grid gap-4 sm:grid-cols-2">
@@ -151,6 +176,21 @@ export default async function CaseStudy({ params }) {
               ))}
             </ul>
           </Block>
+
+          {/* dev-only nudge: never rendered in production */}
+          {process.env.NODE_ENV !== 'production' &&
+            !study?.artifacts?.length &&
+            !study?.rules?.length && (
+              <Block label="todo — dev only">
+                <p className="text-[13px] leading-relaxed text-[#ffd166]">
+                  No artifacts or detection logic on this case study yet. Add screenshots to{' '}
+                  <code>public/artifacts</code> and list them in{' '}
+                  <code>caseStudies[&apos;{id}&apos;].artifacts</code>, and paste real rules into{' '}
+                  <code>caseStudies[&apos;{id}&apos;].rules</code>. This block is hidden in
+                  production.
+                </p>
+              </Block>
+            )}
 
           <Block label="scope">
             <p className="text-[13px] leading-relaxed text-[var(--color-dim)]">{ethics.body}</p>
