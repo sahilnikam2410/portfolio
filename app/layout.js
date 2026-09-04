@@ -49,6 +49,8 @@ export const viewport = {
   themeColor: '#04070a',
 };
 
+const onVercel = Boolean(process.env.NEXT_PUBLIC_VERCEL_ENV);
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={mono.variable}>
@@ -63,10 +65,12 @@ export default function RootLayout({ children }) {
         </a>
         {children}
         <JsonLd />
-        {/* Only on Vercel: elsewhere the insights script 404s and trips CSP,
-            leaving a console error for anyone who opens devtools */}
-        {process.env.VERCEL && <Analytics />}
-        {process.env.VERCEL && <SpeedInsights />}
+        {/* Gate on NEXT_PUBLIC_VERCEL_ENV, which Vercel injects into the
+            client bundle. process.env.VERCEL is not inlined at build time here,
+            so gating on it silently disabled both in production. Off locally,
+            where the insights script would 404 and trip the CSP. */}
+        {onVercel && <Analytics />}
+        {onVercel && <SpeedInsights />}
       </body>
     </html>
   );
