@@ -44,7 +44,13 @@ sequence all read from it.
   pointer parallax weighted by depth, scroll pushes the field past the camera.
 - 90 instanced nodes on the sphere with per-instance hover (reported to the HUD),
   10 dashed traffic arcs with a packet travelling along each curve.
-- Shader ground grid with `fwidth`-based line AA and radial fade.
+- Shader ground grid with `fwidth`-based line AA and radial fade, plus a
+  rotating radar arm with a decay tail and ping rings expanding from centre.
+- Two counter-rotating instrument rings with tick marks, five probes on tilted
+  orbits, a 90-shard wireframe debris belt, and a scan sheet that travels down
+  through the globe like a CT slice.
+- The globe ripples where the pointer aims, from the unprojected pointer
+  direction rather than a raycast.
 - Scroll-driven camera: six waypoints interpolated by document progress, damped,
   with pointer parallax layered on top.
 - Post: bloom → chromatic aberration → scanline → noise → vignette.
