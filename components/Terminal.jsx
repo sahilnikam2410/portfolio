@@ -312,6 +312,8 @@ export default function Terminal() {
 
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
+  const demoDone = useRef(false);
+  const userTookOver = useRef(false);
 
   const clear = useCallback(() => setLines([]), []);
   const openLink = useCallback((href) => {
@@ -374,6 +376,7 @@ export default function Terminal() {
   }, [input, shell, cwd, fs, prompt]);
 
   const onKeyDown = (e) => {
+    userTookOver.current = true; // the demo yields the moment anyone types
     if (e.key === 'Enter') {
       run(input);
       setInput('');
@@ -407,6 +410,65 @@ export default function Terminal() {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [lines]);
 
+  /**
+   * Self-demo. An empty terminal is a dead box that most visitors will never
+   * type into, so the first time it scrolls into view it runs two commands
+   * itself — proving it is a real shell before asking anyone to use it.
+   * Stops the moment the visitor takes over.
+   */
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || demoDone.current) return;
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const timers = [];
+
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting || demoDone.current) return;
+        demoDone.current = true;
+        obs.disconnect();
+
+        if (reduce) {
+          run('whoami');
+          return;
+        }
+
+        const script = ['whoami', 'coverage'];
+        let typed = '';
+
+        const typeCommand = (cmd, startDelay) => {
+          for (let i = 1; i <= cmd.length; i++) {
+            timers.push(
+              setTimeout(() => {
+                if (userTookOver.current) return;
+                typed = cmd.slice(0, i);
+                setInput(typed);
+              }, startDelay + i * 55)
+            );
+          }
+          timers.push(
+            setTimeout(() => {
+              if (userTookOver.current) return;
+              setInput('');
+              run(cmd);
+            }, startDelay + cmd.length * 55 + 320)
+          );
+        };
+
+        typeCommand(script[0], 700);
+        typeCommand(script[1], 700 + script[0].length * 55 + 1500);
+      },
+      { threshold: 0.35 }
+    );
+
+    obs.observe(el);
+    return () => {
+      obs.disconnect();
+      timers.forEach(clearTimeout);
+    };
+  }, [run]);
+
   return (
     <Section
       id="shell"
@@ -432,6 +494,7 @@ export default function Terminal() {
                 <button
                   key={c}
                   onClick={() => {
+                    userTookOver.current = true;
                     run(c);
                     inputRef.current?.focus();
                   }}
@@ -475,12 +538,15 @@ export default function Terminal() {
                 onKeyDown={onKeyDown}
                 onFocus={(e) => {
                   setFocused(true);
-                  // on phones the soft keyboard covers the panel — pull it up
+                  // on phones the soft keyboard covers the panel — pull it up.
+                  // Lenis owns scrolling; a native scrollIntoView gets fought
+                  // by its rAF loop and silently does nothing.
                   if (window.innerWidth < 640) {
-                    setTimeout(
-                      () => e.target.scrollIntoView({ block: 'center', behavior: 'smooth' }),
-                      250
-                    );
+                    const el = e.target;
+                    setTimeout(() => {
+                      if (window.__lenis) window.__lenis.scrollTo(el, { offset: -120 });
+                      else el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                    }, 250);
                   }
                 }}
                 onBlur={() => setFocused(false)}
