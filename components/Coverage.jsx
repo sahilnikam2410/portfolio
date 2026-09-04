@@ -75,7 +75,7 @@ export default function Coverage() {
       id="coverage"
       index="04"
       title="detection coverage"
-      subtitle="Techniques executed in an owned lab, mapped to MITRE ATT&CK, then hunted from the defender side. Where nothing fired, that is recorded as a gap and the rule that closed it."
+      subtitle="Techniques run in an owned lab or observed in an authorised environment, mapped to MITRE ATT&CK, then hunted from the defender side. Where nothing fired, that is recorded as a gap and the rule that closed it."
     >
       {/* active filter, driven from the toolchain above */}
       {focusTool && (

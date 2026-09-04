@@ -247,16 +247,6 @@ export const coverage = [
     where: 'Vrikaan',
     source: 'Resume: analysed live phishing campaigns, converted attacker techniques into automated detection and classification logic',
   },
-  {
-    id: 'T1592',
-    technique: 'Gather Victim Host Information',
-    tactic: 'Reconnaissance',
-    run: 'Security configuration assessment across Windows and Linux endpoints',
-    signal: 'Misconfigurations and hardening gaps identified, remediation documented',
-    status: 'assessed',
-    where: 'ESCOSS internship',
-    source: 'Resume: "Ran security configuration assessments across Windows and Linux endpoints, identifying misconfigurations and hardening gaps"',
-  },
 ];
 
 export const certs = [
