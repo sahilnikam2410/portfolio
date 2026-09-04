@@ -2,6 +2,7 @@
 
 import { identity, socials, resumes } from '@/data/content';
 import { Section, Panel, Reveal } from './ui';
+import { track } from '@vercel/analytics';
 import CopyButton from './CopyButton';
 
 export default function Contact() {
@@ -63,6 +64,7 @@ export default function Contact() {
                         target="_blank"
                         rel="noreferrer"
                         data-cursor="pdf"
+                        onClick={() => track('resume_download', { role: r.role })}
                         className="flex h-full flex-col justify-between gap-1 bg-[rgba(4,7,10,0.92)] px-4 py-3 transition-colors hover:bg-[rgba(53,255,158,0.08)]"
                       >
                         <span className="text-[13px] text-[var(--color-bone)]">{r.role}</span>

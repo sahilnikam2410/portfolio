@@ -11,6 +11,7 @@ import {
   ethics,
   resumes,
 } from '@/data/content';
+import { track } from '@vercel/analytics';
 import { Section, Panel, Reveal } from './ui';
 
 /* ── fake filesystem, built from the real content ───────────── */
@@ -371,6 +372,10 @@ export default function Terminal() {
 
       const [name, ...args] = trimmed.split(/\s+/);
       const fn = shell[name];
+
+      // which commands people actually try is the only signal that says
+      // whether the shell is a gimmick or the thing they came for
+      track('shell_command', { command: name, known: Boolean(fn) });
 
       if (!fn) {
         setLines((prev) => [

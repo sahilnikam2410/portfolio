@@ -1,4 +1,5 @@
 import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { identity } from '@/data/content';
@@ -52,11 +53,20 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={mono.variable}>
       <body style={{ fontFamily: 'var(--font-jetbrains), ui-monospace, monospace' }}>
+        {/* first tab stop: keyboard users should not have to walk the whole
+            nav and a WebGL canvas to reach the content */}
+        <a
+          href="#about"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[95] focus:border focus:border-[var(--color-acid)] focus:bg-[var(--color-void)] focus:px-4 focus:py-2 focus:text-sm focus:text-[var(--color-acid)]"
+        >
+          skip to content
+        </a>
         {children}
         <JsonLd />
         {/* Only on Vercel: elsewhere the insights script 404s and trips CSP,
             leaving a console error for anyone who opens devtools */}
         {process.env.VERCEL && <Analytics />}
+        {process.env.VERCEL && <SpeedInsights />}
       </body>
     </html>
   );

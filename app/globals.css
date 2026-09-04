@@ -223,6 +223,41 @@ body::after {
   }
 }
 
+/* ── contrast modes ──────────────────────────────────────────
+   Windows High Contrast and prefers-contrast users get a plainer,
+   higher-contrast page: decorative layers off, borders solid.
+   ──────────────────────────────────────────────────────────── */
+@media (prefers-contrast: more) {
+  body::after,
+  canvas,
+  .grid-lines {
+    display: none !important;
+  }
+  :root {
+    --color-dim: #b9d6c8;
+    --color-bone: #ffffff;
+  }
+}
+
+@media (forced-colors: active) {
+  body::after,
+  canvas,
+  .grid-lines {
+    display: none !important;
+  }
+  .glow {
+    text-shadow: none;
+  }
+  .ghost {
+    -webkit-text-stroke: 0;
+    color: CanvasText;
+  }
+  .index-numeral {
+    -webkit-text-stroke: 0;
+    color: CanvasText;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .marquee,
   .flicker,

@@ -9,6 +9,7 @@ import {
   shaderMaterial,
   Environment,
   Lightformer,
+  MeshReflectorMaterial,
 } from '@react-three/drei';
 import {
   EffectComposer,
@@ -20,6 +21,7 @@ import {
   SMAA,
   ToneMapping,
   HueSaturation,
+  N8AO,
 } from '@react-three/postprocessing';
 import { BlendFunction, ToneMappingMode } from 'postprocessing';
 import * as THREE from 'three';
@@ -843,9 +845,16 @@ function Rig({ children }) {
     const a = WAYPOINTS[i];
     const b = WAYPOINTS[i + 1];
 
+    // handheld micro-drift: a perfectly still camera is the clearest tell
+    // that a scene is rendered rather than filmed. Folded into the set()
+    // because target is hook-owned and must not be mutated in place.
+    const st = performance.now() * 0.001;
+    const driftX = Math.sin(st * 0.7) * 0.035 + Math.sin(st * 1.9) * 0.012;
+    const driftY = Math.cos(st * 0.9) * 0.028 + Math.cos(st * 2.3) * 0.009;
+
     target.set(
-      THREE.MathUtils.lerp(a.pos[0], b.pos[0], t) + pointer.x * 0.55,
-      THREE.MathUtils.lerp(a.pos[1], b.pos[1], t) - pointer.y * 0.35,
+      THREE.MathUtils.lerp(a.pos[0], b.pos[0], t) + pointer.x * 0.55 + driftX,
+      THREE.MathUtils.lerp(a.pos[1], b.pos[1], t) - pointer.y * 0.35 + driftY,
       THREE.MathUtils.lerp(a.pos[2], b.pos[2], t)
     );
     look.set(
@@ -853,6 +862,7 @@ function Rig({ children }) {
       THREE.MathUtils.lerp(a.look[1], b.look[1], t),
       THREE.MathUtils.lerp(a.look[2], b.look[2], t)
     );
+
 
     camera.position.lerp(target, 1 - Math.pow(0.001, delta));
     current.lerp(look, 1 - Math.pow(0.001, delta));
@@ -1001,6 +1011,27 @@ export default function Scene() {
             <ScanPlane />
             {!lite && <Debris count={90} />}
             <Grid />
+            {!lite && (
+              /* mirror plate beneath the shader grid: the globe and probes
+                 get a soft reflection, which is the single cue that reads as
+                 an expensive render. Low res + blur keeps the extra pass cheap. */
+              <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -3.45, 0]}>
+                <planeGeometry args={[48, 48]} />
+                <MeshReflectorMaterial
+                  resolution={256}
+                  mixBlur={1}
+                  mixStrength={12}
+                  blur={[420, 100]}
+                  mirror={0.55}
+                  depthScale={0.9}
+                  minDepthThreshold={0.4}
+                  maxDepthThreshold={1.2}
+                  color="#04070a"
+                  metalness={0.85}
+                  roughness={0.9}
+                />
+              </mesh>
+            )}
           </Rig>
           <Field count={lite ? 4000 : 26000} />
 
@@ -1018,6 +1049,9 @@ export default function Scene() {
             </EffectComposer>
           ) : (
             <EffectComposer multisampling={0}>
+              {/* occlusion before bloom: creases and contact points darken,
+                  which is what stops additive geometry floating in space */}
+              <N8AO aoRadius={1.6} intensity={2.2} distanceFalloff={1} quality="performance" halfRes />
               <Bloom
                 intensity={0.75}
                 luminanceThreshold={0.22}

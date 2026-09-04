@@ -1,0 +1,31 @@
+name: lighthouse
+
+# Audits the deployed site rather than a local build, so the numbers are
+# the ones a visitor actually gets — CDN, compression and all.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1' # Monday morning
+  push:
+    branches: [main]
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # give the push time to finish deploying before auditing it
+      - name: Wait for deployment
+        run: sleep 90
+
+      - name: Audit
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          urls: |
+            https://hackwithsahil.vercel.app/
+            https://hackwithsahil.vercel.app/work/silent-operator
+          budgetPath: ./.github/lighthouse-budget.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true
