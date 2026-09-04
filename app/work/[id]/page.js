@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { projects, caseStudies, identity, ethics } from '@/data/content';
 import ReadingProgress from '@/components/ReadingProgress';
-import { DIAGRAMS } from '@/components/Diagrams';
+import Diagram from '@/components/Diagrams';
 
 export function generateStaticParams() {
   return projects.map((p) => ({ id: p.id }));
@@ -136,10 +136,9 @@ export default async function CaseStudy({ params }) {
           {study?.diagrams?.length > 0 && (
             <Block label="how it works">
               <div className="space-y-4">
-                {study.diagrams.map((key) => {
-                  const Diagram = DIAGRAMS[key];
-                  return Diagram ? <Diagram key={key} /> : null;
-                })}
+                {study.diagrams.map((name) => (
+                  <Diagram key={name} name={name} />
+                ))}
               </div>
             </Block>
           )}

@@ -172,8 +172,15 @@ export function AlertLifecycle() {
   );
 }
 
-export const DIAGRAMS = {
-  pipeline: DetectionPipeline,
-  loop: AttackLoop,
-  lifecycle: AlertLifecycle,
-};
+/**
+ * Single entry point. A server component cannot index a map of components
+ * exported from a client module — Next replaces those exports with client
+ * references, so the lookup yields nothing and the block renders empty.
+ * Selecting by name inside the client boundary avoids that entirely.
+ */
+export default function Diagram({ name }) {
+  if (name === 'pipeline') return <DetectionPipeline />;
+  if (name === 'loop') return <AttackLoop />;
+  if (name === 'lifecycle') return <AlertLifecycle />;
+  return null;
+}
