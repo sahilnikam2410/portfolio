@@ -471,6 +471,111 @@ function InstrumentRing({ radius, tilt, speed, ticks = 48, color = '#35e0ff', op
   );
 }
 
+/* ── inner core ──────────────────────────────────────────────── */
+
+/** A small pulsing body inside the shell, so the globe has an interior. */
+function Core({ radius = 0.55 }) {
+  const mesh = useRef(null);
+  const halo = useRef(null);
+
+  useFrame(({ clock }, delta) => {
+    const t = clock.elapsedTime;
+    const { alert } = useSceneStore.getState();
+
+    if (mesh.current) {
+      const beat = 1 + Math.sin(t * (alert ? 7 : 2.2)) * 0.12;
+      mesh.current.scale.setScalar(beat);
+      mesh.current.rotation.y += delta * 0.35;
+      mesh.current.rotation.x += delta * 0.12;
+      mesh.current.material.color.lerp(alert ? RED : ACID, 1 - Math.pow(0.02, delta));
+    }
+    if (halo.current) {
+      halo.current.scale.setScalar(1.5 + Math.sin(t * 1.6) * 0.18);
+      halo.current.material.opacity = 0.09 + Math.sin(t * 1.6) * 0.04;
+      halo.current.material.color.lerp(alert ? AMBER : CYAN, 1 - Math.pow(0.02, delta));
+    }
+  });
+
+  return (
+    <group>
+      <mesh ref={mesh}>
+        <icosahedronGeometry args={[radius, 1]} />
+        <meshBasicMaterial color={ACID} wireframe transparent opacity={0.55} toneMapped={false} />
+      </mesh>
+      <mesh ref={halo}>
+        <sphereGeometry args={[radius, 24, 24]} />
+        <meshBasicMaterial
+          color={CYAN}
+          transparent
+          opacity={0.1}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+/* ── uplink beams ────────────────────────────────────────────── */
+
+/** Beams running from the floor grid up to the globe, pulsing on a cycle. */
+function Uplinks({ count = 4 }) {
+  const refs = useRef([]);
+
+  const beams = useMemo(() => {
+    const rand = makeRandom(0x0b1e_a115);
+    return Array.from({ length: count }, (_, i) => {
+      const angle = rand() * Math.PI * 2;
+      const dist = 3.4 + rand() * 3.2;
+      return {
+        key: i,
+        x: Math.cos(angle) * dist,
+        z: Math.sin(angle) * dist,
+        phase: rand() * 6,
+        speed: 0.5 + rand() * 0.5,
+      };
+    });
+  }, [count]);
+
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    const alert = useSceneStore.getState().alert;
+
+    beams.forEach((b, i) => {
+      const m = refs.current[i];
+      if (!m) return;
+      // a travelling pulse: bright as it climbs, dark between cycles
+      const cycle = (t * b.speed + b.phase) % 3;
+      const on = cycle < 1.4;
+      m.visible = on;
+      if (!on) return;
+      const k = cycle / 1.4;
+      m.material.opacity = Math.sin(k * Math.PI) * (alert ? 0.5 : 0.28);
+      m.scale.y = 0.35 + k * 0.65;
+      m.position.y = -3.4 + (m.scale.y * 3.4) / 2;
+    });
+  });
+
+  return beams.map((b, i) => (
+    <mesh
+      key={b.key}
+      ref={(el) => (refs.current[i] = el)}
+      position={[b.x, -3.4, b.z]}
+    >
+      <cylinderGeometry args={[0.035, 0.12, 3.4, 8, 1, true]} />
+      <meshBasicMaterial
+        color={CYAN}
+        transparent
+        opacity={0.25}
+        depthWrite={false}
+        side={THREE.DoubleSide}
+        blending={THREE.AdditiveBlending}
+        toneMapped={false}
+      />
+    </mesh>
+  ));
+}
+
 /* ── orbiting probes ─────────────────────────────────────────── */
 
 /** Small bodies on tilted orbits — the globe reads as a system, not a ball. */
@@ -506,8 +611,67 @@ function Probes({ count = 5 }) {
         <octahedronGeometry args={[1, 0]} />
         <meshBasicMaterial color="#d6efe3" toneMapped={false} />
       </mesh>
+      <ProbeTrail radius={o.radius} speed={o.speed} phase={o.phase} />
     </group>
   ));
+}
+
+/**
+ * The arc a probe has just travelled, fading out behind it.
+ *
+ * The geometry is allocated once and only its position attribute is rewritten
+ * each frame — building a new BufferGeometry per frame would churn GPU buffers
+ * for sixty allocations a second.
+ */
+function ProbeTrail({ radius, speed, phase, segments = 26, sweep = 0.9 }) {
+  const lineRef = useRef(null);
+
+  // Buffers are declared to R3F and then written through the object ref each
+  // frame, never through the memo itself — a hook-owned value must not be
+  // mutated, and a ref must not be read while rendering.
+  const { positions, colors } = useMemo(() => {
+    const n = segments + 1;
+    const col = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) {
+      const k = 1 - i / segments; // tail fades toward the back
+      col[i * 3] = 0.21 * k;
+      col[i * 3 + 1] = 1.0 * k;
+      col[i * 3 + 2] = 0.62 * k;
+    }
+    return { positions: new Float32Array(n * 3), colors: col };
+  }, [segments]);
+
+  useFrame(({ clock }) => {
+    const geometry = lineRef.current?.geometry;
+    if (!geometry) return;
+
+    const head = clock.elapsedTime * speed + phase;
+    const pos = geometry.attributes.position;
+
+    for (let i = 0; i <= segments; i++) {
+      const a = head - (i / segments) * sweep;
+      pos.setXYZ(i, Math.cos(a) * radius, 0, Math.sin(a) * radius);
+    }
+    pos.needsUpdate = true;
+    geometry.computeBoundingSphere();
+  });
+
+  return (
+    <line ref={lineRef}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        <bufferAttribute attach="attributes-color" args={[colors, 3]} />
+      </bufferGeometry>
+      <lineBasicMaterial
+        vertexColors
+        transparent
+        opacity={0.55}
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        toneMapped={false}
+      />
+    </line>
+  );
 }
 
 /* ── debris belt ─────────────────────────────────────────────── */
@@ -793,7 +957,9 @@ export default function Scene() {
             <Shockwave count={lite ? 2 : 3} />
             <InstrumentRing radius={2.35} tilt={[Math.PI / 2.1, 0, 0.22]} speed={0.1} ticks={48} />
             <InstrumentRing radius={2.95} tilt={[Math.PI / 1.85, 0.5, -0.18]} speed={-0.07} ticks={32} color="#35ff9e" opacity={0.2} />
+            <Core />
             <Probes count={lite ? 3 : 5} />
+            <Uplinks count={lite ? 2 : 4} />
             <ScanPlane />
             {!lite && <Debris count={90} />}
             <Grid />
