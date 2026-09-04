@@ -31,6 +31,25 @@ import { useSceneStore } from './sceneStore';
 
 const ACID = new THREE.Color('#35ff9e');
 const CYAN = new THREE.Color('#35e0ff');
+const AMBER = new THREE.Color('#ffd166');
+const RED = new THREE.Color('#ff5f57');
+const VIOLET = new THREE.Color('#9b8cff');
+
+/**
+ * What the globe is doing in each section. The background is not wallpaper —
+ * it changes state as the reader moves, so scrolling feels like driving it.
+ *   morph — 0 is a sphere, 1 collapses toward a disc
+ *   spin  — group rotation speed
+ */
+const SECTION_STATE = {
+  top: { morph: 0, a: ACID, b: CYAN, spin: 0.045 },
+  about: { morph: 0.1, a: ACID, b: CYAN, spin: 0.05 },
+  skills: { morph: 0.25, a: CYAN, b: ACID, spin: 0.09 },
+  work: { morph: 0.15, a: ACID, b: VIOLET, spin: 0.06 },
+  coverage: { morph: 0.72, a: AMBER, b: RED, spin: 0.16 }, // flattens into a map
+  shell: { morph: 0.3, a: ACID, b: CYAN, spin: 0.03 },
+  contact: { morph: 0, a: CYAN, b: ACID, spin: 0.02 },
+};
 
 /* ── materials ───────────────────────────────────────────────── */
 
@@ -130,18 +149,30 @@ function HoloGlobe({ radius = 2.1 }) {
 
   useFrame(({ clock }, delta) => {
     const t = clock.elapsedTime;
+    const { section, alert, morph: manualMorph } = useSceneStore.getState();
+    const state = SECTION_STATE[section] ?? SECTION_STATE.top;
 
-    // fire a short glitch on an irregular timer, then decay it
+    // fire a short glitch on an irregular timer, then decay it.
+    // during an alert it fires constantly — the globe destabilises.
+    const interval = alert ? 0.25 + Math.random() * 0.4 : 3 + Math.random() * 6;
     if (t > nextGlitch.current) {
-      glitch.current = 1;
-      nextGlitch.current = t + 3 + Math.random() * 6;
+      glitch.current = alert ? 1.4 : 1;
+      nextGlitch.current = t + interval;
     }
-    glitch.current = THREE.MathUtils.damp(glitch.current, 0, 6, delta);
+    glitch.current = THREE.MathUtils.damp(glitch.current, 0, alert ? 3 : 6, delta);
 
     if (mat.current) {
       mat.current.uTime = t;
       mat.current.uGlitch = glitch.current;
-      mat.current.uMorph = useSceneStore.getState().morph;
+      // konami sets morph manually; otherwise the section drives it
+      mat.current.uMorph = THREE.MathUtils.damp(
+        mat.current.uMorph,
+        Math.max(state.morph, manualMorph),
+        2.5,
+        delta
+      );
+      mat.current.uColorA.lerp(alert ? RED : state.a, 1 - Math.pow(0.02, delta));
+      mat.current.uColorB.lerp(alert ? AMBER : state.b, 1 - Math.pow(0.02, delta));
     }
     if (inner.current) {
       inner.current.rotation.y += delta * 0.05;
@@ -230,11 +261,17 @@ function Arc({ points, delay, speed }) {
   const curve = useMemo(() => new THREE.CatmullRomCurve3(points), [points]);
 
   useFrame(({ clock }) => {
-    const t = (clock.elapsedTime * speed + delay) % 3;
+    const alert = useSceneStore.getState().alert;
+    // during the alert every arc runs hot: faster, brighter, red
+    const rate = alert ? speed * 3.4 : speed;
+    const t = (clock.elapsedTime * rate + delay) % 3;
+
     if (line.current) {
       const m = line.current.material;
       m.dashOffset = -t * 1.5;
-      m.opacity = t < 2 ? 0.5 * Math.min(1, t * 2.5) : 0.5 * (3 - t);
+      const base = alert ? 0.95 : 0.5;
+      m.opacity = t < 2 ? base * Math.min(1, t * 2.5) : base * (3 - t);
+      m.color.lerp(alert ? RED : ACID, 0.08);
     }
     if (packet.current) {
       const p = Math.min(t / 2, 1);
@@ -366,6 +403,57 @@ const WAYPOINTS = [
   { pos: [0, 0.4, 8.2], look: [0, 0, 0] },   // contact
 ];
 
+/* ── shockwave rings (alert set-piece) ───────────────────────── */
+
+function Shockwave({ count = 3 }) {
+  const group = useRef(null);
+  const rings = useRef([]);
+  const start = useRef(-1);
+
+  useFrame(({ clock }) => {
+    const alert = useSceneStore.getState().alert;
+    if (!group.current) return;
+
+    if (alert && start.current < 0) start.current = clock.elapsedTime;
+    if (!alert) start.current = -1;
+
+    group.current.visible = alert;
+    if (!alert) return;
+
+    const since = clock.elapsedTime - start.current;
+    rings.current.forEach((m, i) => {
+      if (!m) return;
+      // each ring launches a beat after the previous one, then repeats
+      const t = ((since - i * 0.45) % 1.8) / 1.8;
+      const alive = since > i * 0.45;
+      m.visible = alive;
+      if (!alive) return;
+      m.scale.setScalar(2.2 + t * 5.5);
+      m.material.opacity = (1 - t) * 0.5;
+    });
+  });
+
+  return (
+    <group ref={group} visible={false} rotation={[Math.PI / 2, 0, 0]}>
+      {Array.from({ length: count }, (_, i) => (
+        <mesh key={i} ref={(el) => (rings.current[i] = el)}>
+          <ringGeometry args={[0.97, 1, 96]} />
+          <meshBasicMaterial
+            color="#ff5f57"
+            transparent
+            opacity={0.5}
+            side={THREE.DoubleSide}
+            depthWrite={false}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ── camera + parallax rig ───────────────────────────────────── */
+
 function Rig({ children }) {
   const group = useRef(null);
   const { pointer, camera } = useThree();
@@ -400,7 +488,9 @@ function Rig({ children }) {
     camera.lookAt(current);
 
     if (group.current) {
-      group.current.rotation.y += delta * 0.045;
+      const { section } = useSceneStore.getState();
+      const spin = (SECTION_STATE[section] ?? SECTION_STATE.top).spin;
+      group.current.rotation.y += delta * spin;
     }
   });
 
@@ -512,6 +602,7 @@ export default function Scene() {
             <HoloGlobe />
             <Nodes count={lite ? 42 : 90} />
             <Traffic count={lite ? 4 : 10} />
+            <Shockwave count={lite ? 2 : 3} />
             <Grid />
           </Rig>
           <Field count={lite ? 4000 : 26000} />

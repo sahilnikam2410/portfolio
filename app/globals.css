@@ -85,6 +85,29 @@ body::after {
   background: #256b4d;
 }
 
+/* display type — the hero name, sized off the viewport rather than a scale */
+.display {
+  font-size: clamp(2.8rem, 9.5vw, 8rem);
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+  font-weight: 700;
+}
+
+/* outlined ghost copy that sits behind the solid one */
+.ghost {
+  -webkit-text-stroke: 1px rgba(53, 255, 158, 0.28);
+  color: transparent;
+}
+
+/* oversized section index numeral */
+.index-numeral {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  -webkit-text-stroke: 1px rgba(53, 255, 158, 0.35);
+  color: transparent;
+}
+
 .glow {
   text-shadow: 0 0 12px rgba(53, 255, 158, 0.55), 0 0 38px rgba(53, 255, 158, 0.2);
 }

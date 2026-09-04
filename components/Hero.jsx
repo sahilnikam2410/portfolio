@@ -81,13 +81,22 @@ export default function Hero() {
           </motion.div>
 
           <motion.h1
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.08 }}
-            className="flicker text-4xl font-bold leading-[1.05] tracking-tight text-[var(--color-bone)] sm:text-6xl"
+            transition={{ duration: 0.8, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+            className="relative"
           >
-            {identity.name}
-            <span className="glow text-[var(--color-acid)]">.</span>
+            {/* offset outline copy — depth without a drop shadow */}
+            <span
+              aria-hidden="true"
+              className="display ghost pointer-events-none absolute left-0 top-0 translate-x-[3px] translate-y-[3px] select-none"
+            >
+              {identity.name}
+            </span>
+            <span className="display flicker relative block text-[var(--color-bone)]">
+              {identity.name}
+              <span className="glow text-[var(--color-acid)]">.</span>
+            </span>
           </motion.h1>
 
           <motion.p

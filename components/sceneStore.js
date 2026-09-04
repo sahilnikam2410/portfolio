@@ -12,12 +12,14 @@ export const useSceneStore = create((set) => ({
   morph: 0,        // 0 = sphere, 1 = flattened disc
   label: null,     // hovered 3D node id, mirrored into the HUD
   highlight: -1,   // coverage row index currently hovered in the DOM
+  alert: false,    // fires the attack set-piece when coverage enters view
   quality: 'auto', // auto | lite | off — user override, persisted
   booted: false,
   paletteOpen: false,
 
   setProgress: (progress) => set({ progress }),
   setSection: (section) => set({ section }),
+  setAlert: (alert) => set({ alert }),
   setMorph: (morph) => set({ morph }),
   setLabel: (label) => set({ label }),
   setHighlight: (highlight) => set({ highlight }),

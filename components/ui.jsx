@@ -15,18 +15,24 @@ export function Section({ id, index, title, subtitle, children }) {
 export function SectionHeading({ index, title, subtitle }) {
   return (
     <Reveal>
-      <div className="mb-12 border-b border-[rgba(53,255,158,0.14)] pb-5">
-        <div className="flex items-baseline gap-3">
-          <span className="text-xs text-[var(--color-acid)]">{index}</span>
-          <Scramble
-            as="h2"
-            text={title}
-            className="text-2xl font-semibold tracking-tight text-[var(--color-bone)] sm:text-3xl"
-          />
+      <div className="mb-12 border-b border-[rgba(53,255,158,0.14)] pb-6">
+        <div className="flex items-start gap-5">
+          <span aria-hidden="true" className="index-numeral shrink-0 select-none">
+            {index}
+          </span>
+          <div className="min-w-0 pt-1">
+            <Scramble
+              as="h2"
+              text={title}
+              className="block text-3xl font-bold tracking-tight text-[var(--color-bone)] sm:text-5xl"
+            />
+            {subtitle && (
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--color-dim)] sm:text-[15px]">
+                {subtitle}
+              </p>
+            )}
+          </div>
         </div>
-        {subtitle && (
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--color-dim)]">{subtitle}</p>
-        )}
       </div>
     </Reveal>
   );

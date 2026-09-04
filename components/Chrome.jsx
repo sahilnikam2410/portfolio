@@ -6,6 +6,8 @@ import HUD from './HUD';
 import CommandPalette from './CommandPalette';
 import Konami from './Konami';
 import Controls from './Controls';
+import SectionTracker from './SectionTracker';
+import AlertFlash from './AlertFlash';
 
 // browser-only extras
 const Preloader = dynamic(() => import('./Preloader'), { ssr: false });
@@ -22,6 +24,8 @@ export default function Chrome() {
       <CommandPalette />
       <Konami />
       <Controls />
+      <SectionTracker />
+      <AlertFlash />
     </>
   );
 }
