@@ -901,6 +901,10 @@ export default function Scene() {
   const [mode, setMode] = useState('full'); // full | lite | off
   const [dpr, setDpr] = useState(1.5);
   const [generation, setGeneration] = useState(0); // bumped to rebuild after context loss
+  // occlusion + reflections are the two costly passes; they switch themselves
+  // off if the frame rate sags rather than relying on a measurement I cannot
+  // take reliably in every environment
+  const [heavy, setHeavy] = useState(true);
   const [lost, setLost] = useState(false);
 
   const quality = useSceneStore((s) => s.quality);
@@ -980,7 +984,15 @@ export default function Scene() {
         <fog attach="fog" args={['#04070a', 9, 26]} />
 
         <PerformanceMonitor
-          onDecline={() => setDpr((d) => Math.max(0.85, d - 0.35))}
+          onDecline={() => {
+            // shed the expensive passes before degrading resolution:
+            // losing reflections reads better than losing sharpness
+            setHeavy((was) => {
+              if (was) return false;
+              setDpr((d) => Math.max(0.85, d - 0.35));
+              return false;
+            });
+          }}
           onIncline={() => setDpr((d) => Math.min(1.75, d + 0.2))}
         />
         <AdaptiveDpr pixelated={false} />
@@ -1011,7 +1023,7 @@ export default function Scene() {
             <ScanPlane />
             {!lite && <Debris count={90} />}
             <Grid />
-            {!lite && (
+            {!lite && heavy && (
               /* mirror plate beneath the shader grid: the globe and probes
                  get a soft reflection, which is the single cue that reads as
                  an expensive render. Low res + blur keeps the extra pass cheap. */
@@ -1051,7 +1063,9 @@ export default function Scene() {
             <EffectComposer multisampling={0}>
               {/* occlusion before bloom: creases and contact points darken,
                   which is what stops additive geometry floating in space */}
-              <N8AO aoRadius={1.6} intensity={2.2} distanceFalloff={1} quality="performance" halfRes />
+              {heavy && (
+                <N8AO aoRadius={1.6} intensity={2.2} distanceFalloff={1} quality="performance" halfRes />
+              )}
               <Bloom
                 intensity={0.75}
                 luminanceThreshold={0.22}
