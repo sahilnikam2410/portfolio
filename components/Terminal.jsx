@@ -297,6 +297,39 @@ function createShell({ fs, setCwd, clear, openLink }) {
   return commands;
 }
 
+/**
+ * Output often prints a path or a URL — `cat` ends with a case-study route,
+ * `contact` lists every profile. Making those clickable means a reader does
+ * not have to retype what the shell just told them.
+ */
+const LINK = /(https?:\/\/[^\s]+|mailto:[^\s]+|tel:[^\s]+|\/work\/[a-z0-9-]+)/g;
+
+function Linkify({ text }) {
+  if (!text) return ' ';
+  const parts = text.split(LINK);
+  if (parts.length === 1) return text;
+
+  return parts.map((part, i) => {
+    if (!LINK.test(part)) {
+      LINK.lastIndex = 0;
+      return part;
+    }
+    LINK.lastIndex = 0;
+    const external = part.startsWith('http'); // mailto/tel must stay same-tab
+    return (
+      <a
+        key={i}
+        href={part}
+        target={external ? '_blank' : undefined}
+        rel={external ? 'noreferrer' : undefined}
+        className="text-[var(--color-cyan)] underline decoration-dotted underline-offset-2 hover:text-[var(--color-acid)]"
+      >
+        {part}
+      </a>
+    );
+  });
+}
+
 /* ── component ──────────────────────────────────────────────── */
 
 export default function Terminal() {
@@ -525,7 +558,7 @@ export default function Terminal() {
                     : 'whitespace-pre-wrap text-[var(--color-dim)]'
                 }
               >
-                {l.text || ' '}
+                {l.kind === 'out' ? <Linkify text={l.text} /> : l.text || ' '}
               </div>
             ))}
 

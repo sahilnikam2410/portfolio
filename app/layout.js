@@ -54,7 +54,9 @@ export default function RootLayout({ children }) {
       <body style={{ fontFamily: 'var(--font-jetbrains), ui-monospace, monospace' }}>
         {children}
         <JsonLd />
-        <Analytics />
+        {/* Only on Vercel: elsewhere the insights script 404s and trips CSP,
+            leaving a console error for anyone who opens devtools */}
+        {process.env.VERCEL && <Analytics />}
       </body>
     </html>
   );

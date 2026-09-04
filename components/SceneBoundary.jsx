@@ -21,7 +21,6 @@ export default class SceneBoundary extends Component {
   }
 
   componentDidCatch(error) {
-    // eslint-disable-next-line no-console
     console.warn('[scene] disabled after an error:', error?.message ?? error);
   }
 
