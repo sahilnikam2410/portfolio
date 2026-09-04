@@ -1,5 +1,9 @@
 # Portfolio — Sahil Anil Nikam
 
+**Live: https://hackwithsahil.vercel.app**
+
+[![ci](https://github.com/sahilnikam2410/portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/sahilnikam2410/portfolio/actions/workflows/ci.yml)
+
 Next.js 15 (App Router) · React Three Fiber · custom GLSL · Tailwind v4 · Lenis · Zustand.
 Dark SOC-terminal theme: holographic globe, GPU particle field, scroll-driven camera,
 interactive shell, ⌘K palette.
@@ -25,7 +29,7 @@ sequence all read from it.
 | What | Where |
 |---|---|
 | Role-targeted CVs | `public/resumes/*.pdf` + the `resumes` array in `data/content.js` |
-| Domain (OG/SEO) | `metadataBase` in `app/layout.js` |
+| Domain (OG/SEO) | `NEXT_PUBLIC_SITE_URL` env var — resolved in `data/site.js` |
 | Colors | `@theme` block in `app/globals.css` |
 | Shaders | `components/shaders.js` (globe, particle field, grid) |
 | Camera path | `WAYPOINTS` in `components/Scene.jsx` |
@@ -123,8 +127,15 @@ double-render under concurrent React produces an identical scene.
 - Scene and cursor are `ssr: false` dynamic imports — nothing WebGL runs server-side.
 - Scroll state lives in a Zustand store read via `getState()` inside `useFrame`, so
   scrolling never triggers a React render.
+- Measured on the production deployment: 98 ms TTFB, 638 ms to DOM interactive,
+  1.65 s load. 588 KB of JS before load; the 1116 KB scene is deferred to idle,
+  and never fetched at all under reduced motion or with the scene switched off.
 
 ## Deploy
 
-Push to GitHub → import into Vercel → no config needed. Then set `metadataBase`
-to the real domain.
+Deployed on Vercel from `main` — every push builds and ships.
+
+The canonical origin resolves in order: `NEXT_PUBLIC_SITE_URL`, then Vercel's own
+`VERCEL_PROJECT_PRODUCTION_URL`, then localhost. Pin the env var when more than
+one domain points at the project, otherwise Vercel picks and the sitemap,
+`security.txt` and OG tags may disagree with the domain you are advertising.

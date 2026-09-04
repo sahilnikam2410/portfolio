@@ -31,5 +31,10 @@
     "eslint-config-next": "^16.3.3",
     "postcss": "^8.5.26",
     "tailwindcss": "^4.3.3"
+  },
+  "homepage": "https://hackwithsahil.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sahilnikam2410/portfolio.git"
   }
 }
