@@ -21,29 +21,50 @@ export default function Preloader() {
   const setBooted = useSceneStore((s) => s.setBooted);
 
   useEffect(() => {
-    let raf = 0;
-    let value = 0;
+    const DURATION = 2200;
     const start = performance.now();
+    let raf = 0;
+    let done = false;
 
+    const finish = () => {
+      if (done) return;
+      done = true;
+      setPct(100);
+      setStep(STEPS.length - 1);
+      setBooted(true);
+      setTimeout(() => setGone(true), 420);
+    };
+
+    /**
+     * Progress is derived from wall-clock time, not accumulated per frame.
+     * rAF throttles to a crawl in a background tab, and a frame-counted bar
+     * would still be at 80% when someone returns from another tab — a loading
+     * screen that is not loading anything. The hard timeout below finishes the
+     * boot even if no frame ever runs.
+     */
     const tick = (now) => {
-      const elapsed = now - start;
-      // ease toward 100 over ~2.2s, with jitter so it reads as real work
-      const target = Math.min(100, (elapsed / 2200) * 100);
-      value += (target - value) * 0.14 + Math.random() * 0.6;
-      const clamped = Math.min(100, value);
-      setPct(clamped);
-      setStep(Math.min(STEPS.length - 1, Math.floor((clamped / 100) * STEPS.length)));
+      const t = Math.min(1, (now - start) / DURATION);
+      // ease-out, with a little jitter so it reads as real work
+      const eased = 1 - Math.pow(1 - t, 2.2);
+      const value = Math.min(99.9, eased * 100 + (t < 1 ? Math.random() * 0.8 : 0));
 
-      if (clamped >= 99.4) {
-        setBooted(true);
-        setTimeout(() => setGone(true), 420);
+      setPct(value);
+      setStep(Math.min(STEPS.length - 1, Math.floor((value / 100) * STEPS.length)));
+
+      if (t >= 1) {
+        finish();
         return;
       }
       raf = requestAnimationFrame(tick);
     };
 
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    const guard = setTimeout(finish, DURATION + 600);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(guard);
+    };
   }, [setBooted]);
 
   return (
