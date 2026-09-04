@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useEffect, useRef } from 'react';
 import { useSceneStore } from './sceneStore';
+import SceneBoundary from './SceneBoundary';
 
 // The WebGL scene and the rain canvas are browser-only — never server-render them.
 const Scene = dynamic(() => import('./Scene'), { ssr: false });
@@ -44,8 +45,10 @@ export default function Backdrop() {
   return (
     <>
       <div ref={layer} className="fixed inset-0 -z-10">
-        <Scene />
-        <MatrixRain />
+        <SceneBoundary>
+          <Scene />
+          <MatrixRain />
+        </SceneBoundary>
       </div>
 
       {/* readability scrim: sits above the scene, below all content */}

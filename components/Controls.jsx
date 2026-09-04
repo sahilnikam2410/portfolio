@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSceneStore } from './sceneStore';
+import { useFocusTrap } from './useFocusTrap';
 
 const SECTIONS = ['top', 'about', 'skills', 'work', 'coverage', 'shell', 'contact'];
 
@@ -28,6 +29,7 @@ export default function Controls() {
   const [toast, setToast] = useState(null);
   const quality = useSceneStore((s) => s.quality);
   const setQuality = useSceneStore((s) => s.setQuality);
+  const trapRef = useFocusTrap(open);
 
   // restore a saved quality choice on mount
   useEffect(() => {
@@ -154,6 +156,10 @@ export default function Controls() {
             transition={{ duration: 0.15 }}
             onClick={() => setOpen(false)}
             data-print="hide"
+            ref={trapRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Keyboard shortcuts"
             className="fixed inset-0 z-[82] flex items-center justify-center bg-[rgba(2,4,6,0.72)] px-4 backdrop-blur-sm"
           >
             <motion.div

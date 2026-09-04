@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { identity, socials, projects, resumes } from '@/data/content';
 import { useSceneStore } from './sceneStore';
+import { useFocusTrap } from './useFocusTrap';
 
 /** Tiny subsequence matcher — "wk" matches "work". */
 function score(needle, haystack) {
@@ -27,6 +28,7 @@ export default function CommandPalette() {
   const [query, setQuery] = useState('');
   const [index, setIndex] = useState(0);
   const inputRef = useRef(null);
+  const trapRef = useFocusTrap(open);
 
   const items = useMemo(() => {
     const go = (id) => () => {
@@ -132,6 +134,10 @@ export default function CommandPalette() {
     <AnimatePresence>
       {open && (
         <motion.div
+          ref={trapRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Command palette"
           className="fixed inset-0 z-[80] flex items-start justify-center bg-[rgba(2,4,6,0.72)] px-4 pt-[14vh] backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

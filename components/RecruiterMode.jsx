@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { identity, resumes, socials, skills, certs, coverage, projects } from '@/data/content';
 import CopyButton from './CopyButton';
+import { useFocusTrap } from './useFocusTrap';
 
 /**
  * Everything a hiring decision needs, on one screen, with no scrolling and no
@@ -12,6 +13,7 @@ import CopyButton from './CopyButton';
  */
 export default function RecruiterMode() {
   const [open, setOpen] = useState(false);
+  const trapRef = useFocusTrap(open);
 
   useEffect(() => {
     const onKey = (e) => {
@@ -53,6 +55,10 @@ export default function RecruiterMode() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
             data-print="hide"
+            ref={trapRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Candidate brief"
             className="fixed inset-0 z-[84] overflow-y-auto bg-[rgba(2,4,6,0.9)] backdrop-blur-md"
             onClick={() => setOpen(false)}
           >
