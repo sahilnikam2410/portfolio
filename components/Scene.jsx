@@ -432,7 +432,20 @@ export default function Scene() {
   const [generation, setGeneration] = useState(0); // bumped to rebuild after context loss
   const [lost, setLost] = useState(false);
 
+  const quality = useSceneStore((s) => s.quality);
+
   useEffect(() => {
+    // an explicit user choice always wins over capability sniffing
+    if (quality === 'off') {
+      setMode('off');
+      return;
+    }
+    if (quality === 'lite') {
+      setMode('lite');
+      setDpr(1.25);
+      return;
+    }
+
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const small = window.innerWidth < 768;
     const cores = navigator.hardwareConcurrency ?? 4;
@@ -441,8 +454,11 @@ export default function Scene() {
     } else if (small || cores <= 4) {
       setMode('lite');
       setDpr(1.25);
+    } else {
+      setMode('full');
+      setDpr(1.5);
     }
-  }, []);
+  }, [quality]);
 
   /**
    * A GPU context can be lost on sleep/resume, driver reset, or when the

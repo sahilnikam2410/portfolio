@@ -126,6 +126,78 @@ body::after {
   animation: marquee 32s linear infinite;
 }
 
+/* ── print ───────────────────────────────────────────────────
+   Ctrl+P should produce a clean document, not a screenshot of a
+   dark website. Chrome to ink, drop every effect layer, and print
+   link targets so the page is still useful on paper.
+   ──────────────────────────────────────────────────────────── */
+@media print {
+  @page {
+    margin: 16mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #111 !important;
+    font-size: 10.5pt;
+  }
+
+  body::after,
+  canvas,
+  header,
+  footer,
+  .grid-lines,
+  #shell,
+  [data-print="hide"] {
+    display: none !important;
+  }
+
+  main {
+    position: static !important;
+  }
+
+  section {
+    padding: 0 0 12pt !important;
+    break-inside: avoid;
+  }
+
+  h1 {
+    font-size: 20pt !important;
+  }
+
+  h2 {
+    font-size: 12pt !important;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 2pt;
+  }
+
+  /* every themed colour token collapses to ink */
+  [class*='text-[var(--color-'],
+  [class*='text-['] {
+    color: #111 !important;
+  }
+
+  [class*='border-'],
+  [class*='bg-['] {
+    border-color: #ccc !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 8.5pt;
+    color: #555;
+  }
+
+  a[href^='#']::after,
+  a[href^='mailto']::after,
+  a[href^='tel']::after {
+    content: '';
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .marquee,
   .flicker,

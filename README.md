@@ -66,6 +66,37 @@ sequence all read from it.
 - Konami code flattens the globe. `sudo su` in the shell has an opinion.
 - Vercel Analytics, terminal-styled 404, generated OG card, sitemap, robots.
 
+## Security posture
+
+The site ships hardened because a security portfolio gets graded on it:
+
+- CSP, HSTS (preload), `X-Frame-Options: DENY`, `X-Content-Type-Options`,
+  `Referrer-Policy`, `Permissions-Policy`, COOP — all in `next.config.mjs`.
+- `poweredByHeader: false` — no framework version disclosure.
+- `/.well-known/security.txt` per RFC 9116.
+- schema.org `Person` JSON-LD for search engines.
+
+`script-src` carries `'unsafe-inline'`. That is deliberate and documented in
+`next.config.mjs`: the site is fully prerendered, and the strict alternative —
+a per-request nonce from middleware — forces every page into dynamic rendering.
+For a static site with no input, no auth and no sessions, the trade is not worth
+it. Know the tradeoff you are making; do not inherit it by accident.
+
+Verify after deploying:
+
+```bash
+curl -sI https://your-domain.com | grep -i -E 'content-security|strict-transport|x-frame|referrer|permissions'
+```
+
+## Keyboard
+
+`?` opens the shortcut sheet. `j`/`k` walk sections, `g`/`G` jump to the ends,
+`/` focuses the shell, `q` cycles scene quality (full · lite · off, persisted to
+localStorage), `p` prints, `ctrl+k` opens the palette.
+
+`Ctrl+P` produces a clean ink-on-white document — the scene, HUD, cursor,
+marquee and shell are dropped, and external link targets are printed inline.
+
 ## Checks
 
 ```bash

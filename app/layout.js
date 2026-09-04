@@ -3,6 +3,7 @@ import { JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { identity } from '@/data/content';
 import { siteUrl } from '@/data/site';
+import JsonLd from '@/components/JsonLd';
 
 const mono = JetBrains_Mono({
   subsets: ['latin'],
@@ -52,6 +53,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={mono.variable}>
       <body style={{ fontFamily: 'var(--font-jetbrains), ui-monospace, monospace' }}>
         {children}
+        <JsonLd />
         <Analytics />
       </body>
     </html>

@@ -2,6 +2,7 @@
 
 import { identity, timeline, ethics } from '@/data/content';
 import { Section, Panel, Reveal } from './ui';
+import Topology from './Topology';
 
 export default function About() {
   return (
@@ -19,8 +20,12 @@ export default function About() {
             </Reveal>
           ))}
 
+          <div className="mt-8">
+            <Topology />
+          </div>
+
           <Reveal delay={0.2}>
-            <Panel className="mt-8 p-5">
+            <Panel className="mt-5 p-5">
               <div className="mb-2 flex items-center gap-2 text-xs text-[var(--color-acid)]">
                 <span>⚠</span>
                 {ethics.title}

@@ -93,7 +93,7 @@ export default function Cursor() {
   }, []);
 
   return (
-    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-[70] hidden md:block">
+    <div aria-hidden="true" data-print="hide" className="pointer-events-none fixed inset-0 z-[70] hidden md:block">
       <div
         ref={ring}
         className="absolute left-0 top-0 border border-[var(--color-acid)] transition-[opacity] duration-200"

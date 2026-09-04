@@ -12,6 +12,7 @@ export const useSceneStore = create((set) => ({
   morph: 0,        // 0 = sphere, 1 = flattened disc
   label: null,     // hovered 3D node id, mirrored into the HUD
   highlight: -1,   // coverage row index currently hovered in the DOM
+  quality: 'auto', // auto | lite | off — user override, persisted
   booted: false,
   paletteOpen: false,
 
@@ -20,6 +21,14 @@ export const useSceneStore = create((set) => ({
   setMorph: (morph) => set({ morph }),
   setLabel: (label) => set({ label }),
   setHighlight: (highlight) => set({ highlight }),
+  setQuality: (quality) => {
+    try {
+      localStorage.setItem('scene-quality', quality);
+    } catch {
+      // private mode or blocked storage — the choice just does not persist
+    }
+    set({ quality });
+  },
   setBooted: (booted) => set({ booted }),
   setPaletteOpen: (paletteOpen) => set({ paletteOpen }),
   togglePalette: () => set((s) => ({ paletteOpen: !s.paletteOpen })),
