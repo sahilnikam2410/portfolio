@@ -7,6 +7,8 @@ import {
   AdaptiveDpr,
   PerformanceMonitor,
   shaderMaterial,
+  Environment,
+  Lightformer,
 } from '@react-three/drei';
 import {
   EffectComposer,
@@ -15,8 +17,11 @@ import {
   Noise,
   Vignette,
   Scanline,
+  SMAA,
+  ToneMapping,
+  HueSaturation,
 } from '@react-three/postprocessing';
-import { BlendFunction } from 'postprocessing';
+import { BlendFunction, ToneMappingMode } from 'postprocessing';
 import * as THREE from 'three';
 
 import {
@@ -609,7 +614,13 @@ function Probes({ count = 5 }) {
     <group key={o.key} rotation={o.tilt}>
       <mesh ref={(el) => (refs.current[i] = el)}>
         <octahedronGeometry args={[1, 0]} />
-        <meshBasicMaterial color="#d6efe3" toneMapped={false} />
+        <meshStandardMaterial
+          color="#d6efe3"
+          metalness={1}
+          roughness={0.18}
+          emissive="#35e0ff"
+          emissiveIntensity={0.35}
+        />
       </mesh>
       <ProbeTrail radius={o.radius} speed={o.speed} phase={o.phase} />
     </group>
@@ -715,7 +726,15 @@ function Debris({ count = 90 }) {
     <group ref={group} rotation={[0.24, 0, 0.1]}>
       <instancedMesh ref={mesh} args={[undefined, undefined, count]} frustumCulled={false}>
         <tetrahedronGeometry args={[1, 0]} />
-        <meshBasicMaterial color={CYAN} wireframe transparent opacity={0.35} toneMapped={false} />
+        <meshStandardMaterial
+          color={CYAN}
+          metalness={0.9}
+          roughness={0.35}
+          transparent
+          opacity={0.42}
+          emissive={CYAN}
+          emissiveIntensity={0.15}
+        />
       </instancedMesh>
     </group>
   );
@@ -936,7 +955,15 @@ export default function Scene() {
         dpr={dpr}
         onCreated={onCreated}
         style={{ visibility: lost ? 'hidden' : 'visible' }}
-        gl={{ antialias: false, powerPreference: 'high-performance', alpha: false }}
+        gl={{
+          antialias: false,
+          powerPreference: 'high-performance',
+          alpha: false,
+          // filmic response curve — highlights roll off instead of clipping,
+          // which is most of what separates "rendered" from "canvas demo"
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.15,
+        }}
         camera={{ position: [0, 0, 6.6], fov: 46 }}
       >
         <color attach="background" args={['#04070a']} />
@@ -950,6 +977,17 @@ export default function Scene() {
         <ScrollBridge />
 
         <Suspense fallback={null}>
+          {/* Studio rig built from emissive planes rather than a downloaded
+              HDR: metal has something to reflect, no external asset is
+              fetched, so the CSP stays closed and nothing blocks first paint.
+              frames={1} bakes it once instead of every frame. */}
+          <Environment resolution={128} frames={1}>
+            <Lightformer intensity={2.4} color="#35ff9e" position={[0, 4, -6]} scale={[10, 4, 1]} />
+            <Lightformer intensity={1.6} color="#35e0ff" position={[-6, 1, 2]} scale={[6, 6, 1]} rotation-y={Math.PI / 2} />
+            <Lightformer intensity={1.1} color="#9b8cff" position={[6, -2, 3]} scale={[6, 6, 1]} rotation-y={-Math.PI / 2} />
+            <Lightformer intensity={0.7} color="#ffffff" position={[0, -5, 0]} scale={[12, 12, 1]} rotation-x={Math.PI / 2} />
+          </Environment>
+
           <Rig>
             <HoloGlobe />
             <Nodes count={lite ? 42 : 90} />
@@ -993,6 +1031,11 @@ export default function Scene() {
               <Scanline density={1.1} opacity={0.05} blendFunction={BlendFunction.OVERLAY} />
               <Noise opacity={0.035} blendFunction={BlendFunction.OVERLAY} />
               <Vignette offset={0.24} darkness={0.9} />
+              {/* grade last: a touch of saturation, then filmic tone mapping,
+                  then SMAA to clean the edges the disabled MSAA left behind */}
+              <HueSaturation saturation={0.12} />
+              <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
+              <SMAA />
             </EffectComposer>
           )}
         </Suspense>
