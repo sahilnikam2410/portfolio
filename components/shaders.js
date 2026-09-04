@@ -213,6 +213,39 @@ void main() {
 }
 `;
 
+/* ── scan plane ────────────────────────────────────────────── */
+// A thin sheet that travels down through the globe, brightest at its own
+// plane and fading out either side — a CT-slice read.
+
+export const scanVertex = /* glsl */ `
+varying vec2 vUv;
+void main() {
+  vUv = uv;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+`;
+
+export const scanFragment = /* glsl */ `
+uniform float uTime;
+uniform vec3  uColor;
+uniform float uOpacity;
+
+varying vec2 vUv;
+
+void main() {
+  // concentric interference rings so the sheet is not a flat wash
+  float d = length(vUv - 0.5) * 2.0;
+  float rings = sin(d * 42.0 - uTime * 3.0) * 0.5 + 0.5;
+
+  // fade to nothing at the rim
+  float edge = smoothstep(1.0, 0.25, d);
+
+  float a = (0.10 + rings * 0.16) * edge * uOpacity;
+  if (a < 0.004) discard;
+  gl_FragColor = vec4(uColor, a);
+}
+`;
+
 /* ── ground grid ───────────────────────────────────────────── */
 // Infinite-feeling scrolling grid with distance fade.
 

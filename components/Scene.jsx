@@ -26,6 +26,8 @@ import {
   fieldFragment,
   gridVertex,
   gridFragment,
+  scanVertex,
+  scanFragment,
 } from './shaders';
 import { useSceneStore } from './sceneStore';
 
@@ -92,7 +94,13 @@ const GridMaterial = shaderMaterial(
   gridFragment
 );
 
-extend({ HoloMaterial, FieldMaterial, GridMaterial });
+const ScanMaterial = shaderMaterial(
+  { uTime: 0, uOpacity: 1, uColor: CYAN.clone() },
+  scanVertex,
+  scanFragment
+);
+
+extend({ HoloMaterial, FieldMaterial, GridMaterial, ScanMaterial });
 
 /* ── geometry helpers ────────────────────────────────────────── */
 
@@ -419,6 +427,170 @@ const WAYPOINTS = [
   { pos: [0, 0.4, 8.2], look: [0, 0, 0] },   // contact
 ];
 
+/* ── instrument rings ────────────────────────────────────────── */
+
+/** Gauge rings around the globe, with tick marks, counter-rotating. */
+function InstrumentRing({ radius, tilt, speed, ticks = 48, color = '#35e0ff', opacity = 0.3 }) {
+  const group = useRef(null);
+
+  const { ring, marks } = useMemo(() => {
+    const circle = [];
+    for (let i = 0; i <= 160; i++) {
+      const a = (i / 160) * Math.PI * 2;
+      circle.push(new THREE.Vector3(Math.cos(a) * radius, 0, Math.sin(a) * radius));
+    }
+
+    // tick marks as one line segment list — every fourth tick is longer
+    const seg = [];
+    for (let i = 0; i < ticks; i++) {
+      const a = (i / ticks) * Math.PI * 2;
+      const len = i % 4 === 0 ? 0.14 : 0.06;
+      const inner = radius - len;
+      seg.push(
+        new THREE.Vector3(Math.cos(a) * inner, 0, Math.sin(a) * inner),
+        new THREE.Vector3(Math.cos(a) * radius, 0, Math.sin(a) * radius)
+      );
+    }
+    const g = new THREE.BufferGeometry().setFromPoints(seg);
+    return { ring: circle, marks: g };
+  }, [radius, ticks]);
+
+  useEffect(() => () => marks.dispose(), [marks]);
+
+  useFrame((_, delta) => {
+    if (group.current) group.current.rotation.y += delta * speed;
+  });
+
+  return (
+    <group ref={group} rotation={tilt}>
+      <Line points={ring} color={color} lineWidth={1} transparent opacity={opacity} />
+      <lineSegments geometry={marks}>
+        <lineBasicMaterial color={color} transparent opacity={opacity * 1.6} depthWrite={false} />
+      </lineSegments>
+    </group>
+  );
+}
+
+/* ── orbiting probes ─────────────────────────────────────────── */
+
+/** Small bodies on tilted orbits — the globe reads as a system, not a ball. */
+function Probes({ count = 5 }) {
+  const refs = useRef([]);
+
+  const orbits = useMemo(() => {
+    const rand = makeRandom(0x0b17_5a7e);
+    return Array.from({ length: count }, (_, i) => ({
+      radius: 2.5 + rand() * 1.8,
+      speed: 0.18 + rand() * 0.3,
+      phase: rand() * Math.PI * 2,
+      tilt: [rand() * Math.PI, rand() * Math.PI, rand() * 0.6 - 0.3],
+      size: 0.03 + rand() * 0.035,
+      key: i,
+    }));
+  }, [count]);
+
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    orbits.forEach((o, i) => {
+      const m = refs.current[i];
+      if (!m) return;
+      const a = t * o.speed + o.phase;
+      m.position.set(Math.cos(a) * o.radius, 0, Math.sin(a) * o.radius);
+      m.scale.setScalar(o.size * (1 + Math.sin(t * 3 + o.phase) * 0.25));
+    });
+  });
+
+  return orbits.map((o, i) => (
+    <group key={o.key} rotation={o.tilt}>
+      <mesh ref={(el) => (refs.current[i] = el)}>
+        <octahedronGeometry args={[1, 0]} />
+        <meshBasicMaterial color="#d6efe3" toneMapped={false} />
+      </mesh>
+    </group>
+  ));
+}
+
+/* ── debris belt ─────────────────────────────────────────────── */
+
+/** A slow belt of wireframe shards. Instanced with a standard material. */
+function Debris({ count = 90 }) {
+  const mesh = useRef(null);
+  const group = useRef(null);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+
+  const shards = useMemo(() => {
+    const rand = makeRandom(0xdeb0_1235);
+    return Array.from({ length: count }, () => ({
+      radius: 3.2 + rand() * 3.4,
+      angle: rand() * Math.PI * 2,
+      y: (rand() - 0.5) * 1.4,
+      scale: 0.02 + rand() * 0.05,
+      spin: rand() * 0.6 + 0.1,
+      drift: 0.02 + rand() * 0.05,
+    }));
+  }, [count]);
+
+  useFrame(({ clock }, delta) => {
+    if (!mesh.current) return;
+    const t = clock.elapsedTime;
+
+    shards.forEach((s, i) => {
+      const a = s.angle + t * s.drift;
+      dummy.position.set(Math.cos(a) * s.radius, s.y, Math.sin(a) * s.radius);
+      dummy.rotation.set(t * s.spin, t * s.spin * 0.7, 0);
+      dummy.scale.setScalar(s.scale);
+      dummy.updateMatrix();
+      mesh.current.setMatrixAt(i, dummy.matrix);
+    });
+    mesh.current.instanceMatrix.needsUpdate = true;
+
+    if (group.current) group.current.rotation.y -= delta * 0.01;
+  });
+
+  return (
+    <group ref={group} rotation={[0.24, 0, 0.1]}>
+      <instancedMesh ref={mesh} args={[undefined, undefined, count]} frustumCulled={false}>
+        <tetrahedronGeometry args={[1, 0]} />
+        <meshBasicMaterial color={CYAN} wireframe transparent opacity={0.35} toneMapped={false} />
+      </instancedMesh>
+    </group>
+  );
+}
+
+/* ── scan plane ──────────────────────────────────────────────── */
+
+/** A sheet that travels down through the globe like a CT slice. */
+function ScanPlane({ radius = 2.6 }) {
+  const mesh = useRef(null);
+  const mat = useRef(null);
+
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    if (mesh.current) {
+      // travel from above the globe to below it, then repeat
+      const y = 2.2 - ((t * 0.35) % 1) * 4.4;
+      mesh.current.position.y = y;
+    }
+    if (mat.current) {
+      mat.current.uTime = t;
+      mat.current.uOpacity = useSceneStore.getState().alert ? 0.35 : 1;
+    }
+  });
+
+  return (
+    <mesh ref={mesh} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[radius * 2, radius * 2, 1, 1]} />
+      <scanMaterial
+        ref={mat}
+        transparent
+        depthWrite={false}
+        side={THREE.DoubleSide}
+        blending={THREE.AdditiveBlending}
+      />
+    </mesh>
+  );
+}
+
 /* ── shockwave rings (alert set-piece) ───────────────────────── */
 
 function Shockwave({ count = 3 }) {
@@ -619,6 +791,11 @@ export default function Scene() {
             <Nodes count={lite ? 42 : 90} />
             <Traffic count={lite ? 4 : 10} />
             <Shockwave count={lite ? 2 : 3} />
+            <InstrumentRing radius={2.35} tilt={[Math.PI / 2.1, 0, 0.22]} speed={0.1} ticks={48} />
+            <InstrumentRing radius={2.95} tilt={[Math.PI / 1.85, 0.5, -0.18]} speed={-0.07} ticks={32} color="#35ff9e" opacity={0.2} />
+            <Probes count={lite ? 3 : 5} />
+            <ScanPlane />
+            {!lite && <Debris count={90} />}
             <Grid />
           </Rig>
           <Field count={lite ? 4000 : 26000} />
