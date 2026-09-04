@@ -134,6 +134,7 @@ export default function CommandPalette() {
     <AnimatePresence>
       {open && (
         <motion.div
+          key="palette"
           ref={trapRef}
           role="dialog"
           aria-modal="true"

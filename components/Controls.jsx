@@ -136,6 +136,7 @@ export default function Controls() {
       <AnimatePresence>
         {toast && (
           <motion.div
+            key="toast"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
@@ -150,6 +151,7 @@ export default function Controls() {
       <AnimatePresence>
         {open && (
           <motion.div
+            key="shortcuts"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

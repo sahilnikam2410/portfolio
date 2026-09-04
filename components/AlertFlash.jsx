@@ -13,10 +13,12 @@ export default function AlertFlash() {
 
   return (
     <AnimatePresence>
-      {alert && (
-        <>
-          {/* red wash at the edges, never over the body copy */}
+      {alert && [
+          /* A Fragment cannot be tracked by AnimatePresence — it has no key to
+             match on, so the children animate out and then stay mounted. These
+             are siblings with keys instead. */
           <motion.div
+            key="wash"
             initial={{ opacity: 0 }}
             animate={{ opacity: [0, 0.9, 0.35, 0.6, 0.3] }}
             exit={{ opacity: 0 }}
@@ -24,9 +26,10 @@ export default function AlertFlash() {
             data-print="hide"
             aria-hidden="true"
             className="pointer-events-none fixed inset-0 z-[62] bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(255,95,87,0.22)_100%)]"
-          />
+          />,
 
           <motion.div
+            key="banner"
             initial={{ x: 40, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 40, opacity: 0 }}
@@ -69,8 +72,7 @@ export default function AlertFlash() {
               this is a demonstration of the loop below — attack, telemetry, rule, response
             </div>
           </motion.div>
-        </>
-      )}
+        ]}
     </AnimatePresence>
   );
 }
