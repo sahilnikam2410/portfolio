@@ -11,95 +11,69 @@ Final-year project, 2025–2026.
 | Component | Role |
 |---|---|
 | Wazuh manager + indexer | SIEM, alert rules, active response |
-| Wazuh agents | Windows 10 and Linux endpoints |
+| Wazuh agents | Windows and Linux endpoints |
 | Sysmon | Windows process/network telemetry |
 | Kali Linux | Attacker host |
-| VirtualBox | Isolated host-only networking |
+| VirtualBox | Isolated lab networking |
 
 ## Method
 
-1. Build the stack: manager, agents on every endpoint, Sysmon and system logs
-   forwarded into centralised dashboards.
-2. Pick a technique and write down its ATT&CK ID **and the telemetry it should
-   produce** before running it.
-3. Execute it against the lab, one technique at a time.
-4. Hunt from the defender side: log correlation, custom alert rules, triage.
+1. Build the stack: manager, agents, Sysmon and system logs forwarded into centralised dashboards.
+2. Map each technique to its MITRE ATT&CK ID and expected telemetry before execution.
+3. Execute controlled attacks against owned lab hosts, one technique at a time.
+4. Hunt from the defender side: log correlation, custom alert rules and triage.
 5. Record the outcome honestly — fired, or gap.
-6. For every gap: write the rule, re-run the technique, confirm it fires.
+6. For gaps: write the rule, re-run the technique and confirm it fires.
 
 ## Coverage
 
 | ID | Technique | Tactic | Status |
 |---|---|---|---|
-| T1110 | Brute Force | Credential Access | detected |
+| T1110 | Brute Force | Credential Access | **validated in lab** |
 | T1059 | Command & Scripting Interpreter | Execution | detected |
 | T1046 | Network Service Discovery | Discovery | detected |
 | T1190 | Exploit Public-Facing Application | Initial Access | assessed |
 | T1071.001 | Application Layer Protocol: Web | Command & Control | research |
 | T1566 | Phishing | Initial Access | detected |
 
-`detected` = telemetry surfaced it and an alert fired · `assessed` = exercised
-offensively, findings documented · `research` = analysed and turned into
-detection logic. The live table with the full run/signal columns is at
-<https://hackwithsahil.vercel.app/work/silent-operator>.
+`validated in lab` means the custom detection fired during a controlled run and the resulting Wazuh event was captured as evidence.
 
-## Rules written
+## Rule validated in the lab
 
-Two rules, currently **draft — written but not yet validated in the lab**.
-The status badge on the case study says the same; it flips to validated once
-the rule has actually fired against a controlled brute-force run.
+**Wazuh — Windows brute-force detection**
 
-**Wazuh — brute force on Windows logon, then contain**
+The deployed rule that fired on `WIN-SERVER-2022` is **rule 100211, level 12**. It correlates repeated Windows logon-failure events (Wazuh rule `60122`) and fires after five matches within 60 seconds.
 
 ```xml
 <group name="local,authentication_failures,">
-  <!-- 4625: an account failed to log on -->
-  <rule id="100210" level="5">
-    <if_sid>60122</if_sid>
-    <description>Windows logon failure</description>
-    <mitre><id>T1110</id></mitre>
-  </rule>
-
-  <!-- six failures from one source inside two minutes -->
-  <rule id="100211" level="10" frequency="6" timeframe="120">
-    <if_matched_sid>100210</if_matched_sid>
-    <same_source_ip />
-    <description>Brute force: 6 failed logons from $(srcip) in 120s</description>
-    <mitre><id>T1110</id></mitre>
-  </rule>
-
-  <!-- a success straight after the burst is the one to wake up for -->
-  <rule id="100212" level="12">
-    <if_sid>60106</if_sid>
-    <if_matched_sid>100211</if_matched_sid>
-    <same_source_ip />
-    <description>Brute force succeeded from $(srcip)</description>
-    <mitre><id>T1110</id></mitre>
+  <rule id="100211" level="12" frequency="5" timeframe="60">
+    <if_matched_sid>60122</if_matched_sid>
+    <description>Brute-force attack detected - multiple Windows logon failures</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+    <group>authentication_failed,brute_force,windows,</group>
   </rule>
 </group>
 ```
 
-Level 10 fires active response; level 12 is the page-worthy one, because a
-success following a burst is the difference between noise and a compromise.
-**False positives to tune out:** service accounts with stale cached
-credentials, and password managers retrying after a change — both produce
-failure bursts without an attacker.
+**Validation receipt:** Wazuh Threat Hunting captured rule `100211` at **level 12** on `WIN-SERVER-2022` at approximately **21:39 on 5 Sep 2026**, preceded by multiple `60122` logon-failure events. The evidence image is `public/artifacts/bruteforce-100211.png`.
 
-**Same detection as Sigma** (portable to Splunk or Elastic):
+**False positives to tune:** service accounts with stale cached credentials and password managers retrying after a password change can create legitimate failure bursts.
+
+## Sigma equivalent
 
 ```yaml
-title: Windows brute force followed by success
+title: Windows brute force
 status: experimental
 logsource:
   product: windows
   service: security
 detection:
-  failures:
+  selection:
     EventID: 4625
-  success:
-    EventID: 4624
-  timeframe: 2m
-  condition: failures | count() by IpAddress > 5 and success
+  timeframe: 60s
+  condition: selection | count() by IpAddress >= 5
 level: high
 tags:
   - attack.credential_access
@@ -108,8 +82,7 @@ tags:
 
 ## Scope
 
-Every host in this lab is mine, on host-only networking, with no route to any
-third-party system. No live targets, no credential material, no real hostnames.
+Every host in this lab is mine and runs inside an isolated lab environment. No live third-party targets, credential material or real-world systems are used.
 
 ## Rebuild it
 
