@@ -243,6 +243,25 @@ export default function Coverage() {
           </Reveal>
         ))}
       </div>
+
+      {/* Evidence legend — states plainly what backs the table, so no one
+          has to guess whether "detected" means a live capture. The `where`
+          column already cites the real context of each row. */}
+      <Reveal delay={0.1}>
+        <p className="mt-6 border-l-2 border-[rgba(53,255,158,0.3)] pl-4 text-[12px] leading-relaxed text-[var(--color-dim)]">
+          Each row cites its context in the <span className="text-[var(--color-cyan)]">where</span>{' '}
+          column — internship, a lab project, or production at Vrikaan. The reproducible parts —
+          detection rules and the pipeline diagrams — live on the{' '}
+          <a
+            href="/work/silent-operator"
+            className="text-[var(--color-acid)] underline decoration-dotted underline-offset-2"
+          >
+            case studies
+          </a>
+          . Dashboard captures are being added as the lab is rebuilt; the rules there are marked{' '}
+          <span className="text-[#ffd166]">draft</span> until they have fired against a controlled run.
+        </p>
+      </Reveal>
     </Section>
   );
 }
