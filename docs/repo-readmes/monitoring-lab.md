@@ -37,3 +37,13 @@ Virtualised on VirtualBox, host-only networking.
 ## Scope
 
 All hosts are mine, isolated from any production or third-party network.
+
+---
+
+## Part of a portfolio
+
+Full case study, with diagrams and the detection logic in context:
+**https://hackwithsahil.vercel.app/work/monitoring-lab**
+
+The portfolio ties every project to the MITRE ATT&CK technique it covers:
+**https://hackwithsahil.vercel.app**

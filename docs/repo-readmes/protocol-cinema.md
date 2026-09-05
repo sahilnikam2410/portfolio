@@ -34,3 +34,13 @@ defensive — the observable, not the implementation.
 ## Scope
 
 Authorised lab only. No third-party API was used as a live channel.
+
+---
+
+## Part of a portfolio
+
+Full case study, with diagrams and the detection logic in context:
+**https://hackwithsahil.vercel.app/work/protocol-cinema**
+
+The portfolio ties every project to the MITRE ATT&CK technique it covers:
+**https://hackwithsahil.vercel.app**
