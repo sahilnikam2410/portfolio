@@ -331,8 +331,8 @@ export const caseStudies = {
         lang: 'xml',
         status: 'validated',
         validated: '2026-09-05',
-        code: "<group name=\"authentication_failures,windows,\">\n  <!-- 60122 is Wazuh's built-in Windows logon-failure rule. A burst of\n       them from one source inside two minutes escalates to a brute-force\n       alert at level 12 — the version captured firing in the lab. -->\n  <rule id=\"100211\" level=\"12\" frequency=\"6\" timeframe=\"120\">\n    <if_matched_sid>60122</if_matched_sid>\n    <same_source_ip />\n    <description>Brute-force attack detected - multiple Windows logon failures</description>\n    <mitre><id>T1110</id></mitre>\n  </rule>\n</group>",
-        note: 'Captured firing on 5 Sep 2026 (see the artifact above): four level-5 60122 logon failures on WIN-SERVER-2022, then rule 100211 at level 12. Tune the frequency before trusting it — six in two minutes is a starting point, not a measurement. False positives: service accounts with stale cached credentials and password managers retrying after a change.',
+        code: "<group name=\"authentication_failures,windows,\">\n  <!-- 60122 is Wazuh's built-in Windows logon-failure rule. A burst of\n       them from one source inside two minutes escalates to a brute-force\n       alert at level 12 — the version captured firing in the lab. -->\n  <rule id=\"100211\" level=\"12\" frequency=\"5\" timeframe=\"60\">\n    <if_matched_sid>60122</if_matched_sid>\n    <same_source_ip />\n    <description>Brute-force attack detected - multiple Windows logon failures</description>\n    <mitre><id>T1110</id></mitre>\n  </rule>\n</group>",
+        note: 'Captured firing on 5 Sep 2026 (see the artifact above): four level-5 60122 logon failures on WIN-SERVER-2022, then rule 100211 at level 12. Tune the frequency before trusting it — five in sixty seconds is what the deployed rule uses, not a measurement. False positives: service accounts with stale cached credentials and password managers retrying after a change.',
       },
       {
         title: 'The same detection as a Sigma rule',
