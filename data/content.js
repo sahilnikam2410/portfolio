@@ -10,7 +10,7 @@ export const identity = {
   role: 'SOC Analyst (L1) · VAPT · Blue Team',
   tagline:
     'I run both sides of the attack: simulate it mapped to MITRE ATT&CK, then prove the SIEM catches it.',
-  location: 'Shirdi, Maharashtra · open to Pune / Mumbai / Bengaluru / Hyderabad / Gurugram',
+  location: 'Nashik, Maharashtra · open to Pune / Mumbai / Bengaluru / Hyderabad / Gurugram',
   status: 'Immediate joiner',
   email: 'sahilnikam133@gmail.com',
   phone: '+91 8329935878',
@@ -418,7 +418,7 @@ export const ethics = {
 
 export const terminalBoot = [
   { cmd: 'whoami', out: ['sahil — SOC Analyst (L1) / VAPT'] },
-  { cmd: 'cat /etc/status', out: ['immediate joiner · Shirdi, MH · open to relocation'] },
+  { cmd: 'cat /etc/status', out: ['immediate joiner · Nashik, MH · open to relocation'] },
   {
     cmd: 'wazuh-control status',
     out: [

@@ -23,7 +23,7 @@ export function GET() {
       phone: identity.phone,
       url: siteUrl,
       summary: identity.bio.join(' '),
-      location: { city: 'Shirdi', region: 'Maharashtra', countryCode: 'IN' },
+      location: { city: 'Nashik', region: 'Maharashtra', countryCode: 'IN' },
       profiles,
     },
     // A degree is not employment. Splitting them matters because parsers read

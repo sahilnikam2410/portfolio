@@ -15,7 +15,7 @@ export default function JsonLd() {
     sameAs: socials.filter((s) => s.href.startsWith('http')).map((s) => s.href),
     address: {
       '@type': 'PostalAddress',
-      addressLocality: 'Shirdi',
+      addressLocality: 'Nashik',
       addressRegion: 'Maharashtra',
       addressCountry: 'IN',
     },
