@@ -112,7 +112,7 @@ export const projects = [
       'Detected via log correlation, custom alert rules, triage and threat hunting',
       'Exposed detection gaps, then closed them with new rules',
     ],
-    // repo: 'https://github.com/sahilnikam2410/silent-operator', // set when the repo is public
+    repo: 'https://github.com/sahilnikam2410/silent-operator',
   },
   {
     id: 'protocol-honeypot',
@@ -126,7 +126,7 @@ export const projects = [
       'Correlates attacker behaviour into actionable alerts',
       'Profiles technique patterns rather than single events',
     ],
-    // repo: 'https://github.com/sahilnikam2410/protocol-honeypot',
+    repo: 'https://github.com/sahilnikam2410/protocol-honeypot',
   },
   {
     id: 'protocol-cinema',
@@ -140,7 +140,7 @@ export const projects = [
       'Converted observed TTPs into detection logic',
       'Lab-only — no live third-party infrastructure involved',
     ],
-    // repo: 'https://github.com/sahilnikam2410/protocol-cinema',
+    repo: 'https://github.com/sahilnikam2410/protocol-cinema',
   },
   {
     id: 'monitoring-lab',
@@ -154,7 +154,7 @@ export const projects = [
       'Simulated attack traffic analysed to find detection gaps',
       'Dashboards built for network and system telemetry',
     ],
-    // repo: 'https://github.com/sahilnikam2410/monitoring-lab',
+    repo: 'https://github.com/sahilnikam2410/monitoring-lab',
   },
   {
     id: 'vrikaan',
