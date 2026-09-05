@@ -341,7 +341,12 @@ export const caseStudies = {
         note: 'Sigma keeps the logic portable: the same reasoning moves to Splunk or Elastic without being rewritten.',
       },
     ],
-    artifacts: [],
+    artifacts: [
+      {
+        src: '/artifacts/wazuh-soc-lab.png',
+        alt: 'Wazuh Threat Hunting — the lab manager (sahil) with a WIN-SERVER-2022 agent enrolled, events flowing, a custom level-15 rule firing on the Windows host, alerts mapped to MITRE Valid Accounts and Command & Scripting. Captured 5 Sep 2026.',
+      },
+    ],
   },
 
   'protocol-honeypot': {
