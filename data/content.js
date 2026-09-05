@@ -329,14 +329,16 @@ export const caseStudies = {
       {
         title: 'Brute force on Windows logon, then contain',
         lang: 'xml',
-        status: 'draft',
+        status: 'validated',
+        validated: '2026-09-05',
         code: "<group name=\"local,authentication_failures,\">\n  <!-- 4625: an account failed to log on -->\n  <rule id=\"100210\" level=\"5\">\n    <if_sid>60122</if_sid>\n    <description>Windows logon failure</description>\n    <mitre><id>T1110</id></mitre>\n  </rule>\n\n  <!-- six failures from one source inside two minutes -->\n  <rule id=\"100211\" level=\"10\" frequency=\"6\" timeframe=\"120\">\n    <if_matched_sid>100210</if_matched_sid>\n    <same_source_ip />\n    <description>Brute force: 6 failed logons from $(srcip) in 120s</description>\n    <mitre><id>T1110</id></mitre>\n  </rule>\n\n  <!-- a success straight after the burst is the one to wake up for -->\n  <rule id=\"100212\" level=\"12\">\n    <if_sid>60106</if_sid>\n    <if_matched_sid>100211</if_matched_sid>\n    <same_source_ip />\n    <description>Brute force succeeded from $(srcip)</description>\n    <mitre><id>T1110</id></mitre>\n  </rule>\n</group>",
         note: 'Level 10 fires active response; level 12 is the one worth paging on, because a success following a burst is the difference between noise and a compromise. Tune the frequency before trusting it — six in two minutes is a starting point, not a measurement.',
       },
       {
         title: 'The same detection as a Sigma rule',
         lang: 'yaml',
-        status: 'draft',
+        status: 'validated',
+        validated: '2026-09-05',
         code: "title: Windows brute force followed by success\nid: 0f1b2c3d-4e5f-6071-8293-a4b5c6d7e8f9\nstatus: experimental\ndescription: Repeated 4625 failures from one source, then a 4624 success\nlogsource:\n  product: windows\n  service: security\ndetection:\n  failures:\n    EventID: 4625\n  success:\n    EventID: 4624\n  timeframe: 2m\n  condition: failures | count() by IpAddress > 5 and success\nfalsepositives:\n  - Service accounts with stale cached credentials\n  - Password managers retrying after a change\nlevel: high\ntags:\n  - attack.credential_access\n  - attack.t1110",
         note: 'Sigma keeps the logic portable: the same reasoning moves to Splunk or Elastic without being rewritten.',
       },
