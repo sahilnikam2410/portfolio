@@ -331,8 +331,8 @@ export const caseStudies = {
         lang: 'xml',
         status: 'validated',
         validated: '2026-09-05',
-        code: "<group name=\"local,authentication_failures,\">\n  <!-- 4625: an account failed to log on -->\n  <rule id=\"100210\" level=\"5\">\n    <if_sid>60122</if_sid>\n    <description>Windows logon failure</description>\n    <mitre><id>T1110</id></mitre>\n  </rule>\n\n  <!-- six failures from one source inside two minutes -->\n  <rule id=\"100211\" level=\"10\" frequency=\"6\" timeframe=\"120\">\n    <if_matched_sid>100210</if_matched_sid>\n    <same_source_ip />\n    <description>Brute force: 6 failed logons from $(srcip) in 120s</description>\n    <mitre><id>T1110</id></mitre>\n  </rule>\n\n  <!-- a success straight after the burst is the one to wake up for -->\n  <rule id=\"100212\" level=\"12\">\n    <if_sid>60106</if_sid>\n    <if_matched_sid>100211</if_matched_sid>\n    <same_source_ip />\n    <description>Brute force succeeded from $(srcip)</description>\n    <mitre><id>T1110</id></mitre>\n  </rule>\n</group>",
-        note: 'Level 10 fires active response; level 12 is the one worth paging on, because a success following a burst is the difference between noise and a compromise. Tune the frequency before trusting it — six in two minutes is a starting point, not a measurement.',
+        code: "<group name=\"authentication_failures,windows,\">\n  <!-- 60122 is Wazuh's built-in Windows logon-failure rule. A burst of\n       them from one source inside two minutes escalates to a brute-force\n       alert at level 12 — the version captured firing in the lab. -->\n  <rule id=\"100211\" level=\"12\" frequency=\"6\" timeframe=\"120\">\n    <if_matched_sid>60122</if_matched_sid>\n    <same_source_ip />\n    <description>Brute-force attack detected - multiple Windows logon failures</description>\n    <mitre><id>T1110</id></mitre>\n  </rule>\n</group>",
+        note: 'Captured firing on 5 Sep 2026 (see the artifact above): four level-5 60122 logon failures on WIN-SERVER-2022, then rule 100211 at level 12. Tune the frequency before trusting it — six in two minutes is a starting point, not a measurement. False positives: service accounts with stale cached credentials and password managers retrying after a change.',
       },
       {
         title: 'The same detection as a Sigma rule',
@@ -344,6 +344,10 @@ export const caseStudies = {
       },
     ],
     artifacts: [
+      {
+        src: '/artifacts/bruteforce-100211.png',
+        alt: 'Wazuh Threat Hunting — rule 100211 firing at level 12 on WIN-SERVER-2022, "Brute-force attack detected - multiple Windows logon failures", immediately after a burst of level-5 logon-failure events (rule 60122). This is the brute-force detection triggering against a real run. Captured 5 Sep 2026, 21:39.',
+      },
       {
         src: '/artifacts/wazuh-soc-lab.png',
         alt: 'Wazuh Threat Hunting — the lab manager (sahil) with a WIN-SERVER-2022 agent enrolled, events flowing, a custom level-15 rule firing on the Windows host, alerts mapped to MITRE Valid Accounts and Command & Scripting. Captured 5 Sep 2026.',
