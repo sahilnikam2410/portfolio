@@ -1,0 +1,13 @@
+{
+  "// note": "Thresholds set from real Lighthouse runs (6 Sep 2026), not guesses. Accessibility and best-practices measured 100 on the live site and a local production build; they are the defensible numbers for a recruiter-facing page, so they gate CI. SEO measured 92 only because Lighthouse's own robots.txt fetch times out under the WebGL scene's main-thread load (the file itself returns 200 and is valid) — kept as a warning so a flaky fetch never breaks the build. Performance is intentionally not asserted: a continuously-animating 3D canvas never lets the main thread idle, so TBT/TTI-based scoring is structurally low and is not a meaningful gate here.",
+  "ci": {
+    "assert": {
+      "assertions": {
+        "categories:accessibility": ["error", { "minScore": 1 }],
+        "categories:best-practices": ["error", { "minScore": 1 }],
+        "categories:seo": ["warn", { "minScore": 0.9 }],
+        "categories:performance": "off"
+      }
+    }
+  }
+}

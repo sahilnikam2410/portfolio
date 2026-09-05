@@ -897,6 +897,30 @@ function ScrollBridge() {
 
 /* ── exported canvas ─────────────────────────────────────────── */
 
+/**
+ * A backgrounded tab should not keep the GPU spinning. Pausing the render
+ * loop while the document is hidden saves battery and heat on laptops and
+ * phones, and lets the main thread go idle so the page settles once it is
+ * out of view. The loop resumes and repaints the instant the tab returns.
+ */
+function FrameGate() {
+  const setFrameloop = useThree((s) => s.setFrameloop);
+  const invalidate = useThree((s) => s.invalidate);
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.hidden) {
+        setFrameloop('never');
+      } else {
+        setFrameloop('always');
+        invalidate();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, [setFrameloop, invalidate]);
+  return null;
+}
+
 export default function Scene() {
   const [mode, setMode] = useState('full'); // full | lite | off
   const [dpr, setDpr] = useState(1.5);
@@ -996,6 +1020,7 @@ export default function Scene() {
           onIncline={() => setDpr((d) => Math.min(1.75, d + 0.2))}
         />
         <AdaptiveDpr pixelated={false} />
+        <FrameGate />
         <ScrollBridge />
 
         <Suspense fallback={null}>

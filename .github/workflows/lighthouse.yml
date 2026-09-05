@@ -38,17 +38,16 @@ jobs:
           echo "server never became reachable"
           exit 1
 
-      # Report-only. The budget in .github/lighthouse-budget.json was written
-      # from guesses and failed every run — a WebGL scene will not hold a
-      # 400ms total-blocking-time budget on a shared CI runner. Read a few
-      # real reports first, then set thresholds from those numbers and put
-      # budgetPath back.
+      # Thresholds now come from real runs, not guesses (see
+      # .github/lighthouserc.json). Accessibility and best-practices are
+      # asserted at 100 and gate the job; SEO is a warning; performance is not
+      # asserted because a live WebGL scene never lets the main thread idle.
       - name: Audit
         uses: treosh/lighthouse-ci-action@v12
-        continue-on-error: true
         with:
           urls: |
             http://localhost:3000/
             http://localhost:3000/work/silent-operator
+          configPath: .github/lighthouserc.json
           uploadArtifacts: true
           temporaryPublicStorage: true
