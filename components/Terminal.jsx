@@ -221,6 +221,8 @@ function createShell({ fs, setCwd, clear, openLink }) {
       ...resumes.map((r) => `  ${r.role.padEnd(26)} ${r.note}`),
       '',
       'e.g.  open soc   |   open vapt   |   open network',
+      '',
+      'machine-readable: /resume.json  (JSON Resume schema)',
     ],
 
     open: (args) => {

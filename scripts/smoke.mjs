@@ -26,6 +26,8 @@ const ROUTES = [
   ['/opengraph-image', 200],
   ['/work/silent-operator/opengraph-image', 200],
   ['/.well-known/security.txt', 200],
+  ['/resume.json', 200],
+  ['/manifest.webmanifest', 200],
   ['/this-route-does-not-exist', 404],
 ];
 

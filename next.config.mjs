@@ -26,6 +26,7 @@ const csp = [
   "img-src 'self' data: blob:",
   `connect-src 'self'${dev ? ' ws: http://localhost:*' : ''} https://va.vercel-scripts.com https://vitals.vercel-insights.com`,
   "worker-src 'self' blob:",
+  "manifest-src 'self'",
   'upgrade-insecure-requests',
 ].join('; ');
 

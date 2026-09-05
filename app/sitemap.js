@@ -11,6 +11,12 @@ export default function sitemap() {
       changeFrequency: 'monthly',
       priority: 1,
     },
+    {
+      url: `${siteUrl}/resume.json`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
     ...projects.map((p) => ({
       url: `${siteUrl}/work/${p.id}`,
       lastModified: now,
