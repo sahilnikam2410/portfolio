@@ -159,7 +159,9 @@ export default async function CaseStudy({ params }) {
                             : 'border-[rgba(255,209,102,0.4)] text-[#ffd166]'
                         }`}
                       >
-                        {r.status === 'validated' ? 'validated in lab' : 'draft — not yet run'}
+                        {r.status === 'validated'
+                          ? `validated in lab${r.validated ? ` · ${r.validated}` : ''}`
+                          : 'draft — not yet run'}
                       </span>
                     </figcaption>
                     <pre className="overflow-x-auto border border-[rgba(53,255,158,0.14)] bg-[rgba(4,7,10,0.85)] p-4 text-[12px] leading-relaxed text-[var(--color-bone)]">
