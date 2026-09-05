@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { coverage, projects } from '@/data/content';
 import { Section, Reveal } from './ui';
 import { useSceneStore } from './sceneStore';
@@ -252,12 +253,12 @@ export default function Coverage() {
           Each row cites its context in the <span className="text-[var(--color-cyan)]">where</span>{' '}
           column — internship, a lab project, or production at Vrikaan. The reproducible parts —
           detection rules and the pipeline diagrams — live on the{' '}
-          <a
+          <Link
             href="/work/silent-operator"
             className="text-[var(--color-acid)] underline decoration-dotted underline-offset-2"
           >
             case studies
-          </a>
+          </Link>
           . Dashboard captures are being added as the lab is rebuilt; the rules there are marked{' '}
           <span className="text-[#ffd166]">draft</span> until they have fired against a controlled run.
         </p>
