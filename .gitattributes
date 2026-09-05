@@ -1,0 +1,12 @@
+# Normalise line endings so the repo stays LF-clean regardless of the
+# checkout platform. Without this, committing on Windows produced a CRLF
+# warning on almost every text file.
+* text=auto eol=lf
+
+# Binaries must never be touched
+*.pdf   binary
+*.png   binary
+*.jpg   binary
+*.ico   binary
+*.woff  binary
+*.woff2 binary
