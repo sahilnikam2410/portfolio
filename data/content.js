@@ -332,7 +332,7 @@ export const caseStudies = {
         status: 'validated',
         validated: '2026-09-05',
         code: "<group name=\"authentication_failures,windows,\">\n  <!-- 60122 is Wazuh's built-in Windows logon-failure rule. A burst of\n       them from one source inside two minutes escalates to a brute-force\n       alert at level 12 — the version captured firing in the lab. -->\n  <rule id=\"100211\" level=\"12\" frequency=\"5\" timeframe=\"60\">\n    <if_matched_sid>60122</if_matched_sid>\n    <same_source_ip />\n    <description>Brute-force attack detected - multiple Windows logon failures</description>\n    <mitre><id>T1110</id></mitre>\n  </rule>\n</group>",
-        note: 'Captured firing on 5 Sep 2026 (see the artifact above): four level-5 60122 logon failures on WIN-SERVER-2022, then rule 100211 at level 12. Tune the frequency before trusting it — five in sixty seconds is what the deployed rule uses, not a measurement. False positives: service accounts with stale cached credentials and password managers retrying after a change.',
+        note: 'Captured firing on 5 Sep 2026 (see the artifact above): four level-5 60122 logon failures on WIN-SERVER-2022, then rule 100211 at level 12. The same capture also shows isolated 60122 events at 21:34 and 21:31 that raised nothing — a correlation rule is only worth having if it stays quiet on the noise, and that is the half usually left out of a screenshot. Tune the frequency before trusting it — five in sixty seconds is what the deployed rule uses, not a measurement. False positives: service accounts with stale cached credentials and password managers retrying after a change.',
       },
       {
         title: 'The same detection as a Sigma rule',
@@ -346,7 +346,7 @@ export const caseStudies = {
     artifacts: [
       {
         src: '/artifacts/bruteforce-100211.png',
-        alt: 'Wazuh Threat Hunting — rule 100211 firing at level 12 on WIN-SERVER-2022, "Brute-force attack detected - multiple Windows logon failures", immediately after a burst of level-5 logon-failure events (rule 60122). This is the brute-force detection triggering against a real run. Captured 5 Sep 2026, 21:39.',
+        alt: 'Wazuh Threat Hunting, a fifteen-minute window on 5 Sep 2026. Four level-5 logon failures (rule 60122) land on WIN-SERVER-2022 between 21:38:55 and 21:39:04, and rule 100211 then fires at level 12 at 21:39:08 — "Brute-force attack detected - multiple Windows logon failures". Isolated failures earlier in the same window, at 21:34:21 and 21:31:39, raise no correlation alert, which is the threshold doing its job rather than the rule matching anything that looks like a failure.',
       },
       {
         src: '/artifacts/wazuh-soc-lab.png',
