@@ -25,12 +25,12 @@ export const PALETTES = {
     void: '#04070a',
   },
   spider: {
-    acid: '#ff4d5a',
-    cyan: '#a06bff',
+    acid: '#ff2a3c',
+    cyan: '#5b8cff',
     amber: '#ffd166',
-    red: '#ff1e3c',
-    violet: '#4d6bff',
-    bone: '#efdfe2',
+    red: '#ff0033',
+    violet: '#2b4fb8',
+    bone: '#e8edf7',
     void: '#04070a',
   },
 };

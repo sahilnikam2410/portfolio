@@ -75,21 +75,23 @@ body::after {
 
 ::selection {
   background: var(--color-acid);
-  color: #03130b;
+  /* the page ground, so selected text stays legible whichever accent is
+     behind it — a fixed dark green only ever suited one palette */
+  color: var(--color-void);
 }
 
 ::-webkit-scrollbar {
   width: 9px;
 }
 ::-webkit-scrollbar-track {
-  background: #04070a;
+  background: var(--color-void);
 }
 ::-webkit-scrollbar-thumb {
-  background: #17402f;
+  background: rgb(var(--acid-rgb) / 0.3);
   border-radius: 99px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #256b4d;
+  background: rgb(var(--acid-rgb) / 0.55);
 }
 
 /* display type — the hero name, sized off the viewport rather than a scale */
@@ -277,30 +279,43 @@ body::after {
 }
 
 /* ---------------------------------------------------------------------------
-   Spider theme
+   Spider theme — classic red and blue
    ---------------------------------------------------------------------------
    An alternate palette, not an alternate site: only colour changes, every
    layout, animation and piece of content is shared. The whole DOM re-themes
    from this block because the accents are referenced through tokens rather
    than literals.
 
-   Classic comic red (#e62429) measures 4.47:1 on the void background, which
-   fails WCAG AA for body text, so the accent is the brighter coral that
-   reads the same but clears the bar. Contrast against --color-void:
-     accent  #ff4d5a  6.21:1
-     cyan    #a06bff  5.81:1
-     dim     #8a7a80  4.98:1  (the green theme's dim measures 5.00:1)
-     bone    #efdfe2 15.70:1
+   The authentic comic colours cannot be used as-is on a dark ground. Measured
+   against --color-void:
+
+     marvel red   #e62429   4.47:1   fails AA for body text
+     marvel blue  #1f4ba5   2.51:1   fails badly, unusable at any text size
+
+   So both are raised in lightness to the nearest values that keep the same
+   hue and still clear the bar:
+
+     accent  #ff2a3c   5.43:1
+     blue    #5b8cff   6.39:1
+     dim     #8892b0   6.52:1
+     bone    #e8edf7  17.20:1
+
+   Blue is lifted past the red rather than matched to it on purpose. At
+   #4d7cff the two accents measure an identical 5.43:1, which means they are
+   the same shade in greyscale and for anyone with full colour blindness. The
+   lift restores roughly the 1.2 separation the green palette has between its
+   own two accents.
+
    Accessibility is asserted at 100 in CI, so these are load-bearing.
 --------------------------------------------------------------------------- */
 :root[data-theme='spider'] {
-  --color-line: #241619;
-  --color-acid: #ff4d5a;
-  --color-cyan: #a06bff;
-  --color-dim: #8a7a80;
-  --color-bone: #efdfe2;
+  --color-line: #1a2340;
+  --color-acid: #ff2a3c;
+  --color-cyan: #5b8cff;
+  --color-dim: #8892b0;
+  --color-bone: #e8edf7;
 
-  --acid-rgb: 255 77 90;
-  --cyan-rgb: 160 107 255;
-  --dim-rgb: 138 122 128;
+  --acid-rgb: 255 42 60;
+  --cyan-rgb: 91 140 255;
+  --dim-rgb: 136 146 176;
 }
