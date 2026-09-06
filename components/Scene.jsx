@@ -457,6 +457,175 @@ function Grid() {
   );
 }
 
+/* ── orb web + spider (spider palette only) ──────────────────── */
+
+/**
+ * A real orb web in space, not the ruled floor. Radial strands anchored at a
+ * hub, with capture spiral rings that sag between them — a ring drawn as a
+ * true circle reads as a dartboard, and the sag is the whole difference.
+ *
+ * One LineSegments for the lot: a web is a few hundred short segments, and
+ * paying a draw call each would be silly.
+ */
+function OrbWeb({ strands = 16, rings = 7, radius = 6.4 }) {
+  const group = useRef(null);
+
+  const geometry = useMemo(() => {
+    const pts = [];
+    const TAU = Math.PI * 2;
+
+    // hub offset per strand, so the anchor points are not perfectly regular;
+    // a perfectly regular web looks machined rather than spun
+    const jitter = makeRandom(0x5eed_5b1d);
+    const wobble = Array.from({ length: strands }, () => 0.82 + jitter() * 0.36);
+
+    const at = (i, r) => {
+      const a = (i / strands) * TAU;
+      return new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r, 0);
+    };
+
+    // radial strands, hub outward
+    for (let i = 0; i < strands; i++) {
+      const r = radius * wobble[i];
+      pts.push(new THREE.Vector3(0, 0, 0), at(i, r));
+    }
+
+    // capture spiral: each ring segment sags toward the hub at its midpoint
+    for (let k = 1; k <= rings; k++) {
+      const f = Math.pow(k / rings, 1.25); // rings crowd toward the rim
+      for (let i = 0; i < strands; i++) {
+        const j = (i + 1) % strands;
+        const a = at(i, radius * wobble[i] * f);
+        const b = at(j, radius * wobble[j] * f);
+        // two-segment chord pulled inward at the middle = visible slack
+        const mid = a.clone().add(b).multiplyScalar(0.5).multiplyScalar(0.93);
+        pts.push(a, mid, mid, b);
+      }
+    }
+
+    return new THREE.BufferGeometry().setFromPoints(pts);
+  }, [strands, rings, radius]);
+
+  useFrame(({ clock }) => {
+    if (!group.current) return;
+    // barely moving: a web is anchored, it only breathes
+    group.current.rotation.z = Math.sin(clock.elapsedTime * 0.06) * 0.04;
+  });
+
+  return (
+    <group ref={group} position={[0, 0, -4.6]}>
+      <lineSegments geometry={geometry}>
+        <lineBasicMaterial
+          color={ACID}
+          transparent
+          opacity={0.26}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </lineSegments>
+    </group>
+  );
+}
+
+/**
+ * A spider, built from primitives rather than a downloaded model: two body
+ * lobes and eight jointed legs, hanging off its own dragline.
+ *
+ * The legs are placed once and animated by rotation, so the whole thing is a
+ * static geometry plus a handful of transforms per frame.
+ */
+function Spider({ scale = 0.34 }) {
+  const group = useRef(null);
+  const legs = useRef([]);
+  const drop = useRef(0);
+
+  // four per side, angled forward to back
+  const layout = useMemo(
+    () =>
+      Array.from({ length: 8 }, (_, i) => {
+        const side = i < 4 ? 1 : -1;
+        const k = i % 4;
+        return {
+          side,
+          // splay: front legs reach forward, back legs sweep behind
+          yaw: side * (0.95 - k * 0.42),
+          phase: k * 0.7 + (side > 0 ? 0 : Math.PI),
+        };
+      }),
+    []
+  );
+
+  useFrame(({ clock }, delta) => {
+    const t = clock.elapsedTime;
+    const { alert } = useSceneStore.getState();
+
+    // spider-sense: it drops on its line when the attack set-piece fires
+    drop.current = THREE.MathUtils.damp(drop.current, alert ? 1 : 0, 2.2, delta);
+
+    if (group.current) {
+      group.current.position.y = 2.25 - drop.current * 3.4;
+      group.current.position.x = 1.9 + Math.sin(t * 0.23) * 0.45;
+      group.current.rotation.z = Math.sin(t * 0.4) * 0.09;
+    }
+
+    // idle articulation — legs feel for the silk rather than marching
+    legs.current.forEach((leg, i) => {
+      if (!leg) return;
+      const l = layout[i];
+      leg.rotation.z = Math.sin(t * 1.6 + l.phase) * 0.16 - l.side * 0.5;
+    });
+  });
+
+  return (
+    <group ref={group} position={[1.9, 2.25, -1.2]} scale={scale}>
+      {/* dragline back up out of frame */}
+      <line>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            args={[new Float32Array([0, 0, 0, 0, 40, 0]), 3]}
+          />
+        </bufferGeometry>
+        <lineBasicMaterial color={ACID} transparent opacity={0.3} depthWrite={false} />
+      </line>
+
+      {/* abdomen and head */}
+      <mesh position={[0, 0, -0.55]}>
+        <sphereGeometry args={[0.62, 14, 12]} />
+        <meshBasicMaterial color={ACID} wireframe transparent opacity={0.75} />
+      </mesh>
+      <mesh position={[0, 0, 0.4]}>
+        <sphereGeometry args={[0.38, 12, 10]} />
+        <meshBasicMaterial color={ACID} wireframe transparent opacity={0.9} />
+      </mesh>
+
+      {layout.map((l, i) => (
+        <group
+          key={i}
+          ref={(el) => {
+            legs.current[i] = el;
+          }}
+          position={[l.side * 0.24, 0, 0.1 - (i % 4) * 0.22]}
+          rotation={[0, l.yaw, -l.side * 0.5]}
+        >
+          {/* femur */}
+          <mesh position={[l.side * 0.5, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.035, 0.045, 1.0, 5]} />
+            <meshBasicMaterial color={ACID} transparent opacity={0.8} />
+          </mesh>
+          {/* tibia, kinked down at the knee */}
+          <group position={[l.side * 1.0, 0, 0]} rotation={[0, 0, l.side * 1.05]}>
+            <mesh position={[l.side * 0.45, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.022, 0.035, 0.9, 5]} />
+              <meshBasicMaterial color={ACID} transparent opacity={0.7} />
+            </mesh>
+          </group>
+        </group>
+      ))}
+    </group>
+  );
+}
+
 /* ── camera rig: scroll waypoints + pointer parallax ─────────── */
 
 const WAYPOINTS = [
@@ -975,6 +1144,7 @@ export default function Scene() {
 
   const quality = useSceneStore((s) => s.quality);
   const theme = useSceneStore((s) => s.theme);
+  const spider = theme === 'spider';
 
   // Retool the shared colour instances before the children below read them.
   // useMemo rather than an effect: an effect would run after the first frame
@@ -1084,6 +1254,9 @@ export default function Scene() {
           </Environment>
 
           <Rig>
+            {/* the web and its occupant belong to the spider palette only */}
+            {spider && <OrbWeb rings={lite ? 5 : 7} strands={lite ? 12 : 16} />}
+            {spider && <Spider />}
             <HoloGlobe />
             <Nodes count={lite ? 42 : 90} />
             <Traffic count={lite ? 4 : 10} />
