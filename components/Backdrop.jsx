@@ -113,10 +113,15 @@ export default function Backdrop() {
        *
        * The section holds the scrim back now, and the alert takes it further
        * still, so the set-piece has somewhere left to go.
+       *
+       * 0.65 rather than the 0.56 first tried: at 0.56 the shot read well but
+       * the body copy over it did not, and this section carries the densest
+       * text on the page. The scene is decoration and the table is the point,
+       * so the text wins the argument.
        */
       const attack = section === 'coverage';
       const layerTo = alert ? 0.92 : attack ? 0.78 : 1 - past * 0.62;
-      const scrimTo = alert ? 0.42 : attack ? 0.56 : 0.18 + past * 0.62;
+      const scrimTo = alert ? 0.42 : attack ? 0.65 : 0.18 + past * 0.62;
 
       cur.layer += (layerTo - cur.layer) * 0.05;
       cur.scrim += (scrimTo - cur.scrim) * 0.05;
