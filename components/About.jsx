@@ -16,7 +16,7 @@ export default function About() {
         <div className="space-y-5">
           {identity.bio.map((p, i) => (
             <Reveal key={i} delay={i * 0.08}>
-              <p className="text-[15px] leading-[1.85] text-[var(--color-dim)]">{p}</p>
+              <p className="t-body text-[var(--color-dim)]">{p}</p>
             </Reveal>
           ))}
 

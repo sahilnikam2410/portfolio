@@ -25,12 +25,10 @@ export function SectionHeading({ index, title, subtitle }) {
             <Scramble
               as="h2"
               text={title}
-              className="block text-3xl font-bold tracking-tight text-[var(--color-bone)] sm:text-5xl"
+              className="t-h2 block font-bold text-[var(--color-bone)]"
             />
             {subtitle && (
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--color-dim)] sm:text-[15px]">
-                {subtitle}
-              </p>
+              <p className="t-body mt-4 text-[var(--color-dim)]">{subtitle}</p>
             )}
           </div>
         </div>

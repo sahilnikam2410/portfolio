@@ -85,13 +85,15 @@ body::after {
   background: #256b4d;
 }
 
-/* display type — the hero name, sized off the viewport rather than a scale */
+/* display type — the hero name, now the top step of the scale rather than its
+   own private curve. Mono is a wide face and 9.5vw overflowed a 16-character
+   name at 800px, so the scale's top step is set to clear that. */
 .display {
-  /* mono is a wide face — 9.5vw overflowed a 16-character name at 800px */
-  font-size: clamp(2.1rem, 6.8vw, 6rem);
-  line-height: 0.95;
+  font-size: var(--step-6);
+  line-height: 0.92;
   letter-spacing: -0.045em;
   font-weight: 700;
+  text-wrap: balance;
   overflow-wrap: break-word;
 }
 
@@ -101,9 +103,9 @@ body::after {
   color: transparent;
 }
 
-/* oversized section index numeral */
+/* oversized section index numeral — one step below the heading it sits beside */
 .index-numeral {
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-size: var(--step-5);
   line-height: 0.8;
   letter-spacing: -0.06em;
   -webkit-text-stroke: 1px rgba(53, 255, 158, 0.35);
@@ -267,4 +269,93 @@ body::after {
   html {
     scroll-behavior: auto;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Type system
+   ---------------------------------------------------------------------------
+   The page had no scale. Sizes were picked per component — text-3xl here, a
+   bare 15px there, two unrelated clamp() rules for the two largest things on
+   the page — so nothing was in proportion to anything else. A reader does not
+   see a type scale, but they feel its absence: sizes that are merely different
+   rather than related read as unconsidered.
+
+   One fluid scale, a fourth apart, driven off the viewport between 24rem and
+   90rem. Each step carries the tracking and leading that size needs, because
+   optical correction is per size, not per family: display type set at its
+   default spacing looks loose, and small type set tight closes up and stops
+   being legible. Mono is a wide face, so the corrections here are stronger
+   than they would be for a text face.
+--------------------------------------------------------------------------- */
+:root {
+  --step--1: clamp(0.72rem, 0.69rem + 0.14vw, 0.8rem);
+  --step-0: clamp(0.875rem, 0.83rem + 0.22vw, 1rem);
+  --step-1: clamp(1.05rem, 0.96rem + 0.44vw, 1.33rem);
+  --step-2: clamp(1.26rem, 1.09rem + 0.83vw, 1.78rem);
+  --step-3: clamp(1.51rem, 1.22rem + 1.44vw, 2.37rem);
+  --step-4: clamp(1.81rem, 1.32rem + 2.44vw, 3.16rem);
+  --step-5: clamp(2.18rem, 1.38rem + 3.99vw, 4.21rem);
+  --step-6: clamp(2.61rem, 1.3rem + 6.55vw, 5.61rem);
+
+  /* prose stops at a measure the eye can track without losing its place */
+  --measure: 66ch;
+}
+
+/* Display: the largest type on the page. Tracking goes negative because
+   letterfit that is correct at reading size is loose at display size. */
+.t-display {
+  font-size: var(--step-6);
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+.t-h2 {
+  font-size: var(--step-4);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  /* stops a heading breaking to a single orphan word */
+  text-wrap: balance;
+}
+
+.t-h3 {
+  font-size: var(--step-2);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.t-body {
+  font-size: var(--step-0);
+  line-height: 1.75;
+  letter-spacing: 0;
+  max-width: var(--measure);
+  /* avoids a short last line hanging alone under a full paragraph */
+  text-wrap: pretty;
+}
+
+.t-lead {
+  font-size: var(--step-1);
+  line-height: 1.6;
+  letter-spacing: -0.012em;
+  max-width: var(--measure);
+  text-wrap: pretty;
+}
+
+/* Labels are set in caps, which removes the ascender and descender cues the
+   eye reads word shape from. Letterspacing them back out is what keeps them
+   readable — the one place tracking goes positive. */
+.t-label {
+  font-size: var(--step--1);
+  line-height: 1.4;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* Figures that sit in a column should line up in that column. Proportional
+   digits make a stat row look ragged even when every value is correct. */
+.t-num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  letter-spacing: -0.02em;
 }
