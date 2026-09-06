@@ -460,51 +460,69 @@ function Grid() {
 /* ── orb web + spider (spider palette only) ──────────────────── */
 
 /**
- * A real orb web in space, not the ruled floor. Radial strands anchored at a
- * hub, with capture spiral rings that sag between them — a ring drawn as a
- * true circle reads as a dartboard, and the sag is the whole difference.
+ * An orb web with depth: the hub sits back and the rim comes forward, so the
+ * strands read as a bowl the globe hangs inside rather than a decal on a
+ * plane. Radial strands from the hub, capture rings that sag between them —
+ * a ring drawn as a true circle reads as a dartboard, and the sag is the
+ * whole difference.
  *
- * One LineSegments for the lot: a web is a few hundred short segments, and
+ * One LineSegments for the lot: a web is a few hundred short segments and
  * paying a draw call each would be silly.
  */
-function OrbWeb({ strands = 16, rings = 7, radius = 6.4 }) {
+function OrbWeb({ strands = 16, rings = 7, radius = 6.4, dish = 0.34 }) {
   const group = useRef(null);
 
   const geometry = useMemo(() => {
     const pts = [];
     const TAU = Math.PI * 2;
 
-    // hub offset per strand, so the anchor points are not perfectly regular;
-    // a perfectly regular web looks machined rather than spun
+    // anchors jittered off the regular angle; a perfectly even web looks
+    // machined rather than spun
     const jitter = makeRandom(0x5eed_5b1d);
     const wobble = Array.from({ length: strands }, () => 0.82 + jitter() * 0.36);
 
+    // hub back, rim forward — squared so the dish is shallow at the edge and
+    // falls away quickly near the middle
+    const zAt = (r) => -dish * radius * Math.pow(1 - Math.min(r / radius, 1), 2);
+
     const at = (i, r) => {
       const a = (i / strands) * TAU;
-      return new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r, 0);
+      return new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r, zAt(r));
     };
 
-    // radial strands, hub outward
+    // radial strands, hub outward, subdivided so they bend with the dish
     for (let i = 0; i < strands; i++) {
-      const r = radius * wobble[i];
-      pts.push(new THREE.Vector3(0, 0, 0), at(i, r));
+      const rMax = radius * wobble[i];
+      const steps = 6;
+      for (let k = 0; k < steps; k++) {
+        pts.push(at(i, (k / steps) * rMax), at(i, ((k + 1) / steps) * rMax));
+      }
     }
 
-    // capture spiral: each ring segment sags toward the hub at its midpoint
+    // capture spiral: each segment sags toward the hub at its midpoint
     for (let k = 1; k <= rings; k++) {
       const f = Math.pow(k / rings, 1.25); // rings crowd toward the rim
       for (let i = 0; i < strands; i++) {
         const j = (i + 1) % strands;
         const a = at(i, radius * wobble[i] * f);
         const b = at(j, radius * wobble[j] * f);
-        // two-segment chord pulled inward at the middle = visible slack
-        const mid = a.clone().add(b).multiplyScalar(0.5).multiplyScalar(0.93);
+        const mid = a.clone().add(b).multiplyScalar(0.5);
+        mid.x *= 0.93;
+        mid.y *= 0.93;
+        mid.z = zAt(Math.hypot(mid.x, mid.y));
         pts.push(a, mid, mid, b);
       }
     }
 
+    // bridge lines anchoring the rim back into the dark, which is what sells
+    // the web as something strung in space rather than drawn on glass
+    for (let i = 0; i < strands; i += 3) {
+      const rim = at(i, radius * wobble[i]);
+      pts.push(rim, new THREE.Vector3(rim.x * 1.5, rim.y * 1.5, rim.z - radius * 0.5));
+    }
+
     return new THREE.BufferGeometry().setFromPoints(pts);
-  }, [strands, rings, radius]);
+  }, [strands, rings, radius, dish]);
 
   useFrame(({ clock }) => {
     if (!group.current) return;
@@ -528,18 +546,32 @@ function OrbWeb({ strands = 16, rings = 7, radius = 6.4 }) {
 }
 
 /**
- * A spider, built from primitives rather than a downloaded model: two body
- * lobes and eight jointed legs, hanging off its own dragline.
+ * A spider, built from primitives rather than a downloaded model.
  *
- * The legs are placed once and animated by rotation, so the whole thing is a
- * static geometry plus a handful of transforms per frame.
+ * The silhouette is the whole job. Legs that stick straight out read as a
+ * tick. A real one goes outward and *up* to a knee standing above the body,
+ * then folds down and out to the foot, so each leg here is three jointed
+ * segments rather than a pair of spokes.
+ *
+ * Solid shaded rather than wireframe, so the scene fill lights model the body
+ * and it turns with the light instead of reading as a flat decal.
  */
-function Spider({ scale = 0.34 }) {
+function Spider({ scale = 0.44, eyes = true }) {
   const group = useRef(null);
   const legs = useRef([]);
   const drop = useRef(0);
 
-  // four per side, angled forward to back
+  // one geometry per segment kind, shared by all eight legs
+  const geo = useMemo(
+    () => ({
+      femur: new THREE.CapsuleGeometry(0.052, 0.8, 3, 6),
+      tibia: new THREE.CapsuleGeometry(0.038, 0.92, 3, 6),
+      tarsus: new THREE.CapsuleGeometry(0.024, 0.46, 3, 5),
+      eye: new THREE.SphereGeometry(0.045, 8, 6),
+    }),
+    []
+  );
+
   const layout = useMemo(
     () =>
       Array.from({ length: 8 }, (_, i) => {
@@ -547,9 +579,10 @@ function Spider({ scale = 0.34 }) {
         const k = i % 4;
         return {
           side,
-          // splay: front legs reach forward, back legs sweep behind
-          yaw: side * (0.95 - k * 0.42),
-          phase: k * 0.7 + (side > 0 ? 0 : Math.PI),
+          k,
+          yaw: side * (1.02 - k * 0.46), // fan front to back
+          z: 0.3 - k * 0.2, // attachment point along the thorax
+          phase: k * 0.85 + (side > 0 ? 0 : Math.PI),
         };
       }),
     []
@@ -563,21 +596,26 @@ function Spider({ scale = 0.34 }) {
     drop.current = THREE.MathUtils.damp(drop.current, alert ? 1 : 0, 2.2, delta);
 
     if (group.current) {
-      group.current.position.y = 2.25 - drop.current * 3.4;
+      group.current.position.y = 1.78 - drop.current * 3.4;
       group.current.position.x = 1.9 + Math.sin(t * 0.23) * 0.45;
       group.current.rotation.z = Math.sin(t * 0.4) * 0.09;
+      // turn slowly so the shading reads as volume rather than a sticker
+      group.current.rotation.y = Math.sin(t * 0.17) * 0.5;
     }
 
-    // idle articulation — legs feel for the silk rather than marching
+    // idle articulation: a hanging spider feels for the silk, so the legs
+    // flex at the knee rather than sweeping like oars
     legs.current.forEach((leg, i) => {
       if (!leg) return;
       const l = layout[i];
-      leg.rotation.z = Math.sin(t * 1.6 + l.phase) * 0.16 - l.side * 0.5;
+      const flex = Math.sin(t * 1.5 + l.phase);
+      leg.rotation.y = l.yaw + flex * 0.1;
+      leg.rotation.z = flex * 0.07;
     });
   });
 
   return (
-    <group ref={group} position={[1.9, 2.25, -1.2]} scale={scale}>
+    <group ref={group} position={[1.9, 1.78, -1.2]} scale={scale}>
       {/* dragline back up out of frame */}
       <line>
         <bufferGeometry>
@@ -589,15 +627,47 @@ function Spider({ scale = 0.34 }) {
         <lineBasicMaterial color={ACID} transparent opacity={0.3} depthWrite={false} />
       </line>
 
-      {/* abdomen and head */}
-      <mesh position={[0, 0, -0.55]}>
-        <sphereGeometry args={[0.62, 14, 12]} />
-        <meshBasicMaterial color={ACID} wireframe transparent opacity={0.75} />
+      {/* abdomen: the big rear lobe, longer than it is wide */}
+      <mesh position={[0, -0.04, -0.62]} scale={[0.92, 0.82, 1.3]}>
+        <sphereGeometry args={[0.5, 18, 14]} />
+        <meshStandardMaterial
+          color="#140609"
+          emissive={ACID}
+          emissiveIntensity={0.42}
+          roughness={0.34}
+          metalness={0.65}
+        />
       </mesh>
-      <mesh position={[0, 0, 0.4]}>
-        <sphereGeometry args={[0.38, 12, 10]} />
-        <meshBasicMaterial color={ACID} wireframe transparent opacity={0.9} />
+
+      {/* cephalothorax: smaller and flatter, carries the legs and the eyes */}
+      <mesh position={[0, 0, 0.28]} scale={[1, 0.74, 1.08]}>
+        <sphereGeometry args={[0.34, 16, 12]} />
+        <meshStandardMaterial
+          color="#140609"
+          emissive={ACID}
+          emissiveIntensity={0.42}
+          roughness={0.34}
+          metalness={0.65}
+        />
       </mesh>
+
+      {/* eight eyes, two rows, front pair largest — the detail that stops the
+          head reading as a bead */}
+      {eyes &&
+        [
+          [0.09, 0.12, 0.55, 1.25],
+          [-0.09, 0.12, 0.55, 1.25],
+          [0.2, 0.08, 0.48, 0.85],
+          [-0.2, 0.08, 0.48, 0.85],
+          [0.13, 0.2, 0.46, 0.7],
+          [-0.13, 0.2, 0.46, 0.7],
+          [0.26, 0.16, 0.36, 0.6],
+          [-0.26, 0.16, 0.36, 0.6],
+        ].map(([x, y, z, sc], i) => (
+          <mesh key={i} geometry={geo.eye} position={[x, y, z]} scale={sc}>
+            <meshBasicMaterial color={CYAN} toneMapped={false} />
+          </mesh>
+        ))}
 
       {layout.map((l, i) => (
         <group
@@ -605,20 +675,58 @@ function Spider({ scale = 0.34 }) {
           ref={(el) => {
             legs.current[i] = el;
           }}
-          position={[l.side * 0.24, 0, 0.1 - (i % 4) * 0.22]}
-          rotation={[0, l.yaw, -l.side * 0.5]}
+          position={[l.side * 0.18, 0.02, l.z]}
+          rotation={[0, l.yaw, 0]}
         >
-          {/* femur */}
-          <mesh position={[l.side * 0.5, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.035, 0.045, 1.0, 5]} />
-            <meshBasicMaterial color={ACID} transparent opacity={0.8} />
-          </mesh>
-          {/* tibia, kinked down at the knee */}
-          <group position={[l.side * 1.0, 0, 0]} rotation={[0, 0, l.side * 1.05]}>
-            <mesh position={[l.side * 0.45, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-              <cylinderGeometry args={[0.022, 0.035, 0.9, 5]} />
-              <meshBasicMaterial color={ACID} transparent opacity={0.7} />
+          {/* femur: out and up to a knee standing above the body */}
+          <group rotation={[0, 0, l.side * 0.92]}>
+            <mesh
+              geometry={geo.femur}
+              position={[l.side * 0.42, 0, 0]}
+              rotation={[0, 0, Math.PI / 2]}
+            >
+              <meshStandardMaterial
+                color="#140609"
+                emissive={ACID}
+                emissiveIntensity={0.38}
+                roughness={0.36}
+                metalness={0.6}
+              />
             </mesh>
+
+            {/* tibia: folds back down past the horizontal */}
+            <group position={[l.side * 0.84, 0, 0]} rotation={[0, 0, -l.side * 1.78]}>
+              <mesh
+                geometry={geo.tibia}
+                position={[l.side * 0.48, 0, 0]}
+                rotation={[0, 0, Math.PI / 2]}
+              >
+                <meshStandardMaterial
+                  color="#140609"
+                  emissive={ACID}
+                  emissiveIntensity={0.38}
+                  roughness={0.36}
+                  metalness={0.6}
+                />
+              </mesh>
+
+              {/* tarsus: the last short joint, angled to a point */}
+              <group position={[l.side * 0.96, 0, 0]} rotation={[0, 0, -l.side * 0.42]}>
+                <mesh
+                  geometry={geo.tarsus}
+                  position={[l.side * 0.24, 0, 0]}
+                  rotation={[0, 0, Math.PI / 2]}
+                >
+                  <meshStandardMaterial
+                    color="#140609"
+                    emissive={ACID}
+                    emissiveIntensity={0.38}
+                    roughness={0.36}
+                    metalness={0.6}
+                  />
+                </mesh>
+              </group>
+            </group>
           </group>
         </group>
       ))}
@@ -1256,7 +1364,7 @@ export default function Scene() {
           <Rig>
             {/* the web and its occupant belong to the spider palette only */}
             {spider && <OrbWeb rings={lite ? 5 : 7} strands={lite ? 12 : 16} />}
-            {spider && <Spider />}
+            {spider && <Spider eyes={!lite} />}
             <HoloGlobe />
             <Nodes count={lite ? 42 : 90} />
             <Traffic count={lite ? 4 : 10} />
