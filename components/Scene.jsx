@@ -38,11 +38,7 @@ import {
 } from './shaders';
 import { useSceneStore } from './sceneStore';
 
-const ACID = new THREE.Color('#35ff9e');
-const CYAN = new THREE.Color('#35e0ff');
-const AMBER = new THREE.Color('#ffd166');
-const RED = new THREE.Color('#ff5f57');
-const VIOLET = new THREE.Color('#9b8cff');
+import { ACID, CYAN, AMBER, RED, VIOLET, HEX, applyPalette } from './palette';
 
 /**
  * What the globe is doing in each section. The background is not wallpaper —
@@ -94,6 +90,7 @@ const GridMaterial = shaderMaterial(
     uTime: 0,
     uOpacity: 1,
     uAlert: 0,
+    uWeb: 0,
     uColor: ACID.clone(),
     uSweepColor: CYAN.clone(),
   },
@@ -209,11 +206,21 @@ function HoloGlobe({ radius = 1.75 }) {
     }
   });
 
+  // shaderMaterial() freezes its uniform defaults into the class when this
+  // module loads, which is before any theme is known. Hand the material its
+  // colours explicitly instead. These are clones: the per-frame lerps below
+  // write into whatever object they are given, and must not touch the shared
+  // palette instances.
+  const holoA = useMemo(() => ACID.clone(), []);
+  const holoB = useMemo(() => CYAN.clone(), []);
+
   return (
     <group>
       <mesh geometry={geo}>
         <holoMaterial
           ref={mat}
+          uColorA={holoA}
+          uColorB={holoB}
           transparent
           depthWrite={false}
           blending={THREE.AdditiveBlending}
@@ -316,7 +323,7 @@ function Arc({ points, delay, speed }) {
       <Line
         ref={line}
         points={points}
-        color="#35ff9e"
+        color={HEX.acid}
         lineWidth={1.3}
         dashed
         dashSize={0.2}
@@ -326,7 +333,7 @@ function Arc({ points, delay, speed }) {
       />
       <mesh ref={packet}>
         <sphereGeometry args={[1, 8, 8]} />
-        <meshBasicMaterial color="#d6efe3" toneMapped={false} />
+        <meshBasicMaterial color={HEX.bone} toneMapped={false} />
       </mesh>
     </group>
   );
@@ -390,10 +397,20 @@ function Field({ count = 26000 }) {
     mat.current.uScroll = useSceneStore.getState().progress;
   });
 
+  // shaderMaterial() freezes its uniform defaults into the class when this
+  // module loads, which is before any theme is known. Hand the material its
+  // colours explicitly instead. These are clones: the per-frame lerps below
+  // write into whatever object they are given, and must not touch the shared
+  // palette instances.
+  const fieldA = useMemo(() => ACID.clone(), []);
+  const fieldB = useMemo(() => CYAN.clone(), []);
+
   return (
     <points geometry={geometry} frustumCulled={false}>
       <fieldMaterial
         ref={mat}
+        uColorA={fieldA}
+        uColorB={fieldB}
         transparent
         depthWrite={false}
         blending={THREE.AdditiveBlending}
@@ -415,29 +432,210 @@ function Grid() {
     mat.current.uSweepColor.lerp(alert ? RED : CYAN, 1 - Math.pow(0.02, delta));
   });
 
+  // shaderMaterial() freezes its uniform defaults into the class when this
+  // module loads, which is before any theme is known. Hand the material its
+  // colours explicitly instead. These are clones: the per-frame lerps below
+  // write into whatever object they are given, and must not touch the shared
+  // palette instances.
+  const gridColor = useMemo(() => ACID.clone(), []);
+  const sweepColor = useMemo(() => CYAN.clone(), []);
+  // the floor rules itself as a web instead of a grid in the spider palette
+  const web = useSceneStore((s) => (s.theme === 'spider' ? 1 : 0));
+
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -3.4, 0]}>
       <planeGeometry args={[70, 70, 1, 1]} />
-      <gridMaterial ref={mat} transparent depthWrite={false} />
+      <gridMaterial
+        ref={mat}
+        uWeb={web}
+        uColor={gridColor}
+        uSweepColor={sweepColor}
+        transparent
+        depthWrite={false}
+      />
     </mesh>
+  );
+}
+
+/* ── orb web (spider palette only) ───────────────────────────── */
+
+// Geometry of the web surface, kept next to the values that define it.
+const WEB_RADIUS = 6.4;
+const WEB_DISH = 0.34;
+const WEB_Z = -4.6;
+
+// hub back, rim forward — squared so the dish is shallow at the edge and
+// falls away quickly near the middle
+const webZ = (r) => -WEB_DISH * WEB_RADIUS * Math.pow(1 - Math.min(r / WEB_RADIUS, 1), 2);
+
+/**
+ * An orb web with depth: radial strands from a hub that sits back, capture
+ * rings that sag between them. A ring drawn as a true circle reads as a
+ * dartboard, and the sag is the whole difference.
+ *
+ * One LineSegments for the lot: a web is a few hundred short segments and
+ * paying a draw call each would be silly.
+ *
+ * When the attack set-piece fires the silk twangs — a travelling wave out of
+ * the hub, written into the position buffer rather than faked with a scale,
+ * so the strands actually deform and the rings ripple out of plane.
+ */
+function OrbWeb({ strands = 16, rings = 7 }) {
+  const group = useRef(null);
+  const line = useRef(null);
+  const mat = useRef(null);
+  const flex = useRef(0);
+  const settling = useRef(false);
+
+  const geometry = useMemo(() => {
+    const pts = [];
+    const TAU = Math.PI * 2;
+
+    // anchors jittered off the regular angle; a perfectly even web looks
+    // machined rather than spun
+    const jitter = makeRandom(0x5eed_5b1d);
+    const wobble = Array.from({ length: strands }, () => 0.82 + jitter() * 0.36);
+
+    const at = (i, r) => {
+      const a = (i / strands) * TAU;
+      return new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r, webZ(r));
+    };
+
+    // radial strands, hub outward, subdivided so they bend with the dish and
+    // have enough vertices to carry a wave
+    for (let i = 0; i < strands; i++) {
+      const rMax = WEB_RADIUS * wobble[i];
+      const steps = 10;
+      for (let k = 0; k < steps; k++) {
+        pts.push(at(i, (k / steps) * rMax), at(i, ((k + 1) / steps) * rMax));
+      }
+    }
+
+    // capture spiral: each segment sags toward the hub at its midpoint
+    for (let k = 1; k <= rings; k++) {
+      const f = Math.pow(k / rings, 1.25); // rings crowd toward the rim
+      for (let i = 0; i < strands; i++) {
+        const j = (i + 1) % strands;
+        const a = at(i, WEB_RADIUS * wobble[i] * f);
+        const b = at(j, WEB_RADIUS * wobble[j] * f);
+        const mid = a.clone().add(b).multiplyScalar(0.5);
+        mid.x *= 0.93;
+        mid.y *= 0.93;
+        mid.z = webZ(Math.hypot(mid.x, mid.y));
+        pts.push(a, mid, mid, b);
+      }
+    }
+
+    // bridge lines anchoring the rim back into the dark, which is what sells
+    // the web as something strung in space rather than drawn on glass
+    for (let i = 0; i < strands; i += 3) {
+      const rim = at(i, WEB_RADIUS * wobble[i]);
+      pts.push(rim, new THREE.Vector3(rim.x * 1.5, rim.y * 1.5, rim.z - WEB_RADIUS * 0.5));
+    }
+
+    return new THREE.BufferGeometry().setFromPoints(pts);
+  }, [strands, rings]);
+
+  // the resting shape, kept aside so each frame displaces from the original
+  // rather than from the last displaced state
+  const rest = useMemo(() => Float32Array.from(geometry.attributes.position.array), [geometry]);
+
+  useFrame(({ clock }, delta) => {
+    const t = clock.elapsedTime;
+    const { alert } = useSceneStore.getState();
+
+    flex.current = THREE.MathUtils.damp(flex.current, alert ? 1 : 0, 3, delta);
+    const f = flex.current;
+
+    if (group.current) {
+      // barely moving at rest: a web is anchored, it only breathes
+      group.current.rotation.z = Math.sin(t * 0.06) * 0.04;
+    }
+    if (mat.current) mat.current.opacity = 0.26 + f * 0.3;
+
+    // skip the buffer write entirely at rest, but run one last pass on the
+    // way down so the silk returns to its resting shape instead of freezing
+    const active = f > 0.002;
+    if (!active && !settling.current) return;
+    settling.current = active;
+
+    // written through the mesh rather than the memoised geometry: the
+    // buffer is the same one either way, but the value handed to useMemo is
+    // not ours to mutate
+    const geo = line.current?.geometry;
+    if (!geo) return;
+    const pos = geo.attributes.position;
+    const arr = pos.array;
+    for (let i = 0; i < arr.length; i += 3) {
+      const x = rest[i];
+      const y = rest[i + 1];
+      const r = Math.hypot(x, y);
+      // wave travels outward from the hub, held off the very centre so the
+      // anchor point stays put the way a real hub does
+      arr[i + 2] = rest[i + 2] + Math.sin(r * 1.5 - t * 6.5) * 0.5 * f * Math.min(1, r / 2.2);
+    }
+    pos.needsUpdate = true;
+  });
+
+  return (
+    <group ref={group} position={[0, 0, WEB_Z]}>
+      <lineSegments ref={line} geometry={geometry}>
+        <lineBasicMaterial
+          ref={mat}
+          color={ACID}
+          transparent
+          opacity={0.26}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </lineSegments>
+    </group>
   );
 }
 
 /* ── camera rig: scroll waypoints + pointer parallax ─────────── */
 
+// The sections the camera is cut against. One shot each, in order.
+const SHOT_IDS = ['top', 'about', 'skills', 'work', 'coverage', 'shell', 'contact'];
+
+/**
+ * The shot list.
+ *
+ * There were six waypoints for seven sections, interpolated against total
+ * scroll, so the camera never arrived anywhere in particular — it slid the
+ * whole way down. That drift is what reads as a template. Each section now
+ * gets a shot with intent, and the camera settles into it while the section
+ * is being read, then moves decisively to the next.
+ *
+ * `fov` is the reason this feels filmed rather than rendered. A long lens
+ * flattens and calms; a wide one close in distorts and puts you inside the
+ * thing. Pushing in while widening is a dolly zoom, and it is spent once, on
+ * the attack, where the story actually turns.
+ *
+ * `roll` is tiny everywhere. A tilted horizon is tension, and it only reads
+ * as intentional in small amounts.
+ */
 const WAYPOINTS = [
-  { pos: [0, 0, 6.6], look: [0, 0, 0] },     // hero
-  { pos: [2.6, 0.8, 5.2], look: [0, 0, 0] }, // about
-  { pos: [-2.9, -0.6, 5.0], look: [0, 0.2, 0] }, // skills
-  { pos: [0, 2.4, 4.6], look: [0, 0, 0] },   // work
-  { pos: [3.1, -1.4, 5.6], look: [0, 0, 0] }, // coverage
-  { pos: [0, 0.4, 8.2], look: [0, 0, 0] },   // contact
+  // the estate at rest: long lens, straight on, nothing wrong yet
+  { pos: [0, 0, 6.9], look: [0, 0, 0], fov: 38, roll: 0 },
+  // who watches it: ease off-axis and close a little
+  { pos: [2.5, 0.7, 5.4], look: [0, 0, 0], fov: 40, roll: 0.012 },
+  // the instruments: orbit out to the other side and rise
+  { pos: [-3.1, 1.3, 5.0], look: [0, 0.15, 0], fov: 44, roll: -0.02 },
+  // the engagements: high and looking down on the work
+  { pos: [-0.6, 3.0, 4.4], look: [0, -0.1, 0], fov: 46, roll: 0.015 },
+  // the attack: dropped low and pushed in hard while the lens opens up
+  { pos: [1.5, -1.5, 2.9], look: [0, 0.1, 0], fov: 66, roll: -0.05 },
+  // the console: level again, steady, the analyst at work
+  { pos: [-1.4, 0.2, 5.6], look: [0, 0, 0], fov: 42, roll: 0.008 },
+  // resolved: pull back, wide and calm, the estate whole again
+  { pos: [0, 0.5, 8.6], look: [0, 0, 0], fov: 36, roll: 0 },
 ];
 
 /* ── instrument rings ────────────────────────────────────────── */
 
 /** Gauge rings around the globe, with tick marks, counter-rotating. */
-function InstrumentRing({ radius, tilt, speed, ticks = 48, color = '#35e0ff', opacity = 0.3 }) {
+function InstrumentRing({ radius, tilt, speed, ticks = 48, color = HEX.cyan, opacity = 0.3 }) {
   const group = useRef(null);
 
   const { ring, marks } = useMemo(() => {
@@ -617,10 +815,10 @@ function Probes({ count = 5 }) {
       <mesh ref={(el) => (refs.current[i] = el)}>
         <octahedronGeometry args={[1, 0]} />
         <meshStandardMaterial
-          color="#d6efe3"
+          color={HEX.bone}
           metalness={1}
           roughness={0.18}
-          emissive="#35e0ff"
+          emissive={HEX.cyan}
           emissiveIntensity={0.35}
         />
       </mesh>
@@ -762,11 +960,19 @@ function ScanPlane({ radius = 2.6 }) {
     }
   });
 
+  // shaderMaterial() freezes its uniform defaults into the class when this
+  // module loads, which is before any theme is known. Hand the material its
+  // colours explicitly instead. These are clones: the per-frame lerps below
+  // write into whatever object they are given, and must not touch the shared
+  // palette instances.
+  const scanColor = useMemo(() => CYAN.clone(), []);
+
   return (
     <mesh ref={mesh} rotation={[-Math.PI / 2, 0, 0]}>
       <planeGeometry args={[radius * 2, radius * 2, 1, 1]} />
       <scanMaterial
         ref={mat}
+        uColor={scanColor}
         transparent
         depthWrite={false}
         side={THREE.DoubleSide}
@@ -812,7 +1018,7 @@ function Shockwave({ count = 3 }) {
         <mesh key={i} ref={(el) => (rings.current[i] = el)}>
           <ringGeometry args={[0.97, 1, 96]} />
           <meshBasicMaterial
-            color="#ff5f57"
+            color={HEX.red}
             transparent
             opacity={0.5}
             side={THREE.DoubleSide}
@@ -829,19 +1035,70 @@ function Shockwave({ count = 3 }) {
 
 function Rig({ children }) {
   const group = useRef(null);
-  const { pointer, camera } = useThree();
+  const { pointer } = useThree();
   const target = useMemo(() => new THREE.Vector3(), []);
   const look = useMemo(() => new THREE.Vector3(), []);
   const current = useMemo(() => new THREE.Vector3(0, 0, 0), []);
 
-  useFrame((_, delta) => {
-    const progress = useSceneStore.getState().progress;
+  // Where each section actually sits in the scroll, 0..1. Dividing scroll into
+  // equal slices instead assumes every section is the same height, and none of
+  // them are — which is why the camera used to arrive between beats rather
+  // than on them.
+  const marks = useRef([]);
 
-    // interpolate between waypoints along scroll
-    const span = WAYPOINTS.length - 1;
-    const f = THREE.MathUtils.clamp(progress, 0, 1) * span;
-    const i = Math.min(Math.floor(f), span - 1);
-    const t = f - i;
+  useEffect(() => {
+    const measure = () => {
+      const span = document.documentElement.scrollHeight - window.innerHeight;
+      marks.current = SHOT_IDS.map((id) => {
+        const el = document.getElementById(id);
+        if (!el || span <= 0) return 0;
+        const top = el.getBoundingClientRect().top + window.scrollY;
+        // aim at the point where the section is centred, not where it starts
+        const mid = top + Math.min(el.offsetHeight, window.innerHeight) / 2 - window.innerHeight / 2;
+        return THREE.MathUtils.clamp(mid / span, 0, 1);
+      });
+    };
+
+    measure();
+    window.addEventListener('resize', measure);
+    // fonts and images land after first paint and move everything
+    const settle = setTimeout(measure, 900);
+    return () => {
+      window.removeEventListener('resize', measure);
+      clearTimeout(settle);
+    };
+  }, []);
+
+  // the camera comes off the frame state rather than the hook: assigning to a
+  // hook-owned object is what the immutability rule is there to catch
+  useFrame((state, delta) => {
+    const cam = state.camera;
+    const progress = THREE.MathUtils.clamp(useSceneStore.getState().progress, 0, 1);
+
+    // find the pair of shots the reader is between
+    const m = marks.current;
+    const last = WAYPOINTS.length - 1;
+    let i = 0;
+    let t = 0;
+    if (m.length === WAYPOINTS.length) {
+      while (i < last - 1 && progress >= m[i + 1]) i += 1;
+      const from = m[i];
+      const to = m[i + 1];
+      t = to > from ? (progress - from) / (to - from) : 0;
+    } else {
+      // before the first measure, fall back to even slices
+      const f = progress * last;
+      i = Math.min(Math.floor(f), last - 1);
+      t = f - i;
+    }
+    t = THREE.MathUtils.clamp(t, 0, 1);
+
+    // Ease within the segment so the camera holds on a shot while the section
+    // is being read and does its travelling in the middle. A linear ramp
+    // never stops moving, which is what made it feel like a slideshow on
+    // rails rather than a series of shots.
+    t = t * t * (3 - 2 * t);
+
     const a = WAYPOINTS[i];
     const b = WAYPOINTS[i + 1];
 
@@ -864,9 +1121,18 @@ function Rig({ children }) {
     );
 
 
-    camera.position.lerp(target, 1 - Math.pow(0.001, delta));
+    cam.position.lerp(target, 1 - Math.pow(0.001, delta));
     current.lerp(look, 1 - Math.pow(0.001, delta));
-    camera.lookAt(current);
+    cam.lookAt(current);
+
+    // Focal length. lookAt has just overwritten the whole orientation, so the
+    // roll has to go on after it or it is thrown away every frame.
+    const fov = THREE.MathUtils.lerp(a.fov, b.fov, t);
+    if (Math.abs(cam.fov - fov) > 0.01) {
+      cam.fov = THREE.MathUtils.damp(cam.fov, fov, 3, delta);
+      cam.updateProjectionMatrix();
+    }
+    cam.rotation.z += THREE.MathUtils.lerp(a.roll, b.roll, t);
 
     if (group.current) {
       const { section } = useSceneStore.getState();
@@ -932,6 +1198,13 @@ export default function Scene() {
   const [lost, setLost] = useState(false);
 
   const quality = useSceneStore((s) => s.quality);
+  const theme = useSceneStore((s) => s.theme);
+  const spider = theme === 'spider';
+
+  // Retool the shared colour instances before the children below read them.
+  // useMemo rather than an effect: an effect would run after the first frame
+  // had already been drawn in the outgoing palette.
+  useMemo(() => applyPalette(theme), [theme]);
 
   useEffect(() => {
     // an explicit user choice always wins over capability sniffing
@@ -989,7 +1262,7 @@ export default function Scene() {
     <div className="fixed inset-0 -z-10">
       <div className="absolute inset-0 grid-lines opacity-30" />
       <Canvas
-        key={generation}
+        key={`${generation}-${theme}`}
         dpr={dpr}
         onCreated={onCreated}
         style={{ visibility: lost ? 'hidden' : 'visible' }}
@@ -1029,19 +1302,21 @@ export default function Scene() {
               fetched, so the CSP stays closed and nothing blocks first paint.
               frames={1} bakes it once instead of every frame. */}
           <Environment resolution={128} frames={1}>
-            <Lightformer intensity={2.4} color="#35ff9e" position={[0, 4, -6]} scale={[10, 4, 1]} />
-            <Lightformer intensity={1.6} color="#35e0ff" position={[-6, 1, 2]} scale={[6, 6, 1]} rotation-y={Math.PI / 2} />
-            <Lightformer intensity={1.1} color="#9b8cff" position={[6, -2, 3]} scale={[6, 6, 1]} rotation-y={-Math.PI / 2} />
+            <Lightformer intensity={2.4} color={HEX.acid} position={[0, 4, -6]} scale={[10, 4, 1]} />
+            <Lightformer intensity={1.6} color={HEX.cyan} position={[-6, 1, 2]} scale={[6, 6, 1]} rotation-y={Math.PI / 2} />
+            <Lightformer intensity={1.1} color={HEX.violet} position={[6, -2, 3]} scale={[6, 6, 1]} rotation-y={-Math.PI / 2} />
             <Lightformer intensity={0.7} color="#ffffff" position={[0, -5, 0]} scale={[12, 12, 1]} rotation-x={Math.PI / 2} />
           </Environment>
 
           <Rig>
+            {/* the web and its occupant belong to the spider palette only */}
+            {spider && <OrbWeb rings={lite ? 5 : 7} strands={lite ? 12 : 16} />}
             <HoloGlobe />
             <Nodes count={lite ? 42 : 90} />
             <Traffic count={lite ? 4 : 10} />
             <Shockwave count={lite ? 2 : 3} />
             <InstrumentRing radius={2.35} tilt={[Math.PI / 2.1, 0, 0.22]} speed={0.1} ticks={48} />
-            <InstrumentRing radius={2.95} tilt={[Math.PI / 1.85, 0.5, -0.18]} speed={-0.07} ticks={32} color="#35ff9e" opacity={0.2} />
+            <InstrumentRing radius={2.95} tilt={[Math.PI / 1.85, 0.5, -0.18]} speed={-0.07} ticks={32} color={HEX.acid} opacity={0.2} />
             <Core />
             <Probes count={lite ? 3 : 5} />
             <Uplinks count={lite ? 2 : 4} />

@@ -9,7 +9,7 @@ import { coverageMatches, projectMatches } from '@/lib/match';
 const STATUS = {
   detected: {
     label: 'detected',
-    className: 'text-[var(--color-acid)] border-[rgba(53,255,158,0.35)]',
+    className: 'text-[var(--color-acid)] border-[rgb(var(--acid-rgb)/0.35)]',
   },
   assessed: {
     label: 'assessed',
@@ -21,7 +21,7 @@ const STATUS = {
   },
   research: {
     label: 'research',
-    className: 'text-[var(--color-cyan)] border-[rgba(53,224,255,0.35)]',
+    className: 'text-[var(--color-cyan)] border-[rgb(var(--cyan-rgb)/0.35)]',
   },
 };
 
@@ -73,6 +73,7 @@ export default function Coverage() {
 
   return (
     <Section
+      wide
       id="coverage"
       index="04"
       title="detection coverage"
@@ -80,7 +81,7 @@ export default function Coverage() {
     >
       {/* active filter, driven from the toolchain above */}
       {focusTool && (
-        <div className="mb-5 flex flex-wrap items-center gap-3 border border-[rgba(53,224,255,0.3)] bg-[rgba(53,224,255,0.06)] px-4 py-3">
+        <div className="mb-5 flex flex-wrap items-center gap-3 border border-[rgb(var(--cyan-rgb)/0.3)] bg-[rgb(var(--cyan-rgb)/0.06)] px-4 py-3">
           <span className="text-[12px] text-[var(--color-cyan)]">
             filtered to <span className="text-[var(--color-bone)]">{focusTool}</span>
           </span>
@@ -93,7 +94,7 @@ export default function Coverage() {
           </span>
           <button
             onClick={() => setFocusTool(null)}
-            className="ml-auto border border-[rgba(53,224,255,0.3)] px-2 py-0.5 text-[11px] text-[var(--color-cyan)] transition-colors hover:bg-[rgba(53,224,255,0.12)]"
+            className="ml-auto border border-[rgb(var(--cyan-rgb)/0.3)] px-2 py-0.5 text-[11px] text-[var(--color-cyan)] transition-colors hover:bg-[rgb(var(--cyan-rgb)/0.12)]"
           >
             clear
           </button>
@@ -102,7 +103,7 @@ export default function Coverage() {
 
       {/* summary strip */}
       <Reveal>
-        <div className="mb-6 flex flex-wrap gap-px border border-[rgba(53,255,158,0.14)] bg-[rgba(53,255,158,0.14)]">
+        <div className="mb-6 flex flex-wrap gap-px border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgb(var(--acid-rgb)/0.14)]">
           <div className="flex-1 bg-[rgba(4,7,10,0.9)] px-4 py-3">
             <div className="text-xl text-[var(--color-acid)]">{coverage.length}</div>
             <div className="text-[11px] text-[var(--color-dim)]">techniques exercised</div>
@@ -120,25 +121,25 @@ export default function Coverage() {
 
       {/* ATT&CK matrix — one column per tactic, cells are the techniques covered */}
       <Reveal delay={0.04}>
-        <div className="mb-6 overflow-x-auto border border-[rgba(53,255,158,0.14)] p-4">
+        <div className="mb-6 overflow-x-auto border border-[rgb(var(--acid-rgb)/0.14)] p-4">
           <div className="mb-3 text-[11px] uppercase tracking-[0.2em] text-[var(--color-dim)]">
             ATT&amp;CK matrix — covered tactics
           </div>
-          <div className="flex min-w-[720px] gap-px bg-[rgba(53,255,158,0.14)]">
+          <div className="flex min-w-[720px] gap-px bg-[rgb(var(--acid-rgb)/0.14)]">
             {TACTICS.map((tactic) => {
               const rows = coverage.filter((r) => r.tactic === tactic);
               return (
                 <div key={tactic} className="flex-1 bg-[rgba(4,7,10,0.92)] p-2">
                   <div
                     className={`mb-2 text-[10px] leading-tight ${
-                      rows.length ? 'text-[var(--color-cyan)]' : 'text-[rgba(107,132,121,0.45)]'
+                      rows.length ? 'text-[var(--color-cyan)]' : 'text-[rgb(var(--dim-rgb)/0.45)]'
                     }`}
                   >
                     {tactic}
                   </div>
                   <div className="space-y-1">
                     {rows.length === 0 && (
-                      <div className="h-8 border border-dashed border-[rgba(53,255,158,0.08)]" />
+                      <div className="h-8 border border-dashed border-[rgb(var(--acid-rgb)/0.08)]" />
                     )}
                     {rows.map((r) => (
                       <div
@@ -163,10 +164,10 @@ export default function Coverage() {
 
       {/* desktop table */}
       <Reveal delay={0.08}>
-        <div className="hidden overflow-x-auto border border-[rgba(53,255,158,0.14)] lg:block">
+        <div className="hidden overflow-x-auto border border-[rgb(var(--acid-rgb)/0.14)] lg:block">
           <table className="w-full min-w-[900px] text-left text-[13px]">
             <thead>
-              <tr className="border-b border-[rgba(53,255,158,0.14)] text-[11px] uppercase tracking-[0.14em] text-[var(--color-dim)]">
+              <tr className="border-b border-[rgb(var(--acid-rgb)/0.14)] text-[11px] uppercase tracking-[0.14em] text-[var(--color-dim)]">
                 <th className="px-4 py-3 font-normal">id</th>
                 <th className="px-4 py-3 font-normal">technique</th>
                 <th className="px-4 py-3 font-normal">tactic</th>
@@ -181,7 +182,7 @@ export default function Coverage() {
                   key={r.id}
                   onMouseEnter={enter(i, r)}
                   onMouseLeave={leave}
-                  className={`border-b border-[rgba(53,255,158,0.08)] transition-all last:border-0 hover:bg-[rgba(53,255,158,0.04)] ${
+                  className={`border-b border-[rgb(var(--acid-rgb)/0.08)] transition-all last:border-0 hover:bg-[rgb(var(--acid-rgb)/0.04)] ${
                     dimmed(r) ? 'opacity-25' : ''
                   }`}
                 >
@@ -210,7 +211,7 @@ export default function Coverage() {
         {coverage.map((r, i) => (
           <Reveal key={r.id} delay={i * 0.04}>
             <div
-              className={`border border-[rgba(53,255,158,0.14)] bg-[rgba(8,13,18,0.72)] p-4 transition-opacity ${
+              className={`border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(8,13,18,0.72)] p-4 transition-opacity ${
                 dimmed(r) ? 'opacity-25' : ''
               }`}
             >
@@ -249,7 +250,7 @@ export default function Coverage() {
           has to guess whether "detected" means a live capture. The `where`
           column already cites the real context of each row. */}
       <Reveal delay={0.1}>
-        <p className="mt-6 border-l-2 border-[rgba(53,255,158,0.3)] pl-4 text-[12px] leading-relaxed text-[var(--color-dim)]">
+        <p className="mt-6 border-l-2 border-[rgb(var(--acid-rgb)/0.3)] pl-4 text-[12px] leading-relaxed text-[var(--color-dim)]">
           Each row cites its context in the <span className="text-[var(--color-cyan)]">where</span>{' '}
           column — internship, a lab project, or production at Vrikaan. The reproducible parts —
           detection rules and the pipeline diagrams — live on the{' '}

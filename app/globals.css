@@ -8,6 +8,13 @@
   --color-cyan: #35e0ff;
   --color-dim: #6b8479;
   --color-bone: #d6efe3;
+
+  /* channel-only forms of the accent colours, so alpha variants compose from
+     a single source. A theme override swaps these three and every rgb(var(...))
+     call site follows. */
+  --acid-rgb: 53 255 158;
+  --cyan-rgb: 53 224 255;
+  --dim-rgb: 107 132 121;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
@@ -36,8 +43,8 @@ body::after {
   z-index: 60;
   background: repeating-linear-gradient(
     to bottom,
-    rgba(53, 255, 158, 0.03) 0px,
-    rgba(53, 255, 158, 0.03) 1px,
+    rgb(var(--acid-rgb)/0.03) 0px,
+    rgb(var(--acid-rgb)/0.03) 1px,
     transparent 1px,
     transparent 4px
   );
@@ -68,60 +75,64 @@ body::after {
 
 ::selection {
   background: var(--color-acid);
-  color: #03130b;
+  /* the page ground, so selected text stays legible whichever accent is
+     behind it — a fixed dark green only ever suited one palette */
+  color: var(--color-void);
 }
 
 ::-webkit-scrollbar {
   width: 9px;
 }
 ::-webkit-scrollbar-track {
-  background: #04070a;
+  background: var(--color-void);
 }
 ::-webkit-scrollbar-thumb {
-  background: #17402f;
+  background: rgb(var(--acid-rgb) / 0.3);
   border-radius: 99px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #256b4d;
+  background: rgb(var(--acid-rgb) / 0.55);
 }
 
-/* display type — the hero name, sized off the viewport rather than a scale */
+/* display type — the hero name, now the top step of the scale rather than its
+   own private curve. Mono is a wide face and 9.5vw overflowed a 16-character
+   name at 800px, so the scale's top step is set to clear that. */
 .display {
-  /* mono is a wide face — 9.5vw overflowed a 16-character name at 800px */
-  font-size: clamp(2.1rem, 6.8vw, 6rem);
-  line-height: 0.95;
+  font-size: var(--step-6);
+  line-height: 0.92;
   letter-spacing: -0.045em;
   font-weight: 700;
+  text-wrap: balance;
   overflow-wrap: break-word;
 }
 
 /* outlined ghost copy that sits behind the solid one */
 .ghost {
-  -webkit-text-stroke: 1px rgba(53, 255, 158, 0.28);
+  -webkit-text-stroke: 1px rgb(var(--acid-rgb)/0.28);
   color: transparent;
 }
 
-/* oversized section index numeral */
+/* oversized section index numeral — one step below the heading it sits beside */
 .index-numeral {
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-size: var(--step-5);
   line-height: 0.8;
   letter-spacing: -0.06em;
-  -webkit-text-stroke: 1px rgba(53, 255, 158, 0.35);
+  -webkit-text-stroke: 1px rgb(var(--acid-rgb)/0.35);
   color: transparent;
 }
 
 .glow {
-  text-shadow: 0 0 12px rgba(53, 255, 158, 0.55), 0 0 38px rgba(53, 255, 158, 0.2);
+  text-shadow: 0 0 12px rgb(var(--acid-rgb)/0.55), 0 0 38px rgb(var(--acid-rgb)/0.2);
 }
 
 .grid-lines {
-  background-image: linear-gradient(rgba(53, 255, 158, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(53, 255, 158, 0.05) 1px, transparent 1px);
+  background-image: linear-gradient(rgb(var(--acid-rgb)/0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--acid-rgb)/0.05) 1px, transparent 1px);
   background-size: 44px 44px;
 }
 
 .hair {
-  border-color: rgba(53, 255, 158, 0.14);
+  border-color: rgb(var(--acid-rgb)/0.14);
 }
 
 @keyframes flicker {
@@ -267,4 +278,213 @@ body::after {
   html {
     scroll-behavior: auto;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Spider theme — classic red and blue
+   ---------------------------------------------------------------------------
+   An alternate palette, not an alternate site: only colour changes, every
+   layout, animation and piece of content is shared. The whole DOM re-themes
+   from this block because the accents are referenced through tokens rather
+   than literals.
+
+   The authentic comic colours cannot be used as-is on a dark ground. Measured
+   against --color-void:
+
+     marvel red   #e62429   4.47:1   fails AA for body text
+     marvel blue  #1f4ba5   2.51:1   fails badly, unusable at any text size
+
+   So both are raised in lightness to the nearest values that keep the same
+   hue and still clear the bar:
+
+     accent  #ff2a3c   5.43:1
+     blue    #5b8cff   6.39:1
+     dim     #8892b0   6.52:1
+     bone    #e8edf7  17.20:1
+
+   Blue is lifted past the red rather than matched to it on purpose. At
+   #4d7cff the two accents measure an identical 5.43:1, which means they are
+   the same shade in greyscale and for anyone with full colour blindness. The
+   lift restores roughly the 1.2 separation the green palette has between its
+   own two accents.
+
+   Accessibility is asserted at 100 in CI, so these are load-bearing.
+--------------------------------------------------------------------------- */
+:root[data-theme='spider'] {
+  --color-line: #1a2340;
+  --color-acid: #ff2a3c;
+  --color-cyan: #5b8cff;
+  --color-dim: #8892b0;
+  --color-bone: #e8edf7;
+
+  --acid-rgb: 255 42 60;
+  --cyan-rgb: 91 140 255;
+  --dim-rgb: 136 146 176;
+}
+
+/* ---------------------------------------------------------------------------
+   Spider motif animations
+   ---------------------------------------------------------------------------
+   Driven by discrete events — a click, the incident, a section change — and
+   only ever mounted in the spider palette. Every one is decoration, so the
+   component skips them entirely under reduced motion; the media query below
+   is the second line of defence for anything already on screen when the
+   preference changes.
+--------------------------------------------------------------------------- */
+
+/* a web thrown at the pointer: lands hard, then lets go */
+@keyframes spider-splat {
+  0% {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+  22% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  40% {
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.14);
+  }
+}
+.spider-splat {
+  animation: spider-splat 700ms cubic-bezier(0.16, 0.84, 0.3, 1) forwards;
+}
+
+/* spider-sense: arcs climbing away from the head, one after another */
+@keyframes spider-sense {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.7);
+  }
+  35% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px) scale(1.25);
+  }
+}
+.spider-sense path {
+  transform-origin: 50% 60%;
+  animation: spider-sense 1100ms ease-out infinite;
+}
+
+/* the sling line: a strand crossing frame, gone before it is read as an object */
+@keyframes spider-sling {
+  0% {
+    opacity: 0;
+    transform: translateX(-40%);
+  }
+  18% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(130%);
+  }
+}
+.spider-sling {
+  animation: spider-sling 700ms cubic-bezier(0.3, 0, 0.2, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spider-splat,
+  .spider-sense path,
+  .spider-sling {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Type system
+   ---------------------------------------------------------------------------
+   The page had no scale. Sizes were picked per component — text-3xl here, a
+   bare 15px there, two unrelated clamp() rules for the two largest things on
+   the page — so nothing was in proportion to anything else. A reader does not
+   see a type scale, but they feel its absence: sizes that are merely different
+   rather than related read as unconsidered.
+
+   One fluid scale, a fourth apart, driven off the viewport between 24rem and
+   90rem. Each step carries the tracking and leading that size needs, because
+   optical correction is per size, not per family: display type set at its
+   default spacing looks loose, and small type set tight closes up and stops
+   being legible. Mono is a wide face, so the corrections here are stronger
+   than they would be for a text face.
+--------------------------------------------------------------------------- */
+:root {
+  --step--1: clamp(0.72rem, 0.69rem + 0.14vw, 0.8rem);
+  --step-0: clamp(0.875rem, 0.83rem + 0.22vw, 1rem);
+  --step-1: clamp(1.05rem, 0.96rem + 0.44vw, 1.33rem);
+  --step-2: clamp(1.26rem, 1.09rem + 0.83vw, 1.78rem);
+  --step-3: clamp(1.51rem, 1.22rem + 1.44vw, 2.37rem);
+  --step-4: clamp(1.81rem, 1.32rem + 2.44vw, 3.16rem);
+  --step-5: clamp(2.18rem, 1.38rem + 3.99vw, 4.21rem);
+  --step-6: clamp(2.61rem, 1.3rem + 6.55vw, 5.61rem);
+
+  /* prose stops at a measure the eye can track without losing its place */
+  --measure: 66ch;
+}
+
+/* Display: the largest type on the page. Tracking goes negative because
+   letterfit that is correct at reading size is loose at display size. */
+.t-display {
+  font-size: var(--step-6);
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+.t-h2 {
+  font-size: var(--step-4);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  /* stops a heading breaking to a single orphan word */
+  text-wrap: balance;
+}
+
+.t-h3 {
+  font-size: var(--step-2);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.t-body {
+  font-size: var(--step-0);
+  line-height: 1.75;
+  letter-spacing: 0;
+  max-width: var(--measure);
+  /* avoids a short last line hanging alone under a full paragraph */
+  text-wrap: pretty;
+}
+
+.t-lead {
+  font-size: var(--step-1);
+  line-height: 1.6;
+  letter-spacing: -0.012em;
+  max-width: var(--measure);
+  text-wrap: pretty;
+}
+
+/* Labels are set in caps, which removes the ascender and descender cues the
+   eye reads word shape from. Letterspacing them back out is what keeps them
+   readable — the one place tracking goes positive. */
+.t-label {
+  font-size: var(--step--1);
+  line-height: 1.4;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* Figures that sit in a column should line up in that column. Proportional
+   digits make a stat row look ragged even when every value is correct. */
+.t-num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  letter-spacing: -0.02em;
 }

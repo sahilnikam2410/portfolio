@@ -4,3 +4,11 @@ out
 .env*.local
 .DS_Store
 *.tsbuildinfo
+
+# 3D model sources: keep them local. A hero model is tens or hundreds of
+# megabytes, and public/ is served publicly, so anything here would ship.
+public/models/
+*.glb
+*.fbx
+*.obj
+*.lwo

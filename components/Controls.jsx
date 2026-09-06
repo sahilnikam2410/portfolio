@@ -15,6 +15,7 @@ const SHORTCUTS = [
   { keys: ['G'], what: 'bottom of page' },
   { keys: ['/'], what: 'focus the shell' },
   { keys: ['q'], what: 'cycle scene quality — full · lite · off' },
+  { keys: ['t'], what: 'switch palette — terminal · spider' },
   { keys: ['r'], what: 'recruiter brief — one screen, no scrolling' },
   { keys: ['p'], what: 'print / save as PDF' },
   { keys: ['?'], what: 'this panel' },
@@ -29,6 +30,8 @@ export default function Controls() {
   const [toast, setToast] = useState(null);
   const quality = useSceneStore((s) => s.quality);
   const setQuality = useSceneStore((s) => s.setQuality);
+  const theme = useSceneStore((s) => s.theme);
+  const setTheme = useSceneStore((s) => s.setTheme);
   const trapRef = useFocusTrap(open);
 
   // restore a saved quality choice on mount
@@ -40,6 +43,17 @@ export default function Controls() {
       // storage unavailable — stay on auto
     }
   }, [setQuality]);
+
+  // The boot script in the head has already applied the saved palette to the
+  // document; this only brings the store into agreement with it.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('site-theme');
+      if (saved === 'spider') setTheme(saved);
+    } catch {
+      // storage unavailable — stay on the default palette
+    }
+  }, [setTheme]);
 
   const scrollTo = useCallback((el) => {
     if (!el) return;
@@ -114,6 +128,13 @@ export default function Controls() {
           e.preventDefault();
           window.print();
           break;
+        case 't': {
+          e.preventDefault();
+          const next = theme === 'spider' ? 'hacker' : 'spider';
+          setTheme(next);
+          flash(`palette: ${next === 'spider' ? 'spider' : 'terminal'}`);
+          break;
+        }
         case 'q': {
           e.preventDefault();
           const next =
@@ -129,7 +150,7 @@ export default function Controls() {
 
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [step, scrollTo, quality, setQuality, flash]);
+  }, [step, scrollTo, quality, setQuality, theme, setTheme, flash]);
 
   return (
     <>
@@ -141,7 +162,7 @@ export default function Controls() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
             data-print="hide"
-            className="fixed bottom-16 left-1/2 z-[76] -translate-x-1/2 border border-[rgba(53,255,158,0.3)] bg-[rgba(8,13,18,0.95)] px-4 py-2 text-[12px] text-[var(--color-acid)]"
+            className="fixed bottom-16 left-1/2 z-[76] -translate-x-1/2 border border-[rgb(var(--acid-rgb)/0.3)] bg-[rgba(8,13,18,0.95)] px-4 py-2 text-[12px] text-[var(--color-acid)]"
           >
             {toast}
           </motion.div>
@@ -169,12 +190,13 @@ export default function Controls() {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 6, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md border border-[rgba(53,255,158,0.25)] bg-[rgba(8,13,18,0.97)]"
+              className="w-full max-w-md border border-[rgb(var(--acid-rgb)/0.25)] bg-[rgba(8,13,18,0.97)]"
             >
-              <div className="flex items-center justify-between border-b border-[rgba(53,255,158,0.14)] px-4 py-3 text-[12px]">
+              <div className="flex items-center justify-between border-b border-[rgb(var(--acid-rgb)/0.14)] px-4 py-3 text-[12px]">
                 <span className="text-[var(--color-acid)]">keyboard</span>
                 <span className="text-[var(--color-dim)]">
-                  scene: {quality === 'auto' ? 'auto' : quality}
+                  scene: {quality === 'auto' ? 'auto' : quality} · palette:{' '}
+                  {theme === 'spider' ? 'spider' : 'terminal'}
                 </span>
               </div>
 
@@ -189,7 +211,7 @@ export default function Controls() {
                       {s.keys.map((k) => (
                         <kbd
                           key={k}
-                          className="min-w-[22px] border border-[rgba(53,255,158,0.25)] px-1.5 py-0.5 text-center text-[11px] text-[var(--color-bone)]"
+                          className="min-w-[22px] border border-[rgb(var(--acid-rgb)/0.25)] px-1.5 py-0.5 text-center text-[11px] text-[var(--color-bone)]"
                         >
                           {k}
                         </kbd>

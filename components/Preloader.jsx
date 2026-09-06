@@ -84,7 +84,7 @@ export default function Preloader() {
               <span>{Math.floor(pct).toString().padStart(3, '0')}%</span>
             </div>
 
-            <div className="h-[2px] w-full bg-[rgba(53,255,158,0.15)]">
+            <div className="h-[2px] w-full bg-[rgb(var(--acid-rgb)/0.15)]">
               <div
                 className="h-full bg-[var(--color-acid)] shadow-[0_0_12px_var(--color-acid)]"
                 style={{ width: `${pct}%` }}
@@ -100,7 +100,7 @@ export default function Preloader() {
                       ? 'text-[var(--color-dim)]'
                       : i === step
                       ? 'text-[var(--color-bone)]'
-                      : 'text-[rgba(107,132,121,0.3)]'
+                      : 'text-[rgb(var(--dim-rgb)/0.3)]'
                   }
                 >
                   <span className="text-[var(--color-acid)]">

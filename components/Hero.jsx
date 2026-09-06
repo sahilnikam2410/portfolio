@@ -71,7 +71,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="mb-5 inline-flex items-center gap-2 border border-[rgba(53,255,158,0.28)] px-3 py-1.5 text-[11px] text-[var(--color-acid)]"
+            className="mb-5 inline-flex items-center gap-2 border border-[rgb(var(--acid-rgb)/0.28)] px-3 py-1.5 text-[11px] text-[var(--color-acid)]"
           >
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-acid)] opacity-70" />
@@ -113,7 +113,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.24 }}
-            className="mt-6 max-w-xl text-base leading-relaxed text-[var(--color-dim)] sm:text-lg"
+            className="t-lead mt-7 text-[var(--color-dim)]"
           >
             {identity.tagline}
           </motion.p>
@@ -128,7 +128,7 @@ export default function Hero() {
               <a
                 href="#work"
                 data-cursor="open"
-                className="block border border-[var(--color-acid)] bg-[rgba(53,255,158,0.1)] px-5 py-2.5 text-sm text-[var(--color-acid)] transition-colors hover:bg-[rgba(53,255,158,0.2)]"
+                className="block border border-[var(--color-acid)] bg-[rgb(var(--acid-rgb)/0.1)] px-5 py-2.5 text-sm text-[var(--color-acid)] transition-colors hover:bg-[rgb(var(--acid-rgb)/0.2)]"
               >
                 ./view_work
               </a>
@@ -137,7 +137,7 @@ export default function Hero() {
               <a
                 href="#shell"
                 data-cursor="run"
-                className="block border border-[rgba(53,255,158,0.2)] px-5 py-2.5 text-sm text-[var(--color-bone)] transition-colors hover:border-[var(--color-acid)]"
+                className="block border border-[rgb(var(--acid-rgb)/0.2)] px-5 py-2.5 text-sm text-[var(--color-bone)] transition-colors hover:border-[var(--color-acid)]"
               >
                 ./open_shell
               </a>
@@ -149,12 +149,14 @@ export default function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.7, delay: 0.45 }}
-            className="mt-10 grid grid-cols-2 gap-px border border-[rgba(53,255,158,0.14)] bg-[rgba(53,255,158,0.14)] sm:grid-cols-4"
+            className="mt-10 grid grid-cols-2 gap-px border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgb(var(--acid-rgb)/0.14)] sm:grid-cols-4"
           >
             {stats.map((s) => (
               <li key={s.label} className="bg-[rgba(4,7,10,0.9)] px-4 py-3">
-                <div className="text-xl text-[var(--color-acid)]">{s.value}</div>
-                <div className="mt-0.5 text-[11px] leading-tight text-[var(--color-dim)]">{s.label}</div>
+                <div className="t-num text-[var(--color-acid)]" style={{ fontSize: 'var(--step-2)' }}>
+                  {s.value}
+                </div>
+                <div className="mt-1 text-[11px] leading-[1.35] text-[var(--color-dim)]">{s.label}</div>
               </li>
             ))}
           </motion.ul>
@@ -166,8 +168,8 @@ export default function Hero() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <Panel className="shadow-[0_0_60px_rgba(53,255,158,0.07)]">
-            <div className="flex items-center gap-2 border-b border-[rgba(53,255,158,0.14)] px-4 py-2.5">
+          <Panel className="shadow-[0_0_60px_rgb(var(--acid-rgb)/0.07)]">
+            <div className="flex items-center gap-2 border-b border-[rgb(var(--acid-rgb)/0.14)] px-4 py-2.5">
               <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
               <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
               <span className="h-2.5 w-2.5 rounded-full bg-[var(--color-acid)]" />
@@ -208,7 +210,7 @@ export default function Hero() {
                       href={s.href}
                       target={s.href.startsWith('http') ? '_blank' : undefined}
                       rel="noreferrer"
-                      className="border border-[rgba(53,224,255,0.25)] px-2.5 py-1 text-[11px] text-[var(--color-cyan)] transition-colors hover:bg-[rgba(53,224,255,0.1)]"
+                      className="border border-[rgb(var(--cyan-rgb)/0.25)] px-2.5 py-1 text-[11px] text-[var(--color-cyan)] transition-colors hover:bg-[rgb(var(--cyan-rgb)/0.1)]"
                     >
                       {s.label}
                     </a>

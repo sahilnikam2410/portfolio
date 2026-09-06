@@ -265,6 +265,7 @@ uniform vec3  uColor;
 uniform vec3  uSweepColor;
 uniform float uOpacity;
 uniform float uAlert;
+uniform float uWeb;
 
 varying vec2 vUv;
 varying vec3 vPos;
@@ -273,6 +274,13 @@ float gridLine(vec2 uv, float scale, float width) {
   vec2 g = abs(fract(uv * scale - 0.5) - 0.5) / fwidth(uv * scale);
   float line = min(g.x, g.y);
   return 1.0 - smoothstep(0.0, width, line);
+}
+
+// same trick in one dimension, so a polar coordinate can be ruled the same
+// way a cartesian one is
+float webLine(float x, float width) {
+  float d = abs(fract(x - 0.5) - 0.5) / fwidth(x);
+  return 1.0 - smoothstep(0.0, width, d);
 }
 
 void main() {
@@ -300,8 +308,21 @@ void main() {
   float ringT  = fract(uTime * 0.0875);
   float ring   = smoothstep(0.012, 0.0, abs(dist - ringT * 0.5)) * (1.0 - ringT);
 
-  float grid = (fine + major) * fade;
-  float a = (grid + radar * 0.5 + ring * 0.6) * uOpacity;
+  // ── spider web, built in the same polar frame the radar already uses, so
+  //    the sweep and the ping rings still track it. Radial strands are evenly
+  //    spaced; the rings between them sag, the way silk hangs between anchors
+  //    in a real orb web, which is what stops it reading as a dartboard.
+  float sector  = (ang + 3.14159265) / 6.28318530 * 16.0;
+  float slack   = fract(sector) - 0.5;                 // -0.5..0.5 in a sector
+  float sag     = 1.0 + 0.55 * (0.25 - slack * slack); // zero at each strand
+  float strands = webLine(sector, 1.2);
+  float silk    = webLine(dist * sag * 26.0, 1.2);
+  // fwidth on the angle explodes at the hub, so hold the strands off the
+  // centre or they smear into a disc
+  float web = max(strands * smoothstep(0.02, 0.16, dist), silk);
+
+  float structure = mix(fine + major, web * 0.7, uWeb) * fade;
+  float a = (structure + radar * 0.5 + ring * 0.6) * uOpacity;
   if (a < 0.004) discard;
 
   // the sweep carries its own colour so an alert can turn the floor red

@@ -22,7 +22,7 @@ export default function ReadingProgress() {
     <div
       data-print="hide"
       aria-hidden="true"
-      className="pointer-events-none fixed inset-x-0 top-0 z-[65] h-px bg-[rgba(53,255,158,0.12)]"
+      className="pointer-events-none fixed inset-x-0 top-0 z-[65] h-px bg-[rgb(var(--acid-rgb)/0.12)]"
     >
       <div
         ref={bar}

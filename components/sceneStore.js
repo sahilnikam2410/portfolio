@@ -15,6 +15,7 @@ export const useSceneStore = create((set) => ({
   alert: false,    // fires the attack set-piece when coverage enters view
   focusTool: null, // a tool clicked in the toolchain, filtering the evidence
   quality: 'auto', // auto | lite | off — user override, persisted
+  theme: 'hacker', // hacker | spider — colour palette only, persisted
   booted: false,
   paletteOpen: false,
 
@@ -32,6 +33,17 @@ export const useSceneStore = create((set) => ({
       // private mode or blocked storage — the choice just does not persist
     }
     set({ quality });
+  },
+  setTheme: (theme) => {
+    try {
+      localStorage.setItem('site-theme', theme);
+    } catch {
+      // private mode or blocked storage — the choice just does not persist
+    }
+    // the boot script in the document head reads the same attribute, so the
+    // DOM and the store never disagree about which palette is showing
+    document.documentElement.dataset.theme = theme;
+    set({ theme });
   },
   setBooted: (booted) => set({ booted }),
   setPaletteOpen: (paletteOpen) => set({ paletteOpen }),

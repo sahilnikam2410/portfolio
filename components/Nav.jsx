@@ -44,7 +44,7 @@ export default function Nav() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
-        solid ? 'border-b border-[rgba(53,255,158,0.14)] bg-[rgba(4,7,10,0.82)] backdrop-blur-md' : ''
+        solid ? 'border-b border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(4,7,10,0.82)] backdrop-blur-md' : ''
       }`}
     >
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
@@ -76,7 +76,7 @@ export default function Nav() {
             <button
               onClick={togglePalette}
               data-cursor="⌘k"
-              className="ml-2 whitespace-nowrap border border-[rgba(53,255,158,0.2)] px-3 py-2 text-[var(--color-dim)] transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)]"
+              className="ml-2 whitespace-nowrap border border-[rgb(var(--acid-rgb)/0.2)] px-3 py-2 text-[var(--color-dim)] transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)]"
             >
               ctrl k
             </button>
@@ -84,7 +84,7 @@ export default function Nav() {
           <li>
             <a
               href={identity.resumeUrl}
-              className="ml-1 whitespace-nowrap border border-[rgba(53,255,158,0.35)] px-3 py-2 text-[var(--color-acid)] transition-colors hover:bg-[rgba(53,255,158,0.1)]"
+              className="ml-1 whitespace-nowrap border border-[rgb(var(--acid-rgb)/0.35)] px-3 py-2 text-[var(--color-acid)] transition-colors hover:bg-[rgb(var(--acid-rgb)/0.1)]"
             >
               resume.pdf
             </a>
@@ -95,14 +95,14 @@ export default function Nav() {
           onClick={() => setOpen((v) => !v)}
           aria-label="Toggle menu"
           aria-expanded={open}
-          className="border border-[rgba(53,255,158,0.25)] px-3 py-1.5 text-xs text-[var(--color-acid)] sm:hidden"
+          className="border border-[rgb(var(--acid-rgb)/0.25)] px-3 py-1.5 text-xs text-[var(--color-acid)] sm:hidden"
         >
           {open ? 'esc' : 'menu'}
         </button>
       </nav>
 
       {open && (
-        <ul className="border-t border-[rgba(53,255,158,0.14)] bg-[rgba(4,7,10,0.96)] px-5 pb-4 text-sm sm:hidden">
+        <ul className="border-t border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(4,7,10,0.96)] px-5 pb-4 text-sm sm:hidden">
           {links.map((l) => (
             <li key={l.id}>
               <a

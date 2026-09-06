@@ -9,8 +9,8 @@ export default function NotFound() {
     <main className="relative flex min-h-screen items-center justify-center px-5">
       <div className="grid-lines pointer-events-none absolute inset-0 opacity-25" />
 
-      <div className="relative w-full max-w-lg border border-[rgba(53,255,158,0.2)] bg-[rgba(8,13,18,0.85)]">
-        <div className="flex items-center gap-2 border-b border-[rgba(53,255,158,0.14)] px-4 py-2.5">
+      <div className="relative w-full max-w-lg border border-[rgb(var(--acid-rgb)/0.2)] bg-[rgba(8,13,18,0.85)]">
+        <div className="flex items-center gap-2 border-b border-[rgb(var(--acid-rgb)/0.14)] px-4 py-2.5">
           <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[var(--color-acid)]" />
@@ -38,7 +38,7 @@ export default function NotFound() {
 
           <Link
             href="/"
-            className="mt-6 inline-block border border-[rgba(53,255,158,0.35)] px-4 py-2 text-[var(--color-acid)] transition-colors hover:bg-[rgba(53,255,158,0.1)]"
+            className="mt-6 inline-block border border-[rgb(var(--acid-rgb)/0.35)] px-4 py-2 text-[var(--color-acid)] transition-colors hover:bg-[rgb(var(--acid-rgb)/0.1)]"
           >
             cd ~
           </Link>
