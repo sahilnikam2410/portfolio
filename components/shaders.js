@@ -266,6 +266,7 @@ uniform vec3  uSweepColor;
 uniform float uOpacity;
 uniform float uAlert;
 uniform float uWeb;
+uniform float uSwitch; // 0..1 across a palette change
 
 varying vec2 vUv;
 varying vec3 vPos;
@@ -322,11 +323,23 @@ void main() {
   float web = max(strands * smoothstep(0.02, 0.16, dist), silk);
 
   float structure = mix(fine + major, web * 0.7, uWeb) * fade;
-  float a = (structure + radar * 0.5 + ring * 0.6) * uOpacity;
+
+  // ── the palette arriving.
+  //    A crossfade changes everything at once, which reads as a filter being
+  //    applied to a picture. A front that travels reads as something reaching
+  //    the far side of the floor a moment after the near side, which is what
+  //    a change spreading through a space actually looks like.
+  float front = uSwitch * 0.78;
+  float edge = smoothstep(0.05, 0.0, abs(dist - front));
+  float wave = edge * step(0.001, uSwitch) * (1.0 - uSwitch * 0.35);
+
+  float a = (structure + radar * 0.5 + ring * 0.6 + wave * 1.4) * uOpacity;
   if (a < 0.004) discard;
 
   // the sweep carries its own colour so an alert can turn the floor red
   vec3 col = mix(uColor, uSweepColor, clamp(radar + ring + uAlert * 0.5, 0.0, 1.0));
+  // the crest runs hot, so the front reads as light rather than a tint
+  col = mix(col, vec3(1.0), wave * 0.55);
   gl_FragColor = vec4(col, a);
 }
 `;

@@ -47,6 +47,7 @@ import {
   HEX,
   setPalette,
   tickPalette,
+  paletteMoving,
 } from './palette';
 
 /**
@@ -100,6 +101,7 @@ const GridMaterial = shaderMaterial(
     uOpacity: 1,
     uAlert: 0,
     uWeb: 0,
+    uSwitch: 0,
     uColor: ACID.clone(),
     uSweepColor: CYAN.clone(),
   },
@@ -439,6 +441,14 @@ function Grid() {
     mat.current.uOpacity = 0.5 + progress * 0.5;
     mat.current.uAlert = THREE.MathUtils.damp(mat.current.uAlert, alert ? 1 : 0, 4, delta);
     mat.current.uSweepColor.lerp(alert ? RED : CYAN, 1 - Math.pow(0.02, delta));
+
+    // The front is tied to the palette move rather than to a timer of its
+    // own, so the light reaching a point on the floor and the colour changing
+    // there are the same event.
+    sw.current = paletteMoving()
+      ? Math.min(1, sw.current + delta * 1.15)
+      : 0;
+    mat.current.uSwitch = sw.current;
   });
 
   // shaderMaterial() freezes its uniform defaults into the class when this
@@ -450,6 +460,7 @@ function Grid() {
   const sweepColor = useMemo(() => CYAN.clone(), []);
   // the floor rules itself as a web instead of a grid in the spider palette
   const web = useSceneStore((s) => (s.theme === 'spider' ? 1 : 0));
+  const sw = useRef(0);
 
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -3.4, 0]}>
@@ -457,6 +468,7 @@ function Grid() {
       <gridMaterial
         ref={mat}
         uWeb={web}
+        uSwitch={0}
         uColor={gridColor}
         uSweepColor={sweepColor}
         transparent
@@ -1074,6 +1086,11 @@ function Rig({ children }) {
   // than on them.
   const marks = useRef([]);
 
+  // How hard the last impact hit, decaying. Kicked when a palette move starts
+  // and bled off over about a second.
+  const punch = useRef(0);
+  const wasMoving = useRef(false);
+
   useEffect(() => {
     const measure = () => {
       const span = document.documentElement.scrollHeight - window.innerHeight;
@@ -1155,12 +1172,23 @@ function Rig({ children }) {
 
     // Focal length. lookAt has just overwritten the whole orientation, so the
     // roll has to go on after it or it is thrown away every frame.
-    const fov = THREE.MathUtils.lerp(a.fov, b.fov, t);
+    // ── the punch.
+    //    A cut that only changes colour is a filter. A camera that flinches
+    //    is weight arriving. The kick is short and the recovery is longer,
+    //    because that is the shape of an impact — anything symmetrical reads
+    //    as a float.
+    const moving = paletteMoving();
+    if (moving && !wasMoving.current) punch.current = 1;
+    wasMoving.current = moving;
+    punch.current = THREE.MathUtils.damp(punch.current, 0, 3.4, delta);
+    const kick = punch.current * punch.current; // bite early, ease out late
+
+    const fov = THREE.MathUtils.lerp(a.fov, b.fov, t) - kick * 7;
     if (Math.abs(cam.fov - fov) > 0.01) {
       cam.fov = THREE.MathUtils.damp(cam.fov, fov, 3, delta);
       cam.updateProjectionMatrix();
     }
-    cam.rotation.z += THREE.MathUtils.lerp(a.roll, b.roll, t);
+    cam.rotation.z += THREE.MathUtils.lerp(a.roll, b.roll, t) + kick * 0.03;
 
     if (group.current) {
       const { section } = useSceneStore.getState();
