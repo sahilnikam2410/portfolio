@@ -53,21 +53,38 @@ export default function Backdrop() {
 
   useEffect(() => {
     let raf = 0;
+
+    // Eased rather than assigned, so arriving at a beat reveals the scene
+    // instead of snapping to it. Started at the top-of-page values.
+    const cur = { layer: 1, scrim: 0.18 };
+
     const loop = () => {
       raf = requestAnimationFrame(loop);
-      const { progress, alert } = useSceneStore.getState();
+      const { progress, alert, section } = useSceneStore.getState();
 
       // 0 at the top, 1 once the hero is gone (~12% of the page)
       const past = Math.min(1, progress / 0.12);
 
-      if (layer.current) {
-        layer.current.style.opacity = String(alert ? 0.8 : 1 - past * 0.62);
-      }
-      if (scrim.current) {
-        // enough of a pull-back to show the red globe, not so much that the
-        // heading it sits behind stops being readable
-        scrim.current.style.opacity = String(alert ? 0.55 : 0.18 + past * 0.62);
-      }
+      /**
+       * The coverage beat is the one shot on the page worth looking at: the
+       * camera drops low and the lens opens to 66. It was also sitting behind
+       * the heaviest scrim the page applies, and the only thing that pulled
+       * that scrim back was the alert — which fires once per visit and lasts
+       * four seconds. Scrolling there at any other moment left the shot at
+       * roughly seven per cent visibility, which is to say invisible.
+       *
+       * The section holds the scrim back now, and the alert takes it further
+       * still, so the set-piece has somewhere left to go.
+       */
+      const attack = section === 'coverage';
+      const layerTo = alert ? 0.92 : attack ? 0.78 : 1 - past * 0.62;
+      const scrimTo = alert ? 0.42 : attack ? 0.56 : 0.18 + past * 0.62;
+
+      cur.layer += (layerTo - cur.layer) * 0.05;
+      cur.scrim += (scrimTo - cur.scrim) * 0.05;
+
+      if (layer.current) layer.current.style.opacity = String(cur.layer);
+      if (scrim.current) scrim.current.style.opacity = String(cur.scrim);
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
