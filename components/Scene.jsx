@@ -457,20 +457,36 @@ function Grid() {
   );
 }
 
-/* ── orb web + spider (spider palette only) ──────────────────── */
+/* ── orb web + spiders (spider palette only) ─────────────────── */
+
+// Shared between the web and anything walking on it, so a spider placed at a
+// given radius lands on the silk rather than floating in front of it.
+const WEB_RADIUS = 6.4;
+const WEB_DISH = 0.34;
+const WEB_Z = -4.6;
+
+// hub back, rim forward — squared so the dish is shallow at the edge and
+// falls away quickly near the middle
+const webZ = (r) => -WEB_DISH * WEB_RADIUS * Math.pow(1 - Math.min(r / WEB_RADIUS, 1), 2);
 
 /**
- * An orb web with depth: the hub sits back and the rim comes forward, so the
- * strands read as a bowl the globe hangs inside rather than a decal on a
- * plane. Radial strands from the hub, capture rings that sag between them —
- * a ring drawn as a true circle reads as a dartboard, and the sag is the
- * whole difference.
+ * An orb web with depth: radial strands from a hub that sits back, capture
+ * rings that sag between them. A ring drawn as a true circle reads as a
+ * dartboard, and the sag is the whole difference.
  *
  * One LineSegments for the lot: a web is a few hundred short segments and
  * paying a draw call each would be silly.
+ *
+ * When the attack set-piece fires the silk twangs — a travelling wave out of
+ * the hub, written into the position buffer rather than faked with a scale,
+ * so the strands actually deform and the rings ripple out of plane.
  */
-function OrbWeb({ strands = 16, rings = 7, radius = 6.4, dish = 0.34 }) {
+function OrbWeb({ strands = 16, rings = 7 }) {
   const group = useRef(null);
+  const line = useRef(null);
+  const mat = useRef(null);
+  const flex = useRef(0);
+  const settling = useRef(false);
 
   const geometry = useMemo(() => {
     const pts = [];
@@ -481,19 +497,16 @@ function OrbWeb({ strands = 16, rings = 7, radius = 6.4, dish = 0.34 }) {
     const jitter = makeRandom(0x5eed_5b1d);
     const wobble = Array.from({ length: strands }, () => 0.82 + jitter() * 0.36);
 
-    // hub back, rim forward — squared so the dish is shallow at the edge and
-    // falls away quickly near the middle
-    const zAt = (r) => -dish * radius * Math.pow(1 - Math.min(r / radius, 1), 2);
-
     const at = (i, r) => {
       const a = (i / strands) * TAU;
-      return new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r, zAt(r));
+      return new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r, webZ(r));
     };
 
-    // radial strands, hub outward, subdivided so they bend with the dish
+    // radial strands, hub outward, subdivided so they bend with the dish and
+    // have enough vertices to carry a wave
     for (let i = 0; i < strands; i++) {
-      const rMax = radius * wobble[i];
-      const steps = 6;
+      const rMax = WEB_RADIUS * wobble[i];
+      const steps = 10;
       for (let k = 0; k < steps; k++) {
         pts.push(at(i, (k / steps) * rMax), at(i, ((k + 1) / steps) * rMax));
       }
@@ -504,12 +517,12 @@ function OrbWeb({ strands = 16, rings = 7, radius = 6.4, dish = 0.34 }) {
       const f = Math.pow(k / rings, 1.25); // rings crowd toward the rim
       for (let i = 0; i < strands; i++) {
         const j = (i + 1) % strands;
-        const a = at(i, radius * wobble[i] * f);
-        const b = at(j, radius * wobble[j] * f);
+        const a = at(i, WEB_RADIUS * wobble[i] * f);
+        const b = at(j, WEB_RADIUS * wobble[j] * f);
         const mid = a.clone().add(b).multiplyScalar(0.5);
         mid.x *= 0.93;
         mid.y *= 0.93;
-        mid.z = zAt(Math.hypot(mid.x, mid.y));
+        mid.z = webZ(Math.hypot(mid.x, mid.y));
         pts.push(a, mid, mid, b);
       }
     }
@@ -517,23 +530,59 @@ function OrbWeb({ strands = 16, rings = 7, radius = 6.4, dish = 0.34 }) {
     // bridge lines anchoring the rim back into the dark, which is what sells
     // the web as something strung in space rather than drawn on glass
     for (let i = 0; i < strands; i += 3) {
-      const rim = at(i, radius * wobble[i]);
-      pts.push(rim, new THREE.Vector3(rim.x * 1.5, rim.y * 1.5, rim.z - radius * 0.5));
+      const rim = at(i, WEB_RADIUS * wobble[i]);
+      pts.push(rim, new THREE.Vector3(rim.x * 1.5, rim.y * 1.5, rim.z - WEB_RADIUS * 0.5));
     }
 
     return new THREE.BufferGeometry().setFromPoints(pts);
-  }, [strands, rings, radius, dish]);
+  }, [strands, rings]);
 
-  useFrame(({ clock }) => {
-    if (!group.current) return;
-    // barely moving: a web is anchored, it only breathes
-    group.current.rotation.z = Math.sin(clock.elapsedTime * 0.06) * 0.04;
+  // the resting shape, kept aside so each frame displaces from the original
+  // rather than from the last displaced state
+  const rest = useMemo(() => Float32Array.from(geometry.attributes.position.array), [geometry]);
+
+  useFrame(({ clock }, delta) => {
+    const t = clock.elapsedTime;
+    const { alert } = useSceneStore.getState();
+
+    flex.current = THREE.MathUtils.damp(flex.current, alert ? 1 : 0, 3, delta);
+    const f = flex.current;
+
+    if (group.current) {
+      // barely moving at rest: a web is anchored, it only breathes
+      group.current.rotation.z = Math.sin(t * 0.06) * 0.04;
+    }
+    if (mat.current) mat.current.opacity = 0.26 + f * 0.3;
+
+    // skip the buffer write entirely at rest, but run one last pass on the
+    // way down so the silk returns to its resting shape instead of freezing
+    const active = f > 0.002;
+    if (!active && !settling.current) return;
+    settling.current = active;
+
+    // written through the mesh rather than the memoised geometry: the
+    // buffer is the same one either way, but the value handed to useMemo is
+    // not ours to mutate
+    const geo = line.current?.geometry;
+    if (!geo) return;
+    const pos = geo.attributes.position;
+    const arr = pos.array;
+    for (let i = 0; i < arr.length; i += 3) {
+      const x = rest[i];
+      const y = rest[i + 1];
+      const r = Math.hypot(x, y);
+      // wave travels outward from the hub, held off the very centre so the
+      // anchor point stays put the way a real hub does
+      arr[i + 2] = rest[i + 2] + Math.sin(r * 1.5 - t * 6.5) * 0.5 * f * Math.min(1, r / 2.2);
+    }
+    pos.needsUpdate = true;
   });
 
   return (
-    <group ref={group} position={[0, 0, -4.6]}>
-      <lineSegments geometry={geometry}>
+    <group ref={group} position={[0, 0, WEB_Z]}>
+      <lineSegments ref={line} geometry={geometry}>
         <lineBasicMaterial
+          ref={mat}
           color={ACID}
           transparent
           opacity={0.26}
@@ -555,8 +604,20 @@ function OrbWeb({ strands = 16, rings = 7, radius = 6.4, dish = 0.34 }) {
  *
  * Solid shaded rather than wireframe, so the scene fill lights model the body
  * and it turns with the light instead of reading as a flat decal.
+ *
+ * Two modes. `hang` drops on a dragline when the attack set-piece fires.
+ * `crawl` walks the web itself: it rides the dish at a given radius, so it
+ * sits on the silk rather than in front of it, and turns to face the way it
+ * is going.
  */
-function Spider({ scale = 0.44, eyes = true }) {
+function Spider({
+  scale = 0.44,
+  eyes = true,
+  mode = 'hang',
+  phase = 0,
+  dir = 1,
+  orbitR = 3.4,
+}) {
   const group = useRef(null);
   const legs = useRef([]);
   const drop = useRef(0);
@@ -591,41 +652,50 @@ function Spider({ scale = 0.44, eyes = true }) {
   useFrame(({ clock }, delta) => {
     const t = clock.elapsedTime;
     const { alert } = useSceneStore.getState();
+    const g = group.current;
 
-    // spider-sense: it drops on its line when the attack set-piece fires
-    drop.current = THREE.MathUtils.damp(drop.current, alert ? 1 : 0, 2.2, delta);
-
-    if (group.current) {
-      group.current.position.y = 1.78 - drop.current * 3.4;
-      group.current.position.x = 1.9 + Math.sin(t * 0.23) * 0.45;
-      group.current.rotation.z = Math.sin(t * 0.4) * 0.09;
-      // turn slowly so the shading reads as volume rather than a sticker
-      group.current.rotation.y = Math.sin(t * 0.17) * 0.5;
+    if (g) {
+      if (mode === 'crawl') {
+        // ride the web: radius wanders, so the path is a slow wander across
+        // the silk rather than a clean orbit
+        const a = t * 0.075 * dir + phase;
+        const r = orbitR + Math.sin(t * 0.31 + phase) * 0.7;
+        g.position.set(Math.cos(a) * r, Math.sin(a) * r, WEB_Z + webZ(r) + 0.35);
+        // lie flat against the web, back to the camera, head into the turn
+        g.rotation.set(Math.PI / 2, 0, a + Math.PI);
+      } else {
+        drop.current = THREE.MathUtils.damp(drop.current, alert ? 1 : 0, 2.2, delta);
+        g.position.y = 1.78 - drop.current * 3.4;
+        g.position.x = 1.9 + Math.sin(t * 0.23) * 0.45;
+        g.rotation.z = Math.sin(t * 0.4) * 0.09;
+        // turn slowly so the shading reads as volume rather than a sticker
+        g.rotation.y = Math.sin(t * 0.17) * 0.5;
+      }
     }
 
-    // idle articulation: a hanging spider feels for the silk, so the legs
-    // flex at the knee rather than sweeping like oars
+    // idle articulation: legs flex at the knee rather than sweeping like oars
     legs.current.forEach((leg, i) => {
       if (!leg) return;
       const l = layout[i];
-      const flex = Math.sin(t * 1.5 + l.phase);
-      leg.rotation.y = l.yaw + flex * 0.1;
+      const flex = Math.sin(t * (mode === 'crawl' ? 2.4 : 1.5) + l.phase);
+      leg.rotation.y = l.yaw + flex * (mode === 'crawl' ? 0.18 : 0.1);
       leg.rotation.z = flex * 0.07;
     });
   });
 
   return (
     <group ref={group} position={[1.9, 1.78, -1.2]} scale={scale}>
-      {/* dragline back up out of frame */}
-      <line>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[new Float32Array([0, 0, 0, 0, 40, 0]), 3]}
-          />
-        </bufferGeometry>
-        <lineBasicMaterial color={ACID} transparent opacity={0.3} depthWrite={false} />
-      </line>
+      {mode === 'hang' && (
+        <line>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              args={[new Float32Array([0, 0, 0, 0, 40, 0]), 3]}
+            />
+          </bufferGeometry>
+          <lineBasicMaterial color={ACID} transparent opacity={0.3} depthWrite={false} />
+        </line>
+      )}
 
       {/* abdomen: the big rear lobe, longer than it is wide */}
       <mesh position={[0, -0.04, -0.62]} scale={[0.92, 0.82, 1.3]}>
@@ -1365,6 +1435,10 @@ export default function Scene() {
             {/* the web and its occupant belong to the spider palette only */}
             {spider && <OrbWeb rings={lite ? 5 : 7} strands={lite ? 12 : 16} />}
             {spider && <Spider eyes={!lite} />}
+            {/* a spider is a couple of dozen small draw calls in a scene that
+                already has far more, so it rides along in lite too — a four-core
+                laptop lands in lite and should still get the web it is on */}
+            {spider && <Spider mode="crawl" scale={0.34} phase={2.1} dir={-1} orbitR={3.4} eyes={false} />}
             <HoloGlobe />
             <Nodes count={lite ? 42 : 90} />
             <Traffic count={lite ? 4 : 10} />
