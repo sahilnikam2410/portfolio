@@ -319,3 +319,81 @@ body::after {
   --cyan-rgb: 91 140 255;
   --dim-rgb: 136 146 176;
 }
+
+/* ---------------------------------------------------------------------------
+   Spider motif animations
+   ---------------------------------------------------------------------------
+   Driven by discrete events — a click, the incident, a section change — and
+   only ever mounted in the spider palette. Every one is decoration, so the
+   component skips them entirely under reduced motion; the media query below
+   is the second line of defence for anything already on screen when the
+   preference changes.
+--------------------------------------------------------------------------- */
+
+/* a web thrown at the pointer: lands hard, then lets go */
+@keyframes spider-splat {
+  0% {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+  22% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  40% {
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.14);
+  }
+}
+.spider-splat {
+  animation: spider-splat 700ms cubic-bezier(0.16, 0.84, 0.3, 1) forwards;
+}
+
+/* spider-sense: arcs climbing away from the head, one after another */
+@keyframes spider-sense {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.7);
+  }
+  35% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px) scale(1.25);
+  }
+}
+.spider-sense path {
+  transform-origin: 50% 60%;
+  animation: spider-sense 1100ms ease-out infinite;
+}
+
+/* the sling line: a strand crossing frame, gone before it is read as an object */
+@keyframes spider-sling {
+  0% {
+    opacity: 0;
+    transform: translateX(-40%);
+  }
+  18% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(130%);
+  }
+}
+.spider-sling {
+  animation: spider-sling 700ms cubic-bezier(0.3, 0, 0.2, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spider-splat,
+  .spider-sense path,
+  .spider-sling {
+    animation: none;
+    opacity: 0;
+  }
+}

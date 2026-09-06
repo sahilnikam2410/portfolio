@@ -8,6 +8,7 @@ import Konami from './Konami';
 import Controls from './Controls';
 import SectionTracker from './SectionTracker';
 import AlertFlash from './AlertFlash';
+import SpiderFx from './SpiderFx';
 import RecruiterMode from './RecruiterMode';
 
 // browser-only extras
@@ -27,6 +28,7 @@ export default function Chrome() {
       <Controls />
       <SectionTracker />
       <AlertFlash />
+      <SpiderFx />
       <RecruiterMode />
     </>
   );
