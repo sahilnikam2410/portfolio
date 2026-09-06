@@ -36,7 +36,7 @@ export default function About() {
         </div>
 
         <Reveal delay={0.12}>
-          <ol className="relative border-l border-[rgba(53,255,158,0.2)] pl-6">
+          <ol className="relative border-l border-[rgb(var(--acid-rgb)/0.2)] pl-6">
             {timeline.map((t, i) => (
               <li key={i} className="mb-8 last:mb-0">
                 <span className="absolute -left-[5px] mt-1.5 h-2.5 w-2.5 rounded-full bg-[var(--color-acid)] shadow-[0_0_10px_var(--color-acid)]" />

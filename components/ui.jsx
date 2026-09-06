@@ -16,7 +16,7 @@ export function Section({ id, index, title, subtitle, children }) {
 export function SectionHeading({ index, title, subtitle }) {
   return (
     <Reveal>
-      <div className="mb-12 border-b border-[rgba(53,255,158,0.14)] pb-6">
+      <div className="mb-12 border-b border-[rgb(var(--acid-rgb)/0.14)] pb-6">
         <div className="flex items-start gap-5">
           <span aria-hidden="true" className="index-numeral shrink-0 select-none">
             {index}
@@ -91,7 +91,7 @@ export function Reveal({ children, delay = 0 }) {
 export function Panel({ children, className = '' }) {
   return (
     <div
-      className={`relative border border-[rgba(53,255,158,0.14)] bg-[rgba(8,13,18,0.72)] backdrop-blur-sm ${className}`}
+      className={`relative border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(8,13,18,0.72)] backdrop-blur-sm ${className}`}
     >
       <Corner className="-left-px -top-px border-l border-t" />
       <Corner className="-right-px -top-px border-r border-t" />
@@ -113,7 +113,7 @@ function Corner({ className }) {
 
 export function Tag({ children }) {
   return (
-    <span className="border border-[rgba(53,224,255,0.25)] px-2 py-0.5 text-[11px] text-[var(--color-cyan)]">
+    <span className="border border-[rgb(var(--cyan-rgb)/0.25)] px-2 py-0.5 text-[11px] text-[var(--color-cyan)]">
       {children}
     </span>
   );

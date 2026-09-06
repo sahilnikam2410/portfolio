@@ -47,7 +47,7 @@ export default function Konami() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 12 }}
-          className="fixed bottom-16 left-1/2 z-[75] -translate-x-1/2 border border-[rgba(53,255,158,0.35)] bg-[rgba(8,13,18,0.95)] px-5 py-3 text-[12px] text-[var(--color-acid)] shadow-[0_0_40px_rgba(53,255,158,0.15)]"
+          className="fixed bottom-16 left-1/2 z-[75] -translate-x-1/2 border border-[rgb(var(--acid-rgb)/0.35)] bg-[rgba(8,13,18,0.95)] px-5 py-3 text-[12px] text-[var(--color-acid)] shadow-[0_0_40px_rgb(var(--acid-rgb)/0.15)]"
         >
           root shell granted — just kidding. try{' '}
           <span className="text-[var(--color-bone)]">sudo su</span> in the shell below.

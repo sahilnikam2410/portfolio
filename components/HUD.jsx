@@ -48,7 +48,7 @@ export default function HUD() {
   return (
     <>
       {/* scroll progress rail */}
-      <div data-print="hide" className="pointer-events-none fixed inset-x-0 top-0 z-[65] h-px bg-[rgba(53,255,158,0.12)]">
+      <div data-print="hide" className="pointer-events-none fixed inset-x-0 top-0 z-[65] h-px bg-[rgb(var(--acid-rgb)/0.12)]">
         <div
           ref={barRef}
           className="h-full origin-left bg-[var(--color-acid)] shadow-[0_0_10px_var(--color-acid)]"
@@ -71,11 +71,11 @@ export default function HUD() {
         </span>
         <span className="text-[var(--color-cyan)]">{label ?? 'idle'}</span>
         <span>
-          <kbd className="border border-[rgba(53,255,158,0.25)] px-1">ctrl</kbd>
+          <kbd className="border border-[rgb(var(--acid-rgb)/0.25)] px-1">ctrl</kbd>
           <span className="px-1">+</span>
-          <kbd className="border border-[rgba(53,255,158,0.25)] px-1">k</kbd>
-          <span className="px-1.5 text-[rgba(107,132,121,0.5)]">·</span>
-          <kbd className="border border-[rgba(53,255,158,0.25)] px-1">?</kbd>
+          <kbd className="border border-[rgb(var(--acid-rgb)/0.25)] px-1">k</kbd>
+          <span className="px-1.5 text-[rgb(var(--dim-rgb)/0.5)]">·</span>
+          <kbd className="border border-[rgb(var(--acid-rgb)/0.25)] px-1">?</kbd>
         </span>
       </div>
     </>

@@ -38,7 +38,7 @@ export default function Projects() {
                     onClick={() => setActive(p.id)}
                     className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-[13px] transition-colors ${
                       active === p.id
-                        ? 'bg-[rgba(53,255,158,0.1)] text-[var(--color-acid)]'
+                        ? 'bg-[rgb(var(--acid-rgb)/0.1)] text-[var(--color-acid)]'
                         : 'text-[var(--color-dim)] hover:text-[var(--color-bone)]'
                     }`}
                   >
@@ -90,7 +90,7 @@ export default function Projects() {
                   <Link
                     href={`/work/${current.id}`}
                     data-cursor="read"
-                    className="border border-[rgba(53,255,158,0.35)] px-4 py-2 text-[13px] text-[var(--color-acid)] transition-colors hover:bg-[rgba(53,255,158,0.1)]"
+                    className="border border-[rgb(var(--acid-rgb)/0.35)] px-4 py-2 text-[13px] text-[var(--color-acid)] transition-colors hover:bg-[rgb(var(--acid-rgb)/0.1)]"
                   >
                     case study →
                   </Link>
@@ -100,7 +100,7 @@ export default function Projects() {
                       href={current.repo ?? current.site}
                       target="_blank"
                       rel="noreferrer"
-                      className="border border-[rgba(53,255,158,0.2)] px-4 py-2 text-[13px] text-[var(--color-bone)] transition-colors hover:border-[var(--color-acid)]"
+                      className="border border-[rgb(var(--acid-rgb)/0.2)] px-4 py-2 text-[13px] text-[var(--color-bone)] transition-colors hover:border-[var(--color-acid)]"
                     >
                       {current.repo ? 'repository' : 'live site'} ↗
                     </a>

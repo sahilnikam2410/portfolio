@@ -15,7 +15,7 @@ const HOSTS = [
 export default function Topology() {
   return (
     <Reveal delay={0.1}>
-      <figure className="overflow-x-auto border border-[rgba(53,255,158,0.14)] bg-[rgba(8,13,18,0.55)] p-4">
+      <figure className="overflow-x-auto border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(8,13,18,0.55)] p-4">
         <figcaption className="mb-3 text-[11px] uppercase tracking-[0.2em] text-[var(--color-dim)]">
           lab topology — host-only, no route out
         </figcaption>
@@ -59,7 +59,7 @@ export default function Topology() {
             height="284"
             rx="4"
             fill="none"
-            stroke="rgba(53,255,158,0.25)"
+            stroke="rgb(var(--acid-rgb)/0.25)"
             strokeDasharray="4 4"
           />
           <text x="26" y="44" fill="#6b8479" fontSize="11" fontFamily="monospace">
@@ -75,7 +75,7 @@ export default function Topology() {
                 width="150"
                 height="52"
                 fill="rgba(4,7,10,0.9)"
-                stroke="rgba(53,255,158,0.35)"
+                stroke="rgb(var(--acid-rgb)/0.35)"
               />
               <text
                 x={h.x + 12}

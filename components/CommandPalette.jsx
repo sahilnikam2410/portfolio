@@ -147,14 +147,14 @@ export default function CommandPalette() {
           onClick={() => setOpen(false)}
         >
           <motion.div
-            className="w-full max-w-lg border border-[rgba(53,255,158,0.25)] bg-[rgba(8,13,18,0.96)] shadow-[0_0_60px_rgba(53,255,158,0.1)]"
+            className="w-full max-w-lg border border-[rgb(var(--acid-rgb)/0.25)] bg-[rgba(8,13,18,0.96)] shadow-[0_0_60px_rgb(var(--acid-rgb)/0.1)]"
             initial={{ y: -12, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -8, opacity: 0 }}
             transition={{ duration: 0.18 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center gap-3 border-b border-[rgba(53,255,158,0.14)] px-4 py-3">
+            <div className="flex items-center gap-3 border-b border-[rgb(var(--acid-rgb)/0.14)] px-4 py-3">
               <span className="text-[var(--color-acid)]">&gt;</span>
               <input
                 ref={inputRef}
@@ -167,9 +167,9 @@ export default function CommandPalette() {
                 placeholder="jump to section, project, or link…"
                 spellCheck={false}
                 aria-label="command palette"
-                className="w-full bg-transparent text-sm text-[var(--color-bone)] outline-none placeholder:text-[rgba(107,132,121,0.6)]"
+                className="w-full bg-transparent text-sm text-[var(--color-bone)] outline-none placeholder:text-[rgb(var(--dim-rgb)/0.6)]"
               />
-              <kbd className="border border-[rgba(53,255,158,0.2)] px-1.5 py-0.5 text-[10px] text-[var(--color-dim)]">
+              <kbd className="border border-[rgb(var(--acid-rgb)/0.2)] px-1.5 py-0.5 text-[10px] text-[var(--color-dim)]">
                 esc
               </kbd>
             </div>
@@ -190,7 +190,7 @@ export default function CommandPalette() {
                     }}
                     className={`flex w-full items-center justify-between gap-4 px-4 py-2.5 text-left text-[13px] transition-colors ${
                       i === index
-                        ? 'bg-[rgba(53,255,158,0.1)] text-[var(--color-acid)]'
+                        ? 'bg-[rgb(var(--acid-rgb)/0.1)] text-[var(--color-acid)]'
                         : 'text-[var(--color-bone)]'
                     }`}
                   >
@@ -206,7 +206,7 @@ export default function CommandPalette() {
               ))}
             </ul>
 
-            <div className="flex items-center gap-4 border-t border-[rgba(53,255,158,0.14)] px-4 py-2 text-[10px] text-[var(--color-dim)]">
+            <div className="flex items-center gap-4 border-t border-[rgb(var(--acid-rgb)/0.14)] px-4 py-2 text-[10px] text-[var(--color-dim)]">
               <span>↑↓ move</span>
               <span>⏎ select</span>
               <span className="ml-auto">ctrl + k</span>

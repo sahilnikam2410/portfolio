@@ -42,7 +42,7 @@ export default function RecruiterMode() {
         onClick={() => setOpen(true)}
         data-print="hide"
         data-cursor="brief"
-        className="fixed bottom-5 left-1/2 z-[64] -translate-x-1/2 border border-[rgba(53,255,158,0.3)] bg-[rgba(8,13,18,0.92)] px-4 py-2 text-[11px] text-[var(--color-dim)] backdrop-blur transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)] lg:left-auto lg:right-5 lg:translate-x-0"
+        className="fixed bottom-5 left-1/2 z-[64] -translate-x-1/2 border border-[rgb(var(--acid-rgb)/0.3)] bg-[rgba(8,13,18,0.92)] px-4 py-2 text-[11px] text-[var(--color-dim)] backdrop-blur transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)] lg:left-auto lg:right-5 lg:translate-x-0"
       >
         hiring? press <kbd className="text-[var(--color-acid)]">r</kbd> for the one-page brief
       </button>
@@ -69,19 +69,19 @@ export default function RecruiterMode() {
               exit={{ y: 10, opacity: 0 }}
               transition={{ duration: 0.22 }}
               onClick={(e) => e.stopPropagation()}
-              className="mx-auto my-6 w-[min(96vw,1000px)] border border-[rgba(53,255,158,0.25)] bg-[rgba(6,10,14,0.98)]"
+              className="mx-auto my-6 w-[min(96vw,1000px)] border border-[rgb(var(--acid-rgb)/0.25)] bg-[rgba(6,10,14,0.98)]"
             >
-              <div className="flex items-center justify-between border-b border-[rgba(53,255,158,0.16)] px-5 py-3">
+              <div className="flex items-center justify-between border-b border-[rgb(var(--acid-rgb)/0.16)] px-5 py-3">
                 <span className="text-[12px] text-[var(--color-acid)]">candidate brief</span>
                 <button
                   onClick={() => setOpen(false)}
-                  className="border border-[rgba(53,255,158,0.25)] px-2 py-0.5 text-[11px] text-[var(--color-dim)] hover:text-[var(--color-acid)]"
+                  className="border border-[rgb(var(--acid-rgb)/0.25)] px-2 py-0.5 text-[11px] text-[var(--color-dim)] hover:text-[var(--color-acid)]"
                 >
                   esc
                 </button>
               </div>
 
-              <div className="grid gap-px bg-[rgba(53,255,158,0.14)] lg:grid-cols-[1.15fr_0.85fr]">
+              <div className="grid gap-px bg-[rgb(var(--acid-rgb)/0.14)] lg:grid-cols-[1.15fr_0.85fr]">
                 {/* left column */}
                 <div className="space-y-5 bg-[rgba(6,10,14,0.98)] p-5">
                   <div>
@@ -90,12 +90,12 @@ export default function RecruiterMode() {
                     <div className="mt-1 text-[12px] text-[var(--color-dim)]">
                       {identity.location}
                     </div>
-                    <div className="mt-2 inline-block border border-[rgba(53,255,158,0.3)] px-2 py-0.5 text-[11px] text-[var(--color-acid)]">
+                    <div className="mt-2 inline-block border border-[rgb(var(--acid-rgb)/0.3)] px-2 py-0.5 text-[11px] text-[var(--color-acid)]">
                       {identity.status}
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-px border border-[rgba(53,255,158,0.14)] bg-[rgba(53,255,158,0.14)] sm:grid-cols-4">
+                  <div className="grid grid-cols-2 gap-px border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgb(var(--acid-rgb)/0.14)] sm:grid-cols-4">
                     {[
                       ['5/5', 'SOC modules certified'],
                       ['3 mo', 'enterprise SOC internship'],
@@ -117,7 +117,7 @@ export default function RecruiterMode() {
                       {topSkills.map((s) => (
                         <li
                           key={s}
-                          className="border border-[rgba(53,255,158,0.18)] px-2 py-0.5 text-[11px] text-[var(--color-bone)]"
+                          className="border border-[rgb(var(--acid-rgb)/0.18)] px-2 py-0.5 text-[11px] text-[var(--color-bone)]"
                         >
                           {s}
                         </li>
@@ -170,14 +170,14 @@ export default function RecruiterMode() {
                     <div className="mb-2 text-[11px] uppercase tracking-[0.18em] text-[var(--color-dim)]">
                       resume — pick the role
                     </div>
-                    <ul className="space-y-px border border-[rgba(53,255,158,0.14)] bg-[rgba(53,255,158,0.14)]">
+                    <ul className="space-y-px border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgb(var(--acid-rgb)/0.14)]">
                       {resumes.map((r) => (
                         <li key={r.file}>
                           <a
                             href={r.file}
                             target="_blank"
                             rel="noreferrer"
-                            className="flex items-center justify-between gap-3 bg-[rgba(6,10,14,0.98)] px-3 py-2 text-[12px] transition-colors hover:bg-[rgba(53,255,158,0.08)]"
+                            className="flex items-center justify-between gap-3 bg-[rgba(6,10,14,0.98)] px-3 py-2 text-[12px] transition-colors hover:bg-[rgb(var(--acid-rgb)/0.08)]"
                           >
                             <span className="text-[var(--color-bone)]">{r.role}</span>
                             <span className="text-[10px] text-[var(--color-dim)]">pdf ↗</span>
@@ -214,7 +214,7 @@ export default function RecruiterMode() {
                               href={s.href}
                               target="_blank"
                               rel="noreferrer"
-                              className="border border-[rgba(53,224,255,0.25)] px-2 py-0.5 text-[11px] text-[var(--color-cyan)] hover:bg-[rgba(53,224,255,0.1)]"
+                              className="border border-[rgb(var(--cyan-rgb)/0.25)] px-2 py-0.5 text-[11px] text-[var(--color-cyan)] hover:bg-[rgb(var(--cyan-rgb)/0.1)]"
                             >
                               {s.label} ↗
                             </a>
@@ -225,11 +225,11 @@ export default function RecruiterMode() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-4 border-t border-[rgba(53,255,158,0.16)] px-5 py-3 text-[10px] text-[var(--color-dim)]">
+              <div className="flex flex-wrap items-center gap-4 border-t border-[rgb(var(--acid-rgb)/0.16)] px-5 py-3 text-[10px] text-[var(--color-dim)]">
                 <span>every technique shown was run against systems he owns or was authorised to test</span>
                 <button
                   onClick={() => window.print()}
-                  className="ml-auto border border-[rgba(53,255,158,0.25)] px-2 py-0.5 hover:text-[var(--color-acid)]"
+                  className="ml-auto border border-[rgb(var(--acid-rgb)/0.25)] px-2 py-0.5 hover:text-[var(--color-acid)]"
                 >
                   print
                 </button>

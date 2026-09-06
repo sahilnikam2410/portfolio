@@ -8,6 +8,13 @@
   --color-cyan: #35e0ff;
   --color-dim: #6b8479;
   --color-bone: #d6efe3;
+
+  /* channel-only forms of the accent colours, so alpha variants compose from
+     a single source. A theme override swaps these three and every rgb(var(...))
+     call site follows. */
+  --acid-rgb: 53 255 158;
+  --cyan-rgb: 53 224 255;
+  --dim-rgb: 107 132 121;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
@@ -36,8 +43,8 @@ body::after {
   z-index: 60;
   background: repeating-linear-gradient(
     to bottom,
-    rgba(53, 255, 158, 0.03) 0px,
-    rgba(53, 255, 158, 0.03) 1px,
+    rgb(var(--acid-rgb)/0.03) 0px,
+    rgb(var(--acid-rgb)/0.03) 1px,
     transparent 1px,
     transparent 4px
   );
@@ -97,7 +104,7 @@ body::after {
 
 /* outlined ghost copy that sits behind the solid one */
 .ghost {
-  -webkit-text-stroke: 1px rgba(53, 255, 158, 0.28);
+  -webkit-text-stroke: 1px rgb(var(--acid-rgb)/0.28);
   color: transparent;
 }
 
@@ -106,22 +113,22 @@ body::after {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   line-height: 0.8;
   letter-spacing: -0.06em;
-  -webkit-text-stroke: 1px rgba(53, 255, 158, 0.35);
+  -webkit-text-stroke: 1px rgb(var(--acid-rgb)/0.35);
   color: transparent;
 }
 
 .glow {
-  text-shadow: 0 0 12px rgba(53, 255, 158, 0.55), 0 0 38px rgba(53, 255, 158, 0.2);
+  text-shadow: 0 0 12px rgb(var(--acid-rgb)/0.55), 0 0 38px rgb(var(--acid-rgb)/0.2);
 }
 
 .grid-lines {
-  background-image: linear-gradient(rgba(53, 255, 158, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(53, 255, 158, 0.05) 1px, transparent 1px);
+  background-image: linear-gradient(rgb(var(--acid-rgb)/0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--acid-rgb)/0.05) 1px, transparent 1px);
   background-size: 44px 44px;
 }
 
 .hair {
-  border-color: rgba(53, 255, 158, 0.14);
+  border-color: rgb(var(--acid-rgb)/0.14);
 }
 
 @keyframes flicker {

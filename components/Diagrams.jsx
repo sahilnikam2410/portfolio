@@ -8,7 +8,7 @@
  * readable at any width. Real screenshots belong in `artifacts`.
  */
 
-const BOX = 'fill-[rgba(4,7,10,0.92)] stroke-[rgba(53,255,158,0.35)]';
+const BOX = 'fill-[rgba(4,7,10,0.92)] stroke-[rgb(var(--acid-rgb)/0.35)]';
 const LABEL = 'fill-[#d6efe3] text-[11px] font-mono';
 const SUB = 'fill-[#6b8479] text-[9px] font-mono';
 
@@ -30,7 +30,7 @@ function Arrow({ id = 'dgm-arrow', color = '#35ff9e' }) {
 
 function Frame({ title, children, viewBox, minWidth = 620 }) {
   return (
-    <figure className="overflow-x-auto border border-[rgba(53,255,158,0.14)] bg-[rgba(8,13,18,0.55)] p-4">
+    <figure className="overflow-x-auto border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(8,13,18,0.55)] p-4">
       <figcaption className="mb-3 text-[11px] uppercase tracking-[0.2em] text-[var(--color-dim)]">
         {title}
       </figcaption>
@@ -153,7 +153,7 @@ export function AlertLifecycle() {
 
   return (
     <Frame title="alert lifecycle — from match to written up" viewBox="0 0 700 210" minWidth={520}>
-      <line x1="70" y1="24" x2="70" y2="186" stroke="rgba(53,255,158,0.25)" />
+      <line x1="70" y1="24" x2="70" y2="186" stroke="rgb(var(--acid-rgb)/0.25)" />
       {steps.map(([t, text, color], i) => {
         const y = 36 + i * 34;
         return (

@@ -26,7 +26,7 @@ export async function generateMetadata({ params }) {
 
 function Block({ label, children }) {
   return (
-    <section className="border-t border-[rgba(53,255,158,0.14)] py-8">
+    <section className="border-t border-[rgb(var(--acid-rgb)/0.14)] py-8">
       <h2 className="mb-4 text-[11px] uppercase tracking-[0.22em] text-[var(--color-acid)]">
         {label}
       </h2>
@@ -73,7 +73,7 @@ export default async function CaseStudy({ params }) {
             {project.stack.map((s) => (
               <li
                 key={s}
-                className="border border-[rgba(53,224,255,0.25)] px-2 py-0.5 text-[11px] text-[var(--color-cyan)]"
+                className="border border-[rgb(var(--cyan-rgb)/0.25)] px-2 py-0.5 text-[11px] text-[var(--color-cyan)]"
               >
                 {s}
               </li>
@@ -96,7 +96,7 @@ export default async function CaseStudy({ params }) {
                 {study.environment.map((e) => (
                   <li
                     key={e}
-                    className="border border-[rgba(53,255,158,0.18)] px-2.5 py-1 text-[12px] text-[var(--color-bone)]"
+                    className="border border-[rgb(var(--acid-rgb)/0.18)] px-2.5 py-1 text-[12px] text-[var(--color-bone)]"
                   >
                     {e}
                   </li>
@@ -155,7 +155,7 @@ export default async function CaseStudy({ params }) {
                       <span
                         className={`border px-2 py-0.5 text-[10px] ${
                           r.status === 'validated'
-                            ? 'border-[rgba(53,255,158,0.4)] text-[var(--color-acid)]'
+                            ? 'border-[rgb(var(--acid-rgb)/0.4)] text-[var(--color-acid)]'
                             : 'border-[rgba(255,209,102,0.4)] text-[#ffd166]'
                         }`}
                       >
@@ -164,7 +164,7 @@ export default async function CaseStudy({ params }) {
                           : 'draft — not yet run'}
                       </span>
                     </figcaption>
-                    <pre className="overflow-x-auto border border-[rgba(53,255,158,0.14)] bg-[rgba(4,7,10,0.85)] p-4 text-[12px] leading-relaxed text-[var(--color-bone)]">
+                    <pre className="overflow-x-auto border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(4,7,10,0.85)] p-4 text-[12px] leading-relaxed text-[var(--color-bone)]">
                       <code>{r.code}</code>
                     </pre>
                     {r.note && (
@@ -182,10 +182,10 @@ export default async function CaseStudy({ params }) {
             <Block label="artifacts">
               <div className="grid gap-4 sm:grid-cols-2">
                 {study.artifacts.map((a) => (
-                  <figure key={a.src} className="border border-[rgba(53,255,158,0.14)]">
+                  <figure key={a.src} className="border border-[rgb(var(--acid-rgb)/0.14)]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={a.src} alt={a.alt} className="w-full" />
-                    <figcaption className="border-t border-[rgba(53,255,158,0.14)] px-3 py-2 text-[11px] text-[var(--color-dim)]">
+                    <figcaption className="border-t border-[rgb(var(--acid-rgb)/0.14)] px-3 py-2 text-[11px] text-[var(--color-dim)]">
                       {a.alt}
                     </figcaption>
                   </figure>
@@ -231,24 +231,24 @@ export default async function CaseStudy({ params }) {
               href={project.repo}
               target="_blank"
               rel="noreferrer"
-              className="border border-[rgba(53,255,158,0.35)] px-4 py-2 text-[13px] text-[var(--color-acid)] transition-colors hover:bg-[rgba(53,255,158,0.1)]"
+              className="border border-[rgb(var(--acid-rgb)/0.35)] px-4 py-2 text-[13px] text-[var(--color-acid)] transition-colors hover:bg-[rgb(var(--acid-rgb)/0.1)]"
             >
               repository →
             </a>
           )}
           <a
             href={`mailto:${identity.email}?subject=${encodeURIComponent(project.title)}`}
-            className="border border-[rgba(53,255,158,0.2)] px-4 py-2 text-[13px] text-[var(--color-bone)] transition-colors hover:border-[var(--color-acid)]"
+            className="border border-[rgb(var(--acid-rgb)/0.2)] px-4 py-2 text-[13px] text-[var(--color-bone)] transition-colors hover:border-[var(--color-acid)]"
           >
             ask me about this
           </a>
         </div>
 
         {/* neighbours — never leave the reader at a dead end */}
-        <nav className="mt-14 grid gap-px border border-[rgba(53,255,158,0.14)] bg-[rgba(53,255,158,0.14)] sm:grid-cols-2">
+        <nav className="mt-14 grid gap-px border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgb(var(--acid-rgb)/0.14)] sm:grid-cols-2">
           <Link
             href={`/work/${prev.id}`}
-            className="group bg-[rgba(4,7,10,0.92)] px-5 py-4 transition-colors hover:bg-[rgba(53,255,158,0.07)]"
+            className="group bg-[rgba(4,7,10,0.92)] px-5 py-4 transition-colors hover:bg-[rgb(var(--acid-rgb)/0.07)]"
           >
             <div className="text-[11px] text-[var(--color-dim)]">← previous</div>
             <div className="mt-1 text-[14px] text-[var(--color-bone)] transition-colors group-hover:text-[var(--color-acid)]">
@@ -257,7 +257,7 @@ export default async function CaseStudy({ params }) {
           </Link>
           <Link
             href={`/work/${next.id}`}
-            className="group bg-[rgba(4,7,10,0.92)] px-5 py-4 text-right transition-colors hover:bg-[rgba(53,255,158,0.07)]"
+            className="group bg-[rgba(4,7,10,0.92)] px-5 py-4 text-right transition-colors hover:bg-[rgb(var(--acid-rgb)/0.07)]"
           >
             <div className="text-[11px] text-[var(--color-dim)]">next →</div>
             <div className="mt-1 text-[14px] text-[var(--color-bone)] transition-colors group-hover:text-[var(--color-acid)]">

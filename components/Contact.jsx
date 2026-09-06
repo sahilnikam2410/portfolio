@@ -38,13 +38,13 @@ export default function Contact() {
                 <a
                   href={`mailto:${identity.email}`}
                   data-cursor="send"
-                  className="border border-[var(--color-acid)] bg-[rgba(53,255,158,0.1)] px-5 py-2.5 text-sm text-[var(--color-acid)] transition-colors hover:bg-[rgba(53,255,158,0.2)]"
+                  className="border border-[var(--color-acid)] bg-[rgb(var(--acid-rgb)/0.1)] px-5 py-2.5 text-sm text-[var(--color-acid)] transition-colors hover:bg-[rgb(var(--acid-rgb)/0.2)]"
                 >
                   send mail
                 </a>
                 <a
                   href={`tel:${identity.phone.replace(/\s/g, '')}`}
-                  className="border border-[rgba(53,255,158,0.2)] px-5 py-2.5 text-sm text-[var(--color-bone)] transition-colors hover:border-[var(--color-acid)]"
+                  className="border border-[rgb(var(--acid-rgb)/0.2)] px-5 py-2.5 text-sm text-[var(--color-bone)] transition-colors hover:border-[var(--color-acid)]"
                 >
                   {identity.phone}
                 </a>
@@ -56,7 +56,7 @@ export default function Contact() {
                 <div className="mb-3 text-[11px] uppercase tracking-[0.2em] text-[var(--color-dim)]">
                   resume — pick the role
                 </div>
-                <ul className="grid gap-px border border-[rgba(53,255,158,0.14)] bg-[rgba(53,255,158,0.14)] sm:grid-cols-2">
+                <ul className="grid gap-px border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgb(var(--acid-rgb)/0.14)] sm:grid-cols-2">
                   {resumes.map((r) => (
                     <li key={r.file}>
                       <a
@@ -65,7 +65,7 @@ export default function Contact() {
                         rel="noreferrer"
                         data-cursor="pdf"
                         onClick={() => track('resume_download', { role: r.role })}
-                        className="flex h-full flex-col justify-between gap-1 bg-[rgba(4,7,10,0.92)] px-4 py-3 transition-colors hover:bg-[rgba(53,255,158,0.08)]"
+                        className="flex h-full flex-col justify-between gap-1 bg-[rgba(4,7,10,0.92)] px-4 py-3 transition-colors hover:bg-[rgb(var(--acid-rgb)/0.08)]"
                       >
                         <span className="text-[13px] text-[var(--color-bone)]">{r.role}</span>
                         <span className="text-[11px] text-[var(--color-dim)]">{r.note}</span>
@@ -76,14 +76,14 @@ export default function Contact() {
               </div>
             </div>
 
-            <ul className="space-y-px self-start border border-[rgba(53,255,158,0.14)] bg-[rgba(53,255,158,0.14)]">
+            <ul className="space-y-px self-start border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgb(var(--acid-rgb)/0.14)]">
               {socials.map((s) => (
                 <li key={s.label}>
                   <a
                     href={s.href}
                     target={s.href.startsWith('http') ? '_blank' : undefined}
                     rel="noreferrer"
-                    className="flex items-center justify-between gap-4 bg-[rgba(4,7,10,0.9)] px-4 py-3 text-[13px] transition-colors hover:bg-[rgba(53,255,158,0.08)]"
+                    className="flex items-center justify-between gap-4 bg-[rgba(4,7,10,0.9)] px-4 py-3 text-[13px] transition-colors hover:bg-[rgb(var(--acid-rgb)/0.08)]"
                   >
                     <span className="text-[var(--color-bone)]">{s.label}</span>
                     <span className="truncate text-[11px] text-[var(--color-dim)]">{s.handle}</span>
