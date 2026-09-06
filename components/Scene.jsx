@@ -90,6 +90,7 @@ const GridMaterial = shaderMaterial(
     uTime: 0,
     uOpacity: 1,
     uAlert: 0,
+    uWeb: 0,
     uColor: ACID.clone(),
     uSweepColor: CYAN.clone(),
   },
@@ -438,12 +439,15 @@ function Grid() {
   // palette instances.
   const gridColor = useMemo(() => ACID.clone(), []);
   const sweepColor = useMemo(() => CYAN.clone(), []);
+  // the floor rules itself as a web instead of a grid in the spider palette
+  const web = useSceneStore((s) => (s.theme === 'spider' ? 1 : 0));
 
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -3.4, 0]}>
       <planeGeometry args={[70, 70, 1, 1]} />
       <gridMaterial
         ref={mat}
+        uWeb={web}
         uColor={gridColor}
         uSweepColor={sweepColor}
         transparent
