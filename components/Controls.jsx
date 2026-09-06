@@ -15,6 +15,7 @@ const SHORTCUTS = [
   { keys: ['G'], what: 'bottom of page' },
   { keys: ['/'], what: 'focus the shell' },
   { keys: ['q'], what: 'cycle scene quality — full · lite · off' },
+  { keys: ['t'], what: 'switch palette — terminal · spider' },
   { keys: ['r'], what: 'recruiter brief — one screen, no scrolling' },
   { keys: ['p'], what: 'print / save as PDF' },
   { keys: ['?'], what: 'this panel' },
@@ -127,6 +128,13 @@ export default function Controls() {
           e.preventDefault();
           window.print();
           break;
+        case 't': {
+          e.preventDefault();
+          const next = theme === 'spider' ? 'hacker' : 'spider';
+          setTheme(next);
+          flash(`palette: ${next === 'spider' ? 'spider' : 'terminal'}`);
+          break;
+        }
         case 'q': {
           e.preventDefault();
           const next =
@@ -142,7 +150,7 @@ export default function Controls() {
 
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [step, scrollTo, quality, setQuality, flash]);
+  }, [step, scrollTo, quality, setQuality, theme, setTheme, flash]);
 
   return (
     <>
@@ -187,7 +195,8 @@ export default function Controls() {
               <div className="flex items-center justify-between border-b border-[rgb(var(--acid-rgb)/0.14)] px-4 py-3 text-[12px]">
                 <span className="text-[var(--color-acid)]">keyboard</span>
                 <span className="text-[var(--color-dim)]">
-                  scene: {quality === 'auto' ? 'auto' : quality}
+                  scene: {quality === 'auto' ? 'auto' : quality} · palette:{' '}
+                  {theme === 'spider' ? 'spider' : 'terminal'}
                 </span>
               </div>
 
