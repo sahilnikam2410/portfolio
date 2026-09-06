@@ -113,7 +113,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.24 }}
-            className="mt-6 max-w-xl text-base leading-relaxed text-[var(--color-dim)] sm:text-lg"
+            className="t-lead mt-7 text-[var(--color-dim)]"
           >
             {identity.tagline}
           </motion.p>
@@ -153,8 +153,10 @@ export default function Hero() {
           >
             {stats.map((s) => (
               <li key={s.label} className="bg-[rgba(4,7,10,0.9)] px-4 py-3">
-                <div className="text-xl text-[var(--color-acid)]">{s.value}</div>
-                <div className="mt-0.5 text-[11px] leading-tight text-[var(--color-dim)]">{s.label}</div>
+                <div className="t-num text-[var(--color-acid)]" style={{ fontSize: 'var(--step-2)' }}>
+                  {s.value}
+                </div>
+                <div className="mt-1 text-[11px] leading-[1.35] text-[var(--color-dim)]">{s.label}</div>
               </li>
             ))}
           </motion.ul>

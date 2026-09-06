@@ -4,34 +4,69 @@ import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import Scramble from './Scramble';
 
-export function Section({ id, index, title, subtitle, children }) {
+/**
+ * An editorial spread rather than a stack.
+ *
+ * Every section used to be the same shape: heading across the top, rule under
+ * it, content below, all centred in one box. Repeat that seven times and the
+ * page reads as a template no matter what is written in it — the eye gets no
+ * landmarks, because nothing is ever anywhere different.
+ *
+ * The heading now sits in its own narrow column and stays put while the
+ * content scrolls past it. That is worth more than the look: on a long section
+ * the reader can always see which part of the argument they are inside. The
+ * rule that used to run under the heading becomes the vertical hairline
+ * between the two columns, so it divides rather than separates.
+ *
+ * `wide` opts out, for content that genuinely needs the full measure — a
+ * technique matrix, a terminal — rather than being squeezed to two thirds.
+ */
+export function Section({ id, index, title, subtitle, children, wide = false }) {
   return (
     <section id={id} className="relative mx-auto max-w-6xl scroll-mt-24 px-5 py-24 sm:py-32">
-      <SectionHeading index={index} title={title} subtitle={subtitle} />
-      {children}
+      {wide ? (
+        <>
+          <SectionHeading index={index} title={title} subtitle={subtitle} wide />
+          {children}
+        </>
+      ) : (
+        <div className="grid gap-x-12 gap-y-10 lg:grid-cols-12">
+          {/* self-start, or the cell stretches to the row and sticky has no
+              room left to travel in */}
+          <div className="lg:col-span-4 lg:sticky lg:top-28 lg:self-start">
+            <SectionHeading index={index} title={title} subtitle={subtitle} />
+          </div>
+          <div className="min-w-0 lg:col-span-8 lg:border-l lg:border-[rgb(var(--acid-rgb)/0.14)] lg:pl-12">
+            {children}
+          </div>
+        </div>
+      )}
     </section>
   );
 }
 
-export function SectionHeading({ index, title, subtitle }) {
+export function SectionHeading({ index, title, subtitle, wide = false }) {
   return (
     <Reveal>
-      <div className="mb-12 border-b border-[rgb(var(--acid-rgb)/0.14)] pb-6">
-        <div className="flex items-start gap-5">
-          <span aria-hidden="true" className="index-numeral shrink-0 select-none">
+      <div
+        className={
+          wide ? 'mb-12 border-b border-[rgb(var(--acid-rgb)/0.14)] pb-6' : 'mb-2'
+        }
+      >
+        <div className={wide ? 'flex items-start gap-5' : ''}>
+          <span
+            aria-hidden="true"
+            className={`index-numeral select-none ${wide ? 'shrink-0' : 'block'}`}
+          >
             {index}
           </span>
-          <div className="min-w-0 pt-1">
+          <div className={`min-w-0 ${wide ? 'pt-1' : 'mt-3'}`}>
             <Scramble
               as="h2"
               text={title}
-              className="block text-3xl font-bold tracking-tight text-[var(--color-bone)] sm:text-5xl"
+              className="t-h2 block font-bold text-[var(--color-bone)]"
             />
-            {subtitle && (
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--color-dim)] sm:text-[15px]">
-                {subtitle}
-              </p>
-            )}
+            {subtitle && <p className="t-body mt-4 text-[var(--color-dim)]">{subtitle}</p>}
           </div>
         </div>
       </div>

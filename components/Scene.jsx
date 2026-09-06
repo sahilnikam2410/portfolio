@@ -595,13 +595,41 @@ function OrbWeb({ strands = 16, rings = 7 }) {
 
 /* ── camera rig: scroll waypoints + pointer parallax ─────────── */
 
+// The sections the camera is cut against. One shot each, in order.
+const SHOT_IDS = ['top', 'about', 'skills', 'work', 'coverage', 'shell', 'contact'];
+
+/**
+ * The shot list.
+ *
+ * There were six waypoints for seven sections, interpolated against total
+ * scroll, so the camera never arrived anywhere in particular — it slid the
+ * whole way down. That drift is what reads as a template. Each section now
+ * gets a shot with intent, and the camera settles into it while the section
+ * is being read, then moves decisively to the next.
+ *
+ * `fov` is the reason this feels filmed rather than rendered. A long lens
+ * flattens and calms; a wide one close in distorts and puts you inside the
+ * thing. Pushing in while widening is a dolly zoom, and it is spent once, on
+ * the attack, where the story actually turns.
+ *
+ * `roll` is tiny everywhere. A tilted horizon is tension, and it only reads
+ * as intentional in small amounts.
+ */
 const WAYPOINTS = [
-  { pos: [0, 0, 6.6], look: [0, 0, 0] },     // hero
-  { pos: [2.6, 0.8, 5.2], look: [0, 0, 0] }, // about
-  { pos: [-2.9, -0.6, 5.0], look: [0, 0.2, 0] }, // skills
-  { pos: [0, 2.4, 4.6], look: [0, 0, 0] },   // work
-  { pos: [3.1, -1.4, 5.6], look: [0, 0, 0] }, // coverage
-  { pos: [0, 0.4, 8.2], look: [0, 0, 0] },   // contact
+  // the estate at rest: long lens, straight on, nothing wrong yet
+  { pos: [0, 0, 6.9], look: [0, 0, 0], fov: 38, roll: 0 },
+  // who watches it: ease off-axis and close a little
+  { pos: [2.5, 0.7, 5.4], look: [0, 0, 0], fov: 40, roll: 0.012 },
+  // the instruments: orbit out to the other side and rise
+  { pos: [-3.1, 1.3, 5.0], look: [0, 0.15, 0], fov: 44, roll: -0.02 },
+  // the engagements: high and looking down on the work
+  { pos: [-0.6, 3.0, 4.4], look: [0, -0.1, 0], fov: 46, roll: 0.015 },
+  // the attack: dropped low and pushed in hard while the lens opens up
+  { pos: [1.5, -1.5, 2.9], look: [0, 0.1, 0], fov: 66, roll: -0.05 },
+  // the console: level again, steady, the analyst at work
+  { pos: [-1.4, 0.2, 5.6], look: [0, 0, 0], fov: 42, roll: 0.008 },
+  // resolved: pull back, wide and calm, the estate whole again
+  { pos: [0, 0.5, 8.6], look: [0, 0, 0], fov: 36, roll: 0 },
 ];
 
 /* ── instrument rings ────────────────────────────────────────── */
@@ -1007,19 +1035,70 @@ function Shockwave({ count = 3 }) {
 
 function Rig({ children }) {
   const group = useRef(null);
-  const { pointer, camera } = useThree();
+  const { pointer } = useThree();
   const target = useMemo(() => new THREE.Vector3(), []);
   const look = useMemo(() => new THREE.Vector3(), []);
   const current = useMemo(() => new THREE.Vector3(0, 0, 0), []);
 
-  useFrame((_, delta) => {
-    const progress = useSceneStore.getState().progress;
+  // Where each section actually sits in the scroll, 0..1. Dividing scroll into
+  // equal slices instead assumes every section is the same height, and none of
+  // them are — which is why the camera used to arrive between beats rather
+  // than on them.
+  const marks = useRef([]);
 
-    // interpolate between waypoints along scroll
-    const span = WAYPOINTS.length - 1;
-    const f = THREE.MathUtils.clamp(progress, 0, 1) * span;
-    const i = Math.min(Math.floor(f), span - 1);
-    const t = f - i;
+  useEffect(() => {
+    const measure = () => {
+      const span = document.documentElement.scrollHeight - window.innerHeight;
+      marks.current = SHOT_IDS.map((id) => {
+        const el = document.getElementById(id);
+        if (!el || span <= 0) return 0;
+        const top = el.getBoundingClientRect().top + window.scrollY;
+        // aim at the point where the section is centred, not where it starts
+        const mid = top + Math.min(el.offsetHeight, window.innerHeight) / 2 - window.innerHeight / 2;
+        return THREE.MathUtils.clamp(mid / span, 0, 1);
+      });
+    };
+
+    measure();
+    window.addEventListener('resize', measure);
+    // fonts and images land after first paint and move everything
+    const settle = setTimeout(measure, 900);
+    return () => {
+      window.removeEventListener('resize', measure);
+      clearTimeout(settle);
+    };
+  }, []);
+
+  // the camera comes off the frame state rather than the hook: assigning to a
+  // hook-owned object is what the immutability rule is there to catch
+  useFrame((state, delta) => {
+    const cam = state.camera;
+    const progress = THREE.MathUtils.clamp(useSceneStore.getState().progress, 0, 1);
+
+    // find the pair of shots the reader is between
+    const m = marks.current;
+    const last = WAYPOINTS.length - 1;
+    let i = 0;
+    let t = 0;
+    if (m.length === WAYPOINTS.length) {
+      while (i < last - 1 && progress >= m[i + 1]) i += 1;
+      const from = m[i];
+      const to = m[i + 1];
+      t = to > from ? (progress - from) / (to - from) : 0;
+    } else {
+      // before the first measure, fall back to even slices
+      const f = progress * last;
+      i = Math.min(Math.floor(f), last - 1);
+      t = f - i;
+    }
+    t = THREE.MathUtils.clamp(t, 0, 1);
+
+    // Ease within the segment so the camera holds on a shot while the section
+    // is being read and does its travelling in the middle. A linear ramp
+    // never stops moving, which is what made it feel like a slideshow on
+    // rails rather than a series of shots.
+    t = t * t * (3 - 2 * t);
+
     const a = WAYPOINTS[i];
     const b = WAYPOINTS[i + 1];
 
@@ -1042,9 +1121,18 @@ function Rig({ children }) {
     );
 
 
-    camera.position.lerp(target, 1 - Math.pow(0.001, delta));
+    cam.position.lerp(target, 1 - Math.pow(0.001, delta));
     current.lerp(look, 1 - Math.pow(0.001, delta));
-    camera.lookAt(current);
+    cam.lookAt(current);
+
+    // Focal length. lookAt has just overwritten the whole orientation, so the
+    // roll has to go on after it or it is thrown away every frame.
+    const fov = THREE.MathUtils.lerp(a.fov, b.fov, t);
+    if (Math.abs(cam.fov - fov) > 0.01) {
+      cam.fov = THREE.MathUtils.damp(cam.fov, fov, 3, delta);
+      cam.updateProjectionMatrix();
+    }
+    cam.rotation.z += THREE.MathUtils.lerp(a.roll, b.roll, t);
 
     if (group.current) {
       const { section } = useSceneStore.getState();

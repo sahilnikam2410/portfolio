@@ -12,11 +12,16 @@ export default function About() {
       title="whoami"
       subtitle="Who is behind the terminal, and how the work is scoped."
     >
-      <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+      {/* Prose and timeline used to sit side by side. That split assumed the
+          full page width, and inside the section's content column it left the
+          timeline at 142px — fr tracks cannot shrink below their content, so
+          the prose column took what it needed and the dates were squeezed
+          into a ribbon. Stacked, both get the whole measure. */}
+      <div className="grid gap-14">
         <div className="space-y-5">
           {identity.bio.map((p, i) => (
             <Reveal key={i} delay={i * 0.08}>
-              <p className="text-[15px] leading-[1.85] text-[var(--color-dim)]">{p}</p>
+              <p className="t-body text-[var(--color-dim)]">{p}</p>
             </Reveal>
           ))}
 

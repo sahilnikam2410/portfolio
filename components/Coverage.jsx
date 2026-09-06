@@ -73,6 +73,7 @@ export default function Coverage() {
 
   return (
     <Section
+      wide
       id="coverage"
       index="04"
       title="detection coverage"
