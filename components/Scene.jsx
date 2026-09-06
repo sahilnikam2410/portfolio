@@ -1196,6 +1196,9 @@ export default function Scene() {
   // take reliably in every environment
   const [heavy, setHeavy] = useState(true);
   const [lost, setLost] = useState(false);
+  // the canvas currently on screen, so a teardown event from the one being
+  // replaced can be told apart from a real context loss
+  const live = useRef(null);
 
   const quality = useSceneStore((s) => s.quality);
   const theme = useSceneStore((s) => s.theme);
@@ -1205,6 +1208,11 @@ export default function Scene() {
   // useMemo rather than an effect: an effect would run after the first frame
   // had already been drawn in the outgoing palette.
   useMemo(() => applyPalette(theme), [theme]);
+
+  // clear any stale loss flag when the palette rebuilds the canvas
+  useEffect(() => {
+    setLost(false);
+  }, [theme]);
 
   useEffect(() => {
     // an explicit user choice always wins over capability sniffing
@@ -1238,10 +1246,17 @@ export default function Scene() {
    */
   const onCreated = ({ gl }) => {
     const canvas = gl.domElement;
+    live.current = canvas;
+
     canvas.addEventListener('webglcontextlost', (e) => {
       e.preventDefault(); // required, or the context can never be restored
-      setLost(true);
+      // Switching palette rebuilds the canvas, and tearing the old one down
+      // drops its context too. That is not a failure, but it fires the same
+      // event — and hiding on it blanked the scene that had just replaced it.
+      // Only the canvas currently on screen going down is a real loss.
+      if (live.current === canvas) setLost(true);
     });
+
     canvas.addEventListener('webglcontextrestored', () => {
       setLost(false);
       setGeneration((g) => g + 1);
