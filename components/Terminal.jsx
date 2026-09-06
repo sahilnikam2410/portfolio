@@ -511,6 +511,7 @@ export default function Terminal() {
 
   return (
     <Section
+      wide
       id="shell"
       index="05"
       title="./shell"
