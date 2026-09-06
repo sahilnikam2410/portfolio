@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useMemo, useRef, useState, useEffect } from 'react';
+import { Suspense, useCallback, useMemo, useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree, extend } from '@react-three/fiber';
 import {
   Line,
@@ -38,7 +38,16 @@ import {
 } from './shaders';
 import { useSceneStore } from './sceneStore';
 
-import { ACID, CYAN, AMBER, RED, VIOLET, HEX, applyPalette } from './palette';
+import {
+  ACID,
+  CYAN,
+  AMBER,
+  RED,
+  VIOLET,
+  HEX,
+  setPalette,
+  tickPalette,
+} from './palette';
 
 /**
  * What the globe is doing in each section. The background is not wallpaper —
@@ -229,7 +238,7 @@ function HoloGlobe({ radius = 1.75 }) {
       </mesh>
 
       <lineSegments ref={inner} geometry={wire}>
-        <lineBasicMaterial color={CYAN} transparent opacity={0.32} depthWrite={false} />
+        <lineBasicMaterial color={HEX.cyan} transparent opacity={0.32} depthWrite={false} />
       </lineSegments>
     </group>
   );
@@ -582,7 +591,7 @@ function OrbWeb({ strands = 16, rings = 7 }) {
       <lineSegments ref={line} geometry={geometry}>
         <lineBasicMaterial
           ref={mat}
-          color={ACID}
+          color={HEX.acid}
           transparent
           opacity={0.26}
           depthWrite={false}
@@ -591,6 +600,25 @@ function OrbWeb({ strands = 16, rings = 7 }) {
       </lineSegments>
     </group>
   );
+}
+
+/**
+ * Advances a palette move. Lives inside the canvas because it has to run on
+ * the render loop — the colours are read by every useFrame in the scene, so
+ * they have to be current before any of them look.
+ */
+function PaletteDriver({ onSettled }) {
+  const moving = useRef(false);
+  useFrame((_, delta) => {
+    const still = tickPalette(delta);
+    // one render on arrival, so props that read the hex strings — the fill
+    // lights, the instrument rings — catch up. Mutating a Color in place
+    // never reaches them: React diffs that prop by reference and sees no
+    // change, which is what the canvas rebuild used to paper over.
+    if (moving.current && !still) onSettled();
+    moving.current = still;
+  });
+  return null;
 }
 
 /* ── camera rig: scroll waypoints + pointer parallax ─────────── */
@@ -705,12 +733,12 @@ function Core({ radius = 0.55 }) {
     <group>
       <mesh ref={mesh}>
         <icosahedronGeometry args={[radius, 1]} />
-        <meshBasicMaterial color={ACID} wireframe transparent opacity={0.55} toneMapped={false} />
+        <meshBasicMaterial color={HEX.acid} wireframe transparent opacity={0.55} toneMapped={false} />
       </mesh>
       <mesh ref={halo}>
         <sphereGeometry args={[radius, 24, 24]} />
         <meshBasicMaterial
-          color={CYAN}
+          color={HEX.cyan}
           transparent
           opacity={0.1}
           depthWrite={false}
@@ -769,7 +797,7 @@ function Uplinks({ count = 4 }) {
     >
       <cylinderGeometry args={[0.035, 0.12, 3.4, 8, 1, true]} />
       <meshBasicMaterial
-        color={CYAN}
+        color={HEX.cyan}
         transparent
         opacity={0.25}
         depthWrite={false}
@@ -927,12 +955,12 @@ function Debris({ count = 90 }) {
       <instancedMesh ref={mesh} args={[undefined, undefined, count]} frustumCulled={false}>
         <tetrahedronGeometry args={[1, 0]} />
         <meshStandardMaterial
-          color={CYAN}
+          color={HEX.cyan}
           metalness={0.9}
           roughness={0.35}
           transparent
           opacity={0.42}
-          emissive={CYAN}
+          emissive={HEX.cyan}
           emissiveIntensity={0.15}
         />
       </instancedMesh>
@@ -1204,10 +1232,14 @@ export default function Scene() {
   const theme = useSceneStore((s) => s.theme);
   const spider = theme === 'spider';
 
-  // Retool the shared colour instances before the children below read them.
-  // useMemo rather than an effect: an effect would run after the first frame
-  // had already been drawn in the outgoing palette.
-  useMemo(() => applyPalette(theme), [theme]);
+  // First paint lands the palette outright; every later change travels. The
+  // module decides which, because a component may not touch a ref in render.
+  useMemo(() => setPalette(theme), [theme]);
+
+  // Bumped when a palette move finishes, purely to force one render so the
+  // props that read hex strings pick up the settled values.
+  const [, settle] = useState(0);
+  const onSettled = useCallback(() => settle((n) => n + 1), []);
 
   // clear any stale loss flag when the palette rebuilds the canvas
   useEffect(() => {
@@ -1277,7 +1309,7 @@ export default function Scene() {
     <div className="fixed inset-0 -z-10">
       <div className="absolute inset-0 grid-lines opacity-30" />
       <Canvas
-        key={`${generation}-${theme}`}
+        key={generation}
         dpr={dpr}
         onCreated={onCreated}
         style={{ visibility: lost ? 'hidden' : 'visible' }}
@@ -1292,6 +1324,7 @@ export default function Scene() {
         }}
         camera={{ position: [0, 0, 6.6], fov: 46 }}
       >
+        <PaletteDriver onSettled={onSettled} />
         <color attach="background" args={['#04070a']} />
         <fog attach="fog" args={['#04070a', 9, 26]} />
 
