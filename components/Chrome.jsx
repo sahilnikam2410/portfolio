@@ -9,6 +9,7 @@ import Controls from './Controls';
 import SectionTracker from './SectionTracker';
 import AlertFlash from './AlertFlash';
 import Cinemascope from './Cinemascope';
+import ThemeDrop from './ThemeDrop';
 import SpiderFx from './SpiderFx';
 import RecruiterMode from './RecruiterMode';
 
@@ -29,6 +30,7 @@ export default function Chrome() {
       <Controls />
       <SectionTracker />
       <Cinemascope />
+      <ThemeDrop />
       <AlertFlash />
       <SpiderFx />
       <RecruiterMode />

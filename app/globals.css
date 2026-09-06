@@ -488,3 +488,69 @@ body::after {
   font-feature-settings: 'tnum' 1;
   letter-spacing: -0.02em;
 }
+
+/* ---------------------------------------------------------------------------
+   Palette switch — the drop
+   ---------------------------------------------------------------------------
+   A spider descends, lands, and the palette turns over on the impact. The
+   easing does the acting: the fall accelerates like a fall, the landing
+   overshoots and settles like weight arriving, and the climb out is even,
+   because a spider hauling itself up a thread does not accelerate.
+--------------------------------------------------------------------------- */
+
+/* silk pays out ahead of the spider, holds, then is drawn back up */
+@keyframes spider-silk {
+  0% { height: 0; opacity: 0.55; }
+  33% { height: 46vh; opacity: 0.55; }
+  52% { height: 46vh; opacity: 0.55; }
+  100% { height: 0; opacity: 0; }
+}
+.spider-silk {
+  animation: spider-silk 1900ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes spider-drop {
+  /* accelerating fall */
+  0% { transform: translate(-50%, -22vh) rotate(0deg); }
+  33% { transform: translate(-50%, 46vh) rotate(0deg); }
+  /* the bounce: weight arriving, not a ball */
+  40% { transform: translate(-50%, 41vh) rotate(-4deg); }
+  46% { transform: translate(-50%, 46vh) rotate(2deg); }
+  52% { transform: translate(-50%, 44vh) rotate(0deg); }
+  /* hauls itself back out at a steady rate */
+  100% { transform: translate(-50%, -24vh) rotate(0deg); }
+}
+.spider-drop {
+  animation: spider-drop 1900ms cubic-bezier(0.45, 0, 0.55, 1) forwards;
+  filter: drop-shadow(0 0 10px var(--color-acid));
+}
+
+/* the web thrown outward from the point of impact */
+@keyframes spider-burst {
+  0% { width: 0; height: 0; opacity: 0.85; border-width: 2px; }
+  100% { width: 150vmax; height: 150vmax; opacity: 0; border-width: 1px; }
+}
+.spider-burst {
+  animation: spider-burst 900ms cubic-bezier(0.16, 0.84, 0.3, 1) forwards;
+}
+
+/* one frame of light on the hit — brief enough to read as impact, not a flash
+   of colour someone has to sit through */
+@keyframes spider-flash {
+  0% { opacity: 0.22; }
+  100% { opacity: 0; }
+}
+.spider-flash {
+  animation: spider-flash 420ms ease-out forwards;
+  mix-blend-mode: screen;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spider-silk,
+  .spider-drop,
+  .spider-burst,
+  .spider-flash {
+    animation: none;
+    opacity: 0;
+  }
+}

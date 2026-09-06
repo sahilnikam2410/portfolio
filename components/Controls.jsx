@@ -32,6 +32,7 @@ export default function Controls() {
   const setQuality = useSceneStore((s) => s.setQuality);
   const theme = useSceneStore((s) => s.theme);
   const setTheme = useSceneStore((s) => s.setTheme);
+  const setSwitching = useSceneStore((s) => s.setSwitching);
   const trapRef = useFocusTrap(open);
 
   // restore a saved quality choice on mount
@@ -130,8 +131,10 @@ export default function Controls() {
           break;
         case 't': {
           e.preventDefault();
+          // routed through the drop rather than setting the theme directly,
+          // so the key and the button do the same thing
           const next = theme === 'spider' ? 'hacker' : 'spider';
-          setTheme(next);
+          setSwitching(true);
           flash(`palette: ${next === 'spider' ? 'spider' : 'terminal'}`);
           break;
         }
@@ -150,7 +153,7 @@ export default function Controls() {
 
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [step, scrollTo, quality, setQuality, theme, setTheme, flash]);
+  }, [step, scrollTo, quality, setQuality, theme, setTheme, setSwitching, flash]);
 
   return (
     <>

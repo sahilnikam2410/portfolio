@@ -16,6 +16,7 @@ export const useSceneStore = create((set) => ({
   focusTool: null, // a tool clicked in the toolchain, filtering the evidence
   quality: 'auto', // auto | lite | off — user override, persisted
   theme: 'hacker', // hacker | spider — colour palette only, persisted
+  switching: false, // a palette change is playing its set-piece
   booted: false,
   paletteOpen: false,
 
@@ -45,6 +46,7 @@ export const useSceneStore = create((set) => ({
     document.documentElement.dataset.theme = theme;
     set({ theme });
   },
+  setSwitching: (switching) => set({ switching }),
   setBooted: (booted) => set({ booted }),
   setPaletteOpen: (paletteOpen) => set({ paletteOpen }),
   togglePalette: () => set((s) => ({ paletteOpen: !s.paletteOpen })),

@@ -80,10 +80,7 @@ export default function CommandPalette() {
         group: 'actions',
         label: 'Switch palette',
         hint: 'terminal · spider',
-        run: () => {
-          const { theme, setTheme } = useSceneStore.getState();
-          setTheme(theme === 'spider' ? 'hacker' : 'spider');
-        },
+        run: () => useSceneStore.getState().setSwitching(true),
       },
       {
         group: 'actions',

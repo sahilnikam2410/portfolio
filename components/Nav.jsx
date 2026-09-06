@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { identity } from '@/data/content';
 import { useSceneStore } from './sceneStore';
+import { SpiderGlyph } from './spiderGlyph';
 
 const links = [
   { id: 'about', label: 'about' },
@@ -18,6 +19,9 @@ export default function Nav() {
   const [solid, setSolid] = useState(false);
   const [open, setOpen] = useState(false);
   const togglePalette = useSceneStore((s) => s.togglePalette);
+  const theme = useSceneStore((s) => s.theme);
+  const switching = useSceneStore((s) => s.switching);
+  const setSwitching = useSceneStore((s) => s.setSwitching);
 
   useEffect(() => {
     const onScroll = () => setSolid(window.scrollY > 60);
@@ -72,6 +76,25 @@ export default function Nav() {
               </a>
             </li>
           ))}
+          {/* The palette switch. It lives in the nav rather than floating,
+              because it is a site-wide control and belongs with the others —
+              and until now the palette could only be reached with a key, so
+              nobody on a touch screen could reach it at all. */}
+          <li>
+            <button
+              onClick={() => setSwitching(true)}
+              disabled={switching}
+              aria-label={
+                theme === 'spider' ? 'Switch to terminal palette' : 'Switch to spider palette'
+              }
+              title={theme === 'spider' ? 'terminal palette' : 'spider palette'}
+              data-cursor="palette"
+              className="ml-2 flex items-center border border-[rgb(var(--acid-rgb)/0.2)] px-2.5 py-2 text-[var(--color-dim)] transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)] disabled:opacity-40"
+            >
+              <SpiderGlyph size={16} />
+            </button>
+          </li>
+
           <li>
             <button
               onClick={togglePalette}
