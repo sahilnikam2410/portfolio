@@ -29,6 +29,8 @@ export default function Controls() {
   const [toast, setToast] = useState(null);
   const quality = useSceneStore((s) => s.quality);
   const setQuality = useSceneStore((s) => s.setQuality);
+  const theme = useSceneStore((s) => s.theme);
+  const setTheme = useSceneStore((s) => s.setTheme);
   const trapRef = useFocusTrap(open);
 
   // restore a saved quality choice on mount
@@ -40,6 +42,17 @@ export default function Controls() {
       // storage unavailable — stay on auto
     }
   }, [setQuality]);
+
+  // The boot script in the head has already applied the saved palette to the
+  // document; this only brings the store into agreement with it.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('site-theme');
+      if (saved === 'spider') setTheme(saved);
+    } catch {
+      // storage unavailable — stay on the default palette
+    }
+  }, [setTheme]);
 
   const scrollTo = useCallback((el) => {
     if (!el) return;

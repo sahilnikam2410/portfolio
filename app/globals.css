@@ -275,3 +275,32 @@ body::after {
     scroll-behavior: auto;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Spider theme
+   ---------------------------------------------------------------------------
+   An alternate palette, not an alternate site: only colour changes, every
+   layout, animation and piece of content is shared. The whole DOM re-themes
+   from this block because the accents are referenced through tokens rather
+   than literals.
+
+   Classic comic red (#e62429) measures 4.47:1 on the void background, which
+   fails WCAG AA for body text, so the accent is the brighter coral that
+   reads the same but clears the bar. Contrast against --color-void:
+     accent  #ff4d5a  6.21:1
+     cyan    #a06bff  5.81:1
+     dim     #8a7a80  4.98:1  (the green theme's dim measures 5.00:1)
+     bone    #efdfe2 15.70:1
+   Accessibility is asserted at 100 in CI, so these are load-bearing.
+--------------------------------------------------------------------------- */
+:root[data-theme='spider'] {
+  --color-line: #241619;
+  --color-acid: #ff4d5a;
+  --color-cyan: #a06bff;
+  --color-dim: #8a7a80;
+  --color-bone: #efdfe2;
+
+  --acid-rgb: 255 77 90;
+  --cyan-rgb: 160 107 255;
+  --dim-rgb: 138 122 128;
+}

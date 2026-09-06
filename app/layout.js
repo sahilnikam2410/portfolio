@@ -53,7 +53,18 @@ const onVercel = Boolean(process.env.NEXT_PUBLIC_VERCEL_ENV);
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={mono.variable}>
+    <html lang="en" className={mono.variable} suppressHydrationWarning>
+      <head>
+        {/* Runs before first paint so a saved palette never flashes the wrong
+            colours. Kept inline and tiny for that reason; anything deferred
+            would repaint after the user already saw the default. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var t=localStorage.getItem('site-theme');if(t==='spider')document.documentElement.dataset.theme=t;}catch(e){}",
+          }}
+        />
+      </head>
       <body style={{ fontFamily: 'var(--font-jetbrains), ui-monospace, monospace' }}>
         {/* first tab stop: keyboard users should not have to walk the whole
             nav and a WebGL canvas to reach the content */}

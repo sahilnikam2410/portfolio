@@ -38,11 +38,7 @@ import {
 } from './shaders';
 import { useSceneStore } from './sceneStore';
 
-const ACID = new THREE.Color('#35ff9e');
-const CYAN = new THREE.Color('#35e0ff');
-const AMBER = new THREE.Color('#ffd166');
-const RED = new THREE.Color('#ff5f57');
-const VIOLET = new THREE.Color('#9b8cff');
+import { ACID, CYAN, AMBER, RED, VIOLET, HEX, applyPalette } from './palette';
 
 /**
  * What the globe is doing in each section. The background is not wallpaper —
@@ -209,11 +205,21 @@ function HoloGlobe({ radius = 1.75 }) {
     }
   });
 
+  // shaderMaterial() freezes its uniform defaults into the class when this
+  // module loads, which is before any theme is known. Hand the material its
+  // colours explicitly instead. These are clones: the per-frame lerps below
+  // write into whatever object they are given, and must not touch the shared
+  // palette instances.
+  const holoA = useMemo(() => ACID.clone(), []);
+  const holoB = useMemo(() => CYAN.clone(), []);
+
   return (
     <group>
       <mesh geometry={geo}>
         <holoMaterial
           ref={mat}
+          uColorA={holoA}
+          uColorB={holoB}
           transparent
           depthWrite={false}
           blending={THREE.AdditiveBlending}
@@ -316,7 +322,7 @@ function Arc({ points, delay, speed }) {
       <Line
         ref={line}
         points={points}
-        color="#35ff9e"
+        color={HEX.acid}
         lineWidth={1.3}
         dashed
         dashSize={0.2}
@@ -326,7 +332,7 @@ function Arc({ points, delay, speed }) {
       />
       <mesh ref={packet}>
         <sphereGeometry args={[1, 8, 8]} />
-        <meshBasicMaterial color="#d6efe3" toneMapped={false} />
+        <meshBasicMaterial color={HEX.bone} toneMapped={false} />
       </mesh>
     </group>
   );
@@ -390,10 +396,20 @@ function Field({ count = 26000 }) {
     mat.current.uScroll = useSceneStore.getState().progress;
   });
 
+  // shaderMaterial() freezes its uniform defaults into the class when this
+  // module loads, which is before any theme is known. Hand the material its
+  // colours explicitly instead. These are clones: the per-frame lerps below
+  // write into whatever object they are given, and must not touch the shared
+  // palette instances.
+  const fieldA = useMemo(() => ACID.clone(), []);
+  const fieldB = useMemo(() => CYAN.clone(), []);
+
   return (
     <points geometry={geometry} frustumCulled={false}>
       <fieldMaterial
         ref={mat}
+        uColorA={fieldA}
+        uColorB={fieldB}
         transparent
         depthWrite={false}
         blending={THREE.AdditiveBlending}
@@ -415,10 +431,24 @@ function Grid() {
     mat.current.uSweepColor.lerp(alert ? RED : CYAN, 1 - Math.pow(0.02, delta));
   });
 
+  // shaderMaterial() freezes its uniform defaults into the class when this
+  // module loads, which is before any theme is known. Hand the material its
+  // colours explicitly instead. These are clones: the per-frame lerps below
+  // write into whatever object they are given, and must not touch the shared
+  // palette instances.
+  const gridColor = useMemo(() => ACID.clone(), []);
+  const sweepColor = useMemo(() => CYAN.clone(), []);
+
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -3.4, 0]}>
       <planeGeometry args={[70, 70, 1, 1]} />
-      <gridMaterial ref={mat} transparent depthWrite={false} />
+      <gridMaterial
+        ref={mat}
+        uColor={gridColor}
+        uSweepColor={sweepColor}
+        transparent
+        depthWrite={false}
+      />
     </mesh>
   );
 }
@@ -437,7 +467,7 @@ const WAYPOINTS = [
 /* ── instrument rings ────────────────────────────────────────── */
 
 /** Gauge rings around the globe, with tick marks, counter-rotating. */
-function InstrumentRing({ radius, tilt, speed, ticks = 48, color = '#35e0ff', opacity = 0.3 }) {
+function InstrumentRing({ radius, tilt, speed, ticks = 48, color = HEX.cyan, opacity = 0.3 }) {
   const group = useRef(null);
 
   const { ring, marks } = useMemo(() => {
@@ -617,10 +647,10 @@ function Probes({ count = 5 }) {
       <mesh ref={(el) => (refs.current[i] = el)}>
         <octahedronGeometry args={[1, 0]} />
         <meshStandardMaterial
-          color="#d6efe3"
+          color={HEX.bone}
           metalness={1}
           roughness={0.18}
-          emissive="#35e0ff"
+          emissive={HEX.cyan}
           emissiveIntensity={0.35}
         />
       </mesh>
@@ -762,11 +792,19 @@ function ScanPlane({ radius = 2.6 }) {
     }
   });
 
+  // shaderMaterial() freezes its uniform defaults into the class when this
+  // module loads, which is before any theme is known. Hand the material its
+  // colours explicitly instead. These are clones: the per-frame lerps below
+  // write into whatever object they are given, and must not touch the shared
+  // palette instances.
+  const scanColor = useMemo(() => CYAN.clone(), []);
+
   return (
     <mesh ref={mesh} rotation={[-Math.PI / 2, 0, 0]}>
       <planeGeometry args={[radius * 2, radius * 2, 1, 1]} />
       <scanMaterial
         ref={mat}
+        uColor={scanColor}
         transparent
         depthWrite={false}
         side={THREE.DoubleSide}
@@ -812,7 +850,7 @@ function Shockwave({ count = 3 }) {
         <mesh key={i} ref={(el) => (rings.current[i] = el)}>
           <ringGeometry args={[0.97, 1, 96]} />
           <meshBasicMaterial
-            color="#ff5f57"
+            color={HEX.red}
             transparent
             opacity={0.5}
             side={THREE.DoubleSide}
@@ -932,6 +970,12 @@ export default function Scene() {
   const [lost, setLost] = useState(false);
 
   const quality = useSceneStore((s) => s.quality);
+  const theme = useSceneStore((s) => s.theme);
+
+  // Retool the shared colour instances before the children below read them.
+  // useMemo rather than an effect: an effect would run after the first frame
+  // had already been drawn in the outgoing palette.
+  useMemo(() => applyPalette(theme), [theme]);
 
   useEffect(() => {
     // an explicit user choice always wins over capability sniffing
@@ -989,7 +1033,7 @@ export default function Scene() {
     <div className="fixed inset-0 -z-10">
       <div className="absolute inset-0 grid-lines opacity-30" />
       <Canvas
-        key={generation}
+        key={`${generation}-${theme}`}
         dpr={dpr}
         onCreated={onCreated}
         style={{ visibility: lost ? 'hidden' : 'visible' }}
@@ -1029,9 +1073,9 @@ export default function Scene() {
               fetched, so the CSP stays closed and nothing blocks first paint.
               frames={1} bakes it once instead of every frame. */}
           <Environment resolution={128} frames={1}>
-            <Lightformer intensity={2.4} color="#35ff9e" position={[0, 4, -6]} scale={[10, 4, 1]} />
-            <Lightformer intensity={1.6} color="#35e0ff" position={[-6, 1, 2]} scale={[6, 6, 1]} rotation-y={Math.PI / 2} />
-            <Lightformer intensity={1.1} color="#9b8cff" position={[6, -2, 3]} scale={[6, 6, 1]} rotation-y={-Math.PI / 2} />
+            <Lightformer intensity={2.4} color={HEX.acid} position={[0, 4, -6]} scale={[10, 4, 1]} />
+            <Lightformer intensity={1.6} color={HEX.cyan} position={[-6, 1, 2]} scale={[6, 6, 1]} rotation-y={Math.PI / 2} />
+            <Lightformer intensity={1.1} color={HEX.violet} position={[6, -2, 3]} scale={[6, 6, 1]} rotation-y={-Math.PI / 2} />
             <Lightformer intensity={0.7} color="#ffffff" position={[0, -5, 0]} scale={[12, 12, 1]} rotation-x={Math.PI / 2} />
           </Environment>
 
@@ -1041,7 +1085,7 @@ export default function Scene() {
             <Traffic count={lite ? 4 : 10} />
             <Shockwave count={lite ? 2 : 3} />
             <InstrumentRing radius={2.35} tilt={[Math.PI / 2.1, 0, 0.22]} speed={0.1} ticks={48} />
-            <InstrumentRing radius={2.95} tilt={[Math.PI / 1.85, 0.5, -0.18]} speed={-0.07} ticks={32} color="#35ff9e" opacity={0.2} />
+            <InstrumentRing radius={2.95} tilt={[Math.PI / 1.85, 0.5, -0.18]} speed={-0.07} ticks={32} color={HEX.acid} opacity={0.2} />
             <Core />
             <Probes count={lite ? 3 : 5} />
             <Uplinks count={lite ? 2 : 4} />
