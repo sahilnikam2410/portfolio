@@ -14,7 +14,7 @@ Final-year project, 2025–2026.
 | Wazuh agents | Windows and Linux endpoints |
 | Sysmon | Windows process/network telemetry |
 | Kali Linux | Attacker host |
-| VirtualBox | Isolated lab networking |
+| Type-2 hypervisor | Isolated lab networking |
 
 ## Method
 

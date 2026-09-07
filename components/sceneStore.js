@@ -17,6 +17,10 @@ export const useSceneStore = create((set) => ({
   quality: 'auto', // auto | lite | off — user override, persisted
   theme: 'hacker', // hacker | spider — colour palette only, persisted
   switching: false, // a palette change is playing its set-piece
+  // A technique clicked in the scene: where it is in world space, and when.
+  // The camera reads both — the position to aim at, the timestamp to know how
+  // long it has been holding there.
+  focus: null,
   booted: false,
   paletteOpen: false,
 
@@ -47,6 +51,7 @@ export const useSceneStore = create((set) => ({
     set({ theme });
   },
   setSwitching: (switching) => set({ switching }),
+  setFocus: (focus) => set({ focus }),
   setBooted: (booted) => set({ booted }),
   setPaletteOpen: (paletteOpen) => set({ paletteOpen }),
   togglePalette: () => set((s) => ({ paletteOpen: !s.paletteOpen })),

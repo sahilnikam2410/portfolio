@@ -656,7 +656,10 @@ function CoverageLattice({ radius = 2.06 }) {
   const group = useRef(null);
   const marks = useRef([]);
   const setLabel = useSceneStore((s) => s.setLabel);
+  const setHighlight = useSceneStore((s) => s.setHighlight);
+  const setFocus = useSceneStore((s) => s.setFocus);
   const [hovered, setHovered] = useState(-1);
+  const world = useMemo(() => new THREE.Vector3(), []);
 
   const geo = useMemo(() => new THREE.IcosahedronGeometry(0.055, 2), []);
   useEffect(() => () => geo.dispose(), [geo]);
@@ -718,6 +721,22 @@ function CoverageLattice({ radius = 2.06 }) {
           onPointerOut={() => {
             setHovered(-1);
             setLabel(null);
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            // world position, not the local one: the rig turns the whole
+            // group, so where this node is on screen is not where it sits in
+            // the layout
+            marks.current[i]?.getWorldPosition(world);
+            setFocus({ pos: world.toArray(), at: performance.now() });
+            setHighlight(i);
+            // and take the reader to the row it belongs to, so the click
+            // lands somewhere rather than only moving the camera
+            const table = document.getElementById('coverage');
+            if (table) {
+              if (window.__lenis) window.__lenis.scrollTo(table, { offset: -80 });
+              else table.scrollIntoView({ behavior: 'smooth' });
+            }
           }}
         >
           <meshBasicMaterial transparent opacity={0.6} toneMapped={false} />
@@ -1185,6 +1204,10 @@ function Rig({ children }) {
   const punch = useRef(0);
   const wasMoving = useRef(false);
 
+  // a clicked technique pulls the camera to it, then lets go
+  const focusPos = useMemo(() => new THREE.Vector3(), []);
+  const focusAim = useMemo(() => new THREE.Vector3(), []);
+
   useEffect(() => {
     const measure = () => {
       const span = document.documentElement.scrollHeight - window.innerHeight;
@@ -1259,6 +1282,31 @@ function Rig({ children }) {
       THREE.MathUtils.lerp(a.look[2], b.look[2], t)
     );
 
+
+    /**
+     * A clicked technique takes the camera for two and a half seconds.
+     *
+     * It is a pull rather than a cut: the shot the reader was in stays the
+     * base and the node draws the camera off it, so releasing returns to the
+     * scroll position they are actually at instead of snapping somewhere they
+     * never scrolled to. The ramp is short at both ends and the hold is flat,
+     * which is what stops it feeling like the page took the controls away.
+     */
+    const focus = useSceneStore.getState().focus;
+    if (focus) {
+      const age = (performance.now() - focus.at) / 1000;
+      const HOLD = 2.5;
+      if (age < HOLD) {
+        // 0 → 1 → 0 across the hold, flat through the middle
+        const k = Math.min(1, Math.min(age / 0.45, (HOLD - age) / 0.7));
+        focusAim.fromArray(focus.pos);
+        // stand off along the node's own normal so it is seen face on
+        focusPos.copy(focusAim).normalize().multiplyScalar(4.2).add(focusAim.clone().multiplyScalar(0.25));
+        focusPos.setY(focusPos.y + 0.35);
+        target.lerp(focusPos, k);
+        look.lerp(focusAim, k);
+      }
+    }
 
     cam.position.lerp(target, 1 - Math.pow(0.001, delta));
     current.lerp(look, 1 - Math.pow(0.001, delta));

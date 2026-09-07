@@ -63,7 +63,7 @@ export default function Topology() {
             strokeDasharray="4 4"
           />
           <text x="26" y="44" fill="#6b8479" fontSize="11" fontFamily="monospace">
-            physical host · VirtualBox · host-only adapter
+            physical host · type-2 hypervisor · host-only adapter
           </text>
 
           {/* endpoints */}

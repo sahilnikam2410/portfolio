@@ -91,7 +91,7 @@ export const skills = [
       'Firewalls & VPN concepts',
       'Linux (Kali, Ubuntu) CLI',
       'Windows 10 / Server admin',
-      'VirtualBox multi-host labs',
+      'Virtualised multi-host labs',
       'Endpoint agent deployment',
       'System hardening',
       'Python · Bash · C · C++ · Java',
@@ -105,8 +105,8 @@ export const projects = [
     title: 'The Silent Operator',
     kind: 'Final-Year Project · 2025–2026 · SOC detection + red team',
     summary:
-      'End-to-end SOC lab — Wazuh SIEM, Kali Linux, Windows 10, VirtualBox — ingesting Sysmon and system logs from multiple endpoints into centralised dashboards. Controlled red-team attacks are executed against it, mapped to MITRE ATT&CK, then hunted from the defender side to find out what the stack missed.',
-    stack: ['Wazuh', 'Sysmon', 'MITRE ATT&CK', 'Kali', 'Windows 10', 'VirtualBox'],
+      'End-to-end SOC lab — Wazuh SIEM, Kali Linux, Windows 10, virtualised hosts — ingesting Sysmon and system logs from multiple endpoints into centralised dashboards. Controlled red-team attacks are executed against it, mapped to MITRE ATT&CK, then hunted from the defender side to find out what the stack missed.',
+    stack: ['Wazuh', 'Sysmon', 'MITRE ATT&CK', 'Kali', 'Windows 10', 'Virtualised lab'],
     highlights: [
       'Simulated attacks mapped technique-by-technique to ATT&CK',
       'Detected via log correlation, custom alert rules, triage and threat hunting',
@@ -147,8 +147,8 @@ export const projects = [
     title: 'Multi-Endpoint Monitoring Lab',
     kind: 'Infrastructure · 2025–2026',
     summary:
-      'Multi-host lab (Windows 10, Kali Linux, VirtualBox) with agent-based log forwarding from several endpoints into centralised dashboards — network configuration, host connectivity and full-fleet visibility, built from scratch and documented.',
-    stack: ['Wazuh agents', 'Splunk', 'VirtualBox', 'Centralised logging'],
+      'Multi-host virtualised lab (Windows 10, Kali Linux) with agent-based log forwarding from several endpoints into centralised dashboards — network configuration, host connectivity and full-fleet visibility, built from scratch and documented.',
+    stack: ['Wazuh agents', 'Splunk', 'Virtualised lab', 'Centralised logging'],
     highlights: [
       'Endpoint agents deployed and configured across hosts',
       'Simulated attack traffic analysed to find detection gaps',
@@ -305,7 +305,7 @@ export const caseStudies = {
     diagrams: ['pipeline', 'loop'],
     objective:
       'Find out whether a detection stack I built myself would actually catch a red-team run — and record honestly where it did not.',
-    environment: ['Wazuh SIEM', 'Sysmon', 'Kali Linux', 'Windows 10', 'VirtualBox', 'MITRE ATT&CK'],
+    environment: ['Wazuh SIEM', 'Sysmon', 'Kali Linux', 'Windows 10', 'Virtualised lab', 'MITRE ATT&CK'],
     approach: [
       'Built the lab end to end: Wazuh manager, agents on every endpoint, Sysmon and system logs forwarded into centralised dashboards.',
       'Executed controlled red-team attacks against the lab hosts, one technique at a time.',
@@ -391,7 +391,7 @@ export const caseStudies = {
     diagrams: ['pipeline'],
     objective:
       'Get full-fleet visibility across a mixed Windows and Linux estate, then test whether that visibility is real.',
-    environment: ['Windows 10', 'Kali Linux', 'VirtualBox', 'Wazuh agents', 'Splunk'],
+    environment: ['Windows 10', 'Kali Linux', 'Virtualised lab', 'Wazuh agents', 'Splunk'],
     approach: [
       'Deployed and configured endpoint agents across several hosts with agent-based log forwarding into centralised dashboards.',
       'Covered network configuration and host connectivity as part of the build, not as an afterthought.',
@@ -424,7 +424,7 @@ export const caseStudies = {
 export const ethics = {
   title: 'Scope & ethics',
   body:
-    'Every technique referenced here was executed inside authorised environments — my own VirtualBox lab hosts, DVWA, and systems I was engaged to assess. Attack simulation is always paired with the detection or hardening that answers it: that pairing is the whole point of the work, not a disclaimer on it.',
+    'Every technique referenced here was executed inside authorised environments — my own virtualised lab hosts, DVWA, and systems I was engaged to assess. Attack simulation is always paired with the detection or hardening that answers it: that pairing is the whole point of the work, not a disclaimer on it.',
 };
 
 export const terminalBoot = [
