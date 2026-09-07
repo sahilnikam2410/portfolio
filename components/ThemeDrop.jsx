@@ -1,8 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useSceneStore } from './sceneStore';
-import { SpiderGlyph } from './spiderGlyph';
+
+// Lazily loaded: the figure and its 688 KB of geometry cost nothing until
+// somebody actually changes palette, and never load at all for a visitor who
+// does not.
+const HeroDrop = dynamic(() => import('./HeroDrop'), { ssr: false });
 
 /** Beats of the drop, in ms from the click. */
 const FALL = 620; // silk pays out, spider descends
@@ -83,12 +88,9 @@ export default function ThemeDrop() {
       data-print="hide"
       className="pointer-events-none fixed inset-0 z-[84] overflow-hidden"
     >
-      {/* the dragline, paying out ahead of the spider */}
-      <div className="spider-silk absolute left-1/2 top-0 w-px -translate-x-1/2 bg-[var(--color-acid)]" />
-
-      {/* the spider */}
-      <div className="spider-drop absolute left-1/2 top-0 -translate-x-1/2 text-[var(--color-acid)]">
-        <SpiderGlyph size={64} />
+      {/* the figure, falling and landing on the beat */}
+      <div className="absolute inset-0">
+        <HeroDrop />
       </div>
 
       {/* the burst on impact: a web thrown outward from where it landed */}
