@@ -69,7 +69,7 @@ export default function RootLayout({ children }) {
         {/* first tab stop: keyboard users should not have to walk the whole
             nav and a WebGL canvas to reach the content */}
         <a
-          href="#about"
+          href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[95] focus:border focus:border-[var(--color-acid)] focus:bg-[var(--color-void)] focus:px-4 focus:py-2 focus:text-sm focus:text-[var(--color-acid)]"
         >
           skip to content

@@ -17,7 +17,7 @@ export default function Page() {
       <Backdrop />
       <Chrome />
       <Nav />
-      <main className="relative z-10">
+      <main id="main" tabIndex={-1} className="relative z-10">
         <Hero />
         <About />
         <Marquee />

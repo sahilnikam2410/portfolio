@@ -142,6 +142,26 @@ export default function Nav() {
               &gt; resume.pdf
             </a>
           </li>
+
+          {/* The palette switch was added to the desktop row only, which is
+              inside `hidden sm:flex` — so the control meant to make the
+              palette reachable without a keyboard was itself unreachable on a
+              phone. Full-width row here: a nav is not the place to make
+              someone aim. */}
+          <li>
+            <button
+              onClick={() => {
+                setOpen(false);
+                setSwitching(true);
+              }}
+              disabled={switching}
+              className="flex w-full items-center gap-2 py-2.5 text-left text-[var(--color-dim)] disabled:opacity-40"
+            >
+              <span className="text-[var(--color-acid)]">&gt;</span>
+              <SpiderGlyph size={14} />
+              {theme === 'spider' ? 'terminal palette' : 'spider palette'}
+            </button>
+          </li>
         </ul>
       )}
     </header>

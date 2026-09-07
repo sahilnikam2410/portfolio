@@ -48,7 +48,7 @@ export default async function CaseStudy({ params }) {
   const next = projects[(index + 1) % projects.length];
 
   return (
-    <main className="relative min-h-screen px-5 pb-24 pt-24">
+    <main id="main" tabIndex={-1} className="relative min-h-screen px-5 pb-24 pt-24">
       <ReadingProgress />
       <div className="grid-lines pointer-events-none fixed inset-0 -z-10 opacity-20" />
 
