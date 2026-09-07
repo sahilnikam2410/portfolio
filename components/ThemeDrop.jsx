@@ -12,7 +12,7 @@ const HeroDrop = dynamic(() => import('./HeroDrop'), { ssr: false });
 /** Beats of the drop, in ms from the click. */
 const FALL = 620; // silk pays out, spider descends
 const LAND = 980; // it hits, the web bursts, the palette turns over
-const GONE = 1900; // it climbs back out and the overlay unmounts
+const GONE = 1900; // it lands, holds, and the overlay unmounts
 
 /**
  * The palette switch, as a set-piece.

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, useAnimations } from '@react-three/drei';
 import * as THREE from 'three';
+import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { ACID, CYAN } from './palette';
 
 const MODEL = '/models/hero.glb';
@@ -26,19 +27,33 @@ function Figure({ landAt = 0.98 }) {
   const { mixer } = useAnimations(animations, group);
   const t = useRef(0);
 
-  // Mixamo ships its own materials. The scene paints everything from the
-  // palette, so the figure is re-materialised to match — dark body, emissive
-  // edge, the same treatment the rest of the geometry gets.
+  /**
+   * Cloned through SkeletonUtils, not Object3D.clone.
+   *
+   * A plain clone copies the mesh and the bones but does not rebind one to
+   * the other, so the copy renders collapsed to a point — a canvas with
+   * nothing visible in it, which is exactly what the first version did.
+   *
+   * Mixamo also ships its own materials. The scene paints everything from the
+   * palette, so the figure is re-materialised to match: dark body, emissive
+   * edge, the same treatment the rest of the geometry gets.
+   */
   const model = useMemo(() => {
-    const root = scene.clone(true);
+    const root = cloneSkinned(scene);
     root.traverse((child) => {
       if (!child.isMesh && !child.isSkinnedMesh) return;
+      // Emissive at 0.55 flattened it into a silhouette: a body that emits
+      // its own colour everywhere has no shading left to describe its form.
+      // Dropped low enough that the lights do the modelling, with the glow
+      // only lifting the edges.
       child.material = new THREE.MeshStandardMaterial({
-        color: '#140609',
+        color: '#1c0a0e',
         emissive: ACID.clone(),
-        emissiveIntensity: 0.55,
-        roughness: 0.38,
-        metalness: 0.6,
+        emissiveIntensity: 0.14,
+        roughness: 0.34,
+        metalness: 0.72,
+        transparent: true,
+        opacity: 0.94,
       });
       child.frustumCulled = false; // a skinned mesh can leave its bind box
     });
@@ -81,7 +96,19 @@ function Figure({ landAt = 0.98 }) {
     });
   });
 
-  return <primitive ref={group} object={model} position={[0, -1.15, 0]} scale={1.25} />;
+  /**
+   * Mixamo exports in centimetres, so this rig measures 160 units head to
+   * heel. At a scale of 1 the camera stands inside its shin — which is
+   * exactly what happened, and why the first version rendered a canvas with
+   * nothing visible in it.
+   *
+   * 0.0137 brings it to about 2.2 units, roughly the height of the globe, and
+   * the y offset puts its feet on the point the burst fires from rather than
+   * leaving it hovering.
+   */
+  // Off the centre line and smaller than a first pass had it: at 0.0137 it
+  // stood across the name, and the hero copy is the point of the page.
+  return <primitive ref={group} object={model} position={[1.35, -1.25, 0.4]} scale={0.0088} />;
 }
 
 /**
@@ -100,9 +127,12 @@ export default function HeroDrop() {
       gl={{ antialias: false, alpha: true, powerPreference: 'high-performance' }}
       camera={{ position: [0, 0.6, 4.6], fov: 42 }}
     >
-      <ambientLight intensity={0.7} />
-      <directionalLight position={[3, 6, 4]} intensity={1.5} color={ACID} />
-      <directionalLight position={[-4, 2, -3]} intensity={0.8} color={CYAN} />
+      {/* key, fill, and a rim from behind — the rim is what separates the
+          figure from a dark page without lighting it flat */}
+      <ambientLight intensity={0.35} />
+      <directionalLight position={[4, 6, 5]} intensity={2.2} color={ACID} />
+      <directionalLight position={[-5, 2, 2]} intensity={0.9} color={CYAN} />
+      <directionalLight position={[0, 3, -6]} intensity={2.6} color={ACID} />
       <Figure />
     </Canvas>
   );
