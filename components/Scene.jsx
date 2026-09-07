@@ -37,6 +37,7 @@ import {
   scanFragment,
 } from './shaders';
 import { useSceneStore } from './sceneStore';
+import { COVERAGE_NODES, CHAIN } from './coverageLayout';
 
 import {
   ACID,
@@ -259,9 +260,11 @@ function Nodes({ radius = 1.79, count = 90 }) {
     if (!mesh.current) return;
     const t = clock.elapsedTime;
 
-    // a coverage row hovered in the DOM lights the node it maps to
-    const rowHighlight = useSceneStore.getState().highlight;
-    const linked = rowHighlight < 0 ? -1 : (rowHighlight * 13) % count;
+    // The ambient network no longer answers to the coverage table. A row
+    // hovered in the DOM lights its technique in the lattice, which is a real
+    // mapping; making an arbitrary dot in the decoration light up as well only
+    // suggested a relationship that was not there.
+    const linked = -1;
 
     nodes.forEach((p, i) => {
       const isHot = i === hovered || i === linked;
@@ -631,6 +634,97 @@ function PaletteDriver({ onSettled }) {
     moving.current = still;
   });
   return null;
+}
+
+/* ── coverage lattice ────────────────────────────────────────── */
+
+/**
+ * The techniques themselves, on the globe.
+ *
+ * Everything else in this scene is decoration. This is the one part that is
+ * the content: six nodes, one per row of the coverage table, placed by where
+ * their tactic falls in the kill chain. Hovering a row lights the technique it
+ * names rather than an arbitrary dot, and the label reads the ATT&CK id
+ * instead of `node_007`.
+ *
+ * Status drives colour, using the same vocabulary the table's legend does:
+ * a run that fired reads as the accent, one only assessed reads amber, and
+ * research reads cool. Someone who never looks at the table still sees that
+ * not every technique is claimed equally — which is the honest version.
+ */
+function CoverageLattice({ radius = 2.06 }) {
+  const group = useRef(null);
+  const marks = useRef([]);
+  const setLabel = useSceneStore((s) => s.setLabel);
+  const [hovered, setHovered] = useState(-1);
+
+  const geo = useMemo(() => new THREE.IcosahedronGeometry(0.055, 2), []);
+  useEffect(() => () => geo.dispose(), [geo]);
+
+  // status → which palette colour the node answers to
+  const tint = useMemo(
+    () => ({ detected: ACID, assessed: AMBER, research: CYAN, 'gap→rule': RED }),
+    []
+  );
+
+  useFrame(({ clock }, delta) => {
+    const t = clock.elapsedTime;
+    const { highlight, alert } = useSceneStore.getState();
+
+    // the attack traces the chain in kill-chain order, one technique at a
+    // time, rather than lighting the whole table at once
+    const head = alert ? (t * 1.6) % (CHAIN.length + 2) : -99;
+
+    marks.current.forEach((m, i) => {
+      if (!m) return;
+      const row = COVERAGE_NODES[i];
+
+      const onChain = alert ? Math.max(0, 1 - Math.abs(CHAIN.indexOf(i) - head) * 0.9) : 0;
+      const lit = i === highlight || i === hovered ? 1 : 0;
+      const heat = Math.max(lit, onChain);
+
+      // breathe when idle so the lattice never looks like a static diagram
+      const idle = 0.9 + Math.sin(t * 1.3 + i) * 0.08;
+      const s = (0.85 + heat * 1.5) * idle;
+      m.scale.setScalar(THREE.MathUtils.damp(m.scale.x, s, 9, delta));
+
+      // lift off the surface when picked out, so it reads as raised rather
+      // than merely brighter
+      m.position.copy(row.position).multiplyScalar(radius * (1 + heat * 0.09));
+
+      const mat = m.material;
+      mat.color.lerp(heat > 0.5 ? CYAN : (tint[row.status] ?? ACID), 1 - Math.pow(0.02, delta));
+      mat.opacity = THREE.MathUtils.damp(mat.opacity, 0.45 + heat * 0.55, 8, delta);
+    });
+
+    if (group.current) group.current.rotation.y += delta * 0.02;
+  });
+
+  return (
+    <group ref={group}>
+      {COVERAGE_NODES.map((row, i) => (
+        <mesh
+          key={row.id}
+          ref={(el) => {
+            marks.current[i] = el;
+          }}
+          geometry={geo}
+          position={row.position.clone().multiplyScalar(radius)}
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            setHovered(i);
+            setLabel(`${row.id} · ${row.technique}`);
+          }}
+          onPointerOut={() => {
+            setHovered(-1);
+            setLabel(null);
+          }}
+        >
+          <meshBasicMaterial transparent opacity={0.6} toneMapped={false} />
+        </mesh>
+      ))}
+    </group>
+  );
 }
 
 /* ── camera rig: scroll waypoints + pointer parallax ─────────── */
@@ -1389,6 +1483,7 @@ export default function Scene() {
             {spider && <OrbWeb rings={lite ? 5 : 7} strands={lite ? 12 : 16} />}
             <HoloGlobe />
             <Nodes count={lite ? 42 : 90} />
+            <CoverageLattice />
             <Traffic count={lite ? 4 : 10} />
             <Shockwave count={lite ? 2 : 3} />
             <InstrumentRing radius={2.35} tilt={[Math.PI / 2.1, 0, 0.22]} speed={0.1} ticks={48} />
