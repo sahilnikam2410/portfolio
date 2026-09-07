@@ -12,11 +12,14 @@ const MatrixRain = dynamic(() => import('./MatrixRain'), { ssr: false });
 /**
  * The scene is decoration, so it must never compete with the content.
  *
- * Two rules:
+ * Three rules:
  *  1. Someone who will never see it does not download it. Reduced-motion
  *     users and anyone who set quality to "off" previously cost 254 KB of
  *     three.js, postprocessing and drei for a canvas that renders nothing.
- *  2. Everyone else gets it after the page is interactive, not during.
+ *  2. Nobody is left with nothing. Whenever the scene is withheld the page
+ *     still paints a backdrop of its own and offers a way to turn the scene
+ *     on, because a blank page with no control reads as broken.
+ *  3. Everyone else gets it after the page is interactive, not during.
  *
  * Past the hero it fades and a scrim rises so body copy always wins on
  * contrast. That runs in a rAF loop writing styles directly — no renders.
@@ -39,7 +42,7 @@ export default function Backdrop() {
       // storage blocked — fall through to capability detection
     }
 
-    if (reduce || saved === 'off') return; // never fetch what will never render
+    if (saved === 'off') return; // an explicit no stays no
 
     /**
      * Phones were downloading 639 KB of three.js and then rendering the
@@ -61,7 +64,15 @@ export default function Backdrop() {
     const w = window.innerWidth;
     const small = coarse || (w > 0 && w < 768);
 
-    if (small && asked !== 'on') {
+    /**
+     * Reduced motion used to return here with nothing shown and nothing
+     * offered — no scene, and no control to ask for one. On a phone with the
+     * system setting on, which is common, that left a flat page and no way
+     * back from it. The setting is still honoured: the scene never starts on
+     * its own. It is offered instead, and an explicit tap outranks a default,
+     * the same way it does for a small screen.
+     */
+    if ((small || reduce) && asked !== 'on') {
       setOffer(true);
       return;
     }
@@ -136,9 +147,20 @@ export default function Backdrop() {
   return (
     <>
       <div ref={layer} className="fixed inset-0 -z-10">
-        {/* always painted, so the page is never bare while the scene loads
-            and stays correct if it never loads at all */}
+        {/* Painted whether or not the scene ever loads, so the page is never
+            bare while it arrives and stays right if it never does. Without
+            the wash, a visitor who declines the scene — or whose phone asks
+            for reduced motion — got flat black, which reads as broken rather
+            than as a choice. */}
         <div className="absolute inset-0 grid-lines opacity-30" />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 90% 60% at 50% 32%, rgb(var(--acid-rgb)/0.10) 0%, transparent 62%), radial-gradient(ellipse 70% 50% at 78% 78%, rgb(var(--cyan-rgb)/0.08) 0%, transparent 60%)',
+          }}
+        />
 
         {load && (
           <SceneBoundary>
@@ -163,7 +185,7 @@ export default function Backdrop() {
           type="button"
           onClick={takeUpOffer}
           data-print="hide"
-          className="fixed bottom-4 left-4 z-[71] border border-[rgb(var(--acid-rgb)/0.35)] bg-[rgba(4,7,10,0.9)] px-3 py-2 text-[11px] uppercase tracking-[0.16em] text-[var(--color-acid)] backdrop-blur-sm md:hidden"
+          className="fixed bottom-4 left-4 z-[71] border border-[rgb(var(--acid-rgb)/0.35)] bg-[rgba(4,7,10,0.9)] px-4 py-3 text-[11px] uppercase tracking-[0.16em] text-[var(--color-acid)] backdrop-blur-sm"
         >
           enable 3D scene
         </button>
