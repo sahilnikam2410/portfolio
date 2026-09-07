@@ -83,12 +83,6 @@ export default function Nav() {
           <li>
             <button
               onClick={() => setSwitching(true)}
-              // Warm the figure before it is needed. The chunk and its model
-              // are only fetched on a palette change, which means the first
-              // change pays for them while the animation is already running.
-              // Hover and focus both land well before the click.
-              onPointerEnter={() => import('./HeroDrop')}
-              onFocus={() => import('./HeroDrop')}
               disabled={switching}
               aria-label={
                 theme === 'spider' ? 'Switch to terminal palette' : 'Switch to spider palette'
