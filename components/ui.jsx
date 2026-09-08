@@ -53,14 +53,19 @@ export function SectionHeading({ index, title, subtitle, wide = false }) {
           wide ? 'mb-8 sm:mb-12 border-b border-[rgb(var(--acid-rgb)/0.14)] pb-6' : 'mb-2'
         }
       >
-        <div className={wide ? 'flex items-start gap-5' : ''}>
+        {/* The wide heading sets its numeral beside the title, which is the
+            point of it at desktop width. On a phone that pushed the title 60px
+            in — numeral plus gap — while every other section title on the page
+            sat at the 20px margin, so this one heading broke the left edge the
+            whole page reads down. Below sm it stacks like the others. */}
+        <div className={wide ? 'sm:flex sm:items-start sm:gap-5' : ''}>
           <span
             aria-hidden="true"
-            className={`index-numeral select-none ${wide ? 'shrink-0' : 'block'}`}
+            className={`index-numeral block select-none ${wide ? 'sm:shrink-0' : ''}`}
           >
             {index}
           </span>
-          <div className={`min-w-0 ${wide ? 'pt-1' : 'mt-3'}`}>
+          <div className={`min-w-0 mt-3 ${wide ? 'sm:mt-0 sm:pt-1' : ''}`}>
             <Scramble
               as="h2"
               text={title}
