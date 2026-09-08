@@ -31,6 +31,27 @@ export default function Backdrop() {
   const [offer, setOffer] = useState(false); // small screen, scene not taken up
 
   useEffect(() => {
+    /**
+     * ?scene=off — a URL that renders the page without the canvas.
+     *
+     * Lighthouse could only ever measure the scene running, and a canvas that
+     * animates every frame never lets the main thread idle, so the score said
+     * more about WebGL than about this page. That left performance ungated
+     * entirely. This is the same page a phone actually gets — the scene is
+     * withheld there and offered instead — so it is the honest thing to hold
+     * a budget against, and CI now does.
+     *
+     * Query only, deliberately: it does not touch localStorage, so auditing
+     * the page never changes what a real visitor is served next time.
+     */
+    let forced = null;
+    try {
+      forced = new URLSearchParams(window.location.search).get('scene');
+    } catch {
+      // malformed query string — fall through to the normal path
+    }
+    if (forced === 'off') return;
+
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     let saved = null;

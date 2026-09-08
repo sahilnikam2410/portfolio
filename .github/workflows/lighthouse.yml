@@ -38,16 +38,22 @@ jobs:
           echo "server never became reachable"
           exit 1
 
-      # Thresholds now come from real runs, not guesses (see
+      # Thresholds come from real runs, not guesses (see
       # .github/lighthouserc.json). Accessibility and best-practices are
-      # asserted at 100 and gate the job; SEO is a warning; performance is not
-      # asserted because a live WebGL scene never lets the main thread idle.
+      # asserted at 100 and gate the job; SEO is a warning.
+      #
+      # Performance is asserted only on ?scene=off. With the scene running,
+      # TBT and TTI measure a canvas that animates every frame rather than
+      # this page, so a budget there would gate WebGL. ?scene=off is the same
+      # page a phone actually gets — the scene is withheld and offered
+      # instead — which makes it the honest thing to hold a budget against.
       - name: Audit
         uses: treosh/lighthouse-ci-action@v12
         with:
           urls: |
             http://localhost:3000/
             http://localhost:3000/work/silent-operator
+            http://localhost:3000/?scene=off
           configPath: .github/lighthouserc.json
           uploadArtifacts: true
           temporaryPublicStorage: true
