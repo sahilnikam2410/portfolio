@@ -17,8 +17,16 @@ export default function About() {
           timeline at 142px — fr tracks cannot shrink below their content, so
           the prose column took what it needed and the dates were squeezed
           into a ribbon. Stacked, both get the whole measure. */}
+      {/* min-w-0 on the item, not just max-w-full on the scroller.
+          A grid track is sized by its items' min-content, and min-content
+          propagates up from the topology SVG's 520px floor — so this item
+          measured 554 inside a 390px phone, every paragraph in it was laid
+          out at 554, and the document then clipped them, cutting prose
+          mid-word. max-width:100% cannot stop that: against an auto track it
+          is circular. min-w-0 lets the track shrink, and the figure's own
+          max-w-full keeps the SVG scrolling inside its box. */}
       <div className="grid gap-10 sm:gap-14">
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           {identity.bio.map((p, i) => (
             <Reveal key={i} delay={i * 0.08}>
               <p className="t-body text-[var(--color-dim)]">{p}</p>

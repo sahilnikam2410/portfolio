@@ -26,7 +26,12 @@ export default function Projects() {
       title="engagements"
       subtitle="Lab-scoped projects. Each one is something I built, broke, and then documented the fix for."
     >
-      <div className="grid gap-5 lg:grid-cols-[300px_1fr]">
+      {/* Explicit tracks with a zero floor. A bare `grid` gives one auto
+          column whose minimum is the items' min-content, so the widest thing
+          in either panel set the track and both panels overflowed the section
+          by 18px on a phone. minmax(0,1fr) lets the track shrink and the
+          content wrap instead. */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[300px_minmax(0,1fr)]">
         {/* file-tree selector */}
         <Reveal>
           <Panel className="p-2">
