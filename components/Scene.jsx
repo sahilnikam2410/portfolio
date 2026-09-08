@@ -661,7 +661,179 @@ function PaletteDriver({ onSettled }) {
  * simply not drawn — the sequence dead-ends on screen the way it dead-ended
  * in the lab, and only closes once the rule exists.
  */
-function KillChain({ radius = 2.06 }) {
+/**
+ * The traffic on the chain, as particles.
+ *
+ * The links say where the sequence goes; this says that something is moving
+ * along it. Forty thousand points would be far too many to move from
+ * JavaScript sixty times a second, so none of them move from JavaScript at
+ * all: each link's curve is baked once into a float texture, every particle
+ * carries only which link it belongs to and where it started, and the vertex
+ * shader looks up its own position each frame. The CPU sends two numbers a
+ * frame — a clock and how far the pulse has reached.
+ *
+ * That reach is the whole trick. A particle is drawn only while its position
+ * along the chain is behind the head, so the stream fills the sequence as the
+ * pulse advances and simply stops existing past the gap. Nothing needs to be
+ * faded out or cleaned up when the chain dead-ends; the traffic is not there,
+ * which is the honest picture of a technique that produced no telemetry.
+ */
+function ChainFlow({ links, count = 18000 }) {
+  const mat = useRef(null);
+
+  // every link's curve, sampled into one texture: x across the curve,
+  // y selects the link
+  const { tex, samples } = useMemo(() => {
+    const S = 64;
+    const L = links.length;
+    const data = new Float32Array(S * L * 4);
+    links.forEach((pts, l) => {
+      const curve = new THREE.CatmullRomCurve3(pts);
+      for (let i = 0; i < S; i++) {
+        const v = curve.getPointAt(i / (S - 1));
+        const o = (l * S + i) * 4;
+        data[o] = v.x;
+        data[o + 1] = v.y;
+        data[o + 2] = v.z;
+        data[o + 3] = 1;
+      }
+    });
+    const t = new THREE.DataTexture(data, S, L, THREE.RGBAFormat, THREE.FloatType);
+    t.needsUpdate = true;
+    // Nearest, and the shader mixes the two neighbouring samples itself.
+    // Linear filtering of a float texture needs OES_texture_float_linear,
+    // which desktop has and a fair number of Android GPUs do not — and an
+    // opted-in phone runs this scene. Doing the interpolation by hand costs
+    // one extra texel fetch and removes the extension from the requirements.
+    t.minFilter = THREE.NearestFilter;
+    t.magFilter = THREE.NearestFilter;
+    t.wrapS = THREE.ClampToEdgeWrapping;
+    t.wrapT = THREE.ClampToEdgeWrapping;
+    return { tex: t, samples: S };
+  }, [links]);
+
+  useEffect(() => () => tex.dispose(), [tex]);
+
+  const geo = useMemo(() => {
+    const g = new THREE.BufferGeometry();
+    const link = new Float32Array(count);
+    const seed = new Float32Array(count);
+    const jit = new Float32Array(count);
+    const rnd = makeRandom(0x51a17);
+    for (let i = 0; i < count; i++) {
+      link[i] = Math.floor(rnd() * links.length);
+      seed[i] = rnd();
+      jit[i] = rnd();
+    }
+    // position is required by three even though the shader never reads it
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(count * 3), 3));
+    g.setAttribute('aLink', new THREE.BufferAttribute(link, 1));
+    g.setAttribute('aSeed', new THREE.BufferAttribute(seed, 1));
+    g.setAttribute('aJit', new THREE.BufferAttribute(jit, 1));
+    g.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 4);
+    return g;
+  }, [count, links.length]);
+
+  useEffect(() => () => geo.dispose(), [geo]);
+
+  const uniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uHead: { value: -1 },
+      uTex: { value: tex },
+      uSamples: { value: samples },
+      uLinks: { value: links.length },
+      uColor: { value: new THREE.Color(HEX.cyan) },
+      uOpacity: { value: 0 },
+    }),
+    [tex, samples, links.length]
+  );
+
+  useFrame((state, delta) => {
+    if (!mat.current) return;
+    const u = mat.current.uniforms;
+    u.uTime.value = state.clock.elapsedTime;
+    u.uHead.value = chain.head;
+    u.uOpacity.value = THREE.MathUtils.damp(
+      u.uOpacity.value,
+      chain.playing ? 1 : 0,
+      6,
+      delta
+    );
+    u.uColor.value.lerp(chain.beat === 'gap' ? RED : chain.fired > 0 ? ACID : CYAN, 0.07);
+  });
+
+  return (
+    <points geometry={geo} frustumCulled={false}>
+      <shaderMaterial
+        ref={mat}
+        uniforms={uniforms}
+        transparent
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        vertexShader={`
+          attribute float aLink;
+          attribute float aSeed;
+          attribute float aJit;
+          uniform float uTime;
+          uniform float uHead;
+          uniform float uSamples;
+          uniform float uLinks;
+          uniform sampler2D uTex;
+          varying float vFade;
+
+          void main() {
+            // each particle runs its own link at its own pace
+            float speed = 0.22 + fract(aSeed * 7.13) * 0.2;
+            float t = fract(aSeed + uTime * speed);
+
+            // how far into this link the pulse has come, 0..1
+            float reach = clamp(uHead - aLink, 0.0, 1.0);
+            // drawn only if the pulse has passed this point already
+            float alive = step(t, reach);
+
+            // walk the curve by hand between its two nearest samples
+            float row = (aLink + 0.5) / uLinks;
+            float fi = t * (uSamples - 1.0);
+            float i0 = floor(fi);
+            float i1 = min(i0 + 1.0, uSamples - 1.0);
+            vec3 a = texture2D(uTex, vec2((i0 + 0.5) / uSamples, row)).xyz;
+            vec3 b = texture2D(uTex, vec2((i1 + 0.5) / uSamples, row)).xyz;
+            vec3 p = mix(a, b, fi - i0);
+            // spread off the line so it reads as a stream, not a wire
+            p += normalize(p) * (aJit - 0.5) * 0.07;
+
+            vec4 mv = modelViewMatrix * vec4(p, 1.0);
+            gl_Position = projectionMatrix * mv;
+            // The constant is a pixel budget, not a decoration. At 260 a
+            // point measured about 125px across at this camera distance, and
+            // eighteen thousand overlapping quads that size cost an Intel UHD
+            // fifty of its sixty frames. Additive blending has no depth test
+            // to save it — every one of them shades every pixel it covers.
+            gl_PointSize = alive * 2.4 * (9.0 / max(0.001, -mv.z));
+            // brightest mid-link, so each run reads as a travelling swell
+            vFade = alive * (0.25 + 0.75 * sin(t * 3.14159));
+          }
+        `}
+        fragmentShader={`
+          uniform vec3 uColor;
+          uniform float uOpacity;
+          varying float vFade;
+
+          void main() {
+            float d = length(gl_PointCoord - 0.5);
+            float m = smoothstep(0.5, 0.0, d);
+            float a = m * vFade * uOpacity;
+            if (a < 0.01) discard;
+            gl_FragColor = vec4(uColor, a);
+          }
+        `}
+      />
+    </points>
+  );
+}
+
+function KillChain({ radius = 2.06, lite = false }) {
   const lines = useRef([]);
   const ring = useRef(null);
   const said = useRef(null);
@@ -750,6 +922,14 @@ function KillChain({ radius = 2.06 }) {
           toneMapped={false}
         />
       ))}
+
+      {/* The links, the beats and the ring are five lines and a torus, so
+          they run everywhere. The forty thousand particles are the expensive
+          half and only the full tier gets them. */}
+      {/* The links, the beats and the ring are five lines and a torus, so
+          they run everywhere. The particles are the expensive half and only
+          the full tier gets them. */}
+      {!lite && <ChainFlow links={links} />}
 
       <mesh ref={ring} position={ringPos} quaternion={ringTurn}>
         <torusGeometry args={[1, 0.14, 8, 40]} />
@@ -1658,7 +1838,11 @@ export default function Scene() {
             <HoloGlobe />
             <Nodes count={lite ? 42 : 90} />
             <CoverageLattice />
-            {!lite && <KillChain />}
+            {/* Not gated on the tier. This is the one animation on the page
+                that makes an argument rather than decorating one, and it was
+                hidden from every machine reporting four cores or fewer —
+                which is most laptops. */}
+            <KillChain lite={lite} />
             <Traffic count={lite ? 4 : 10} />
             <Shockwave count={lite ? 2 : 3} />
             <InstrumentRing radius={2.35} tilt={[Math.PI / 2.1, 0, 0.22]} speed={0.1} ticks={48} />
