@@ -1,7 +1,8 @@
 'use client';
 
+import { Fragment } from 'react';
 import Link from 'next/link';
-import { coverage, projects } from '@/data/content';
+import { coverage, projects, caseStudies } from '@/data/content';
 import { Section, Reveal } from './ui';
 import { useSceneStore } from './sceneStore';
 import { coverageMatches, projectMatches } from '@/lib/match';
@@ -24,6 +25,81 @@ const STATUS = {
     className: 'text-[var(--color-cyan)] border-[rgb(var(--cyan-rgb)/0.35)]',
   },
 };
+
+/** The artifact alt text is authored once, on the case study. Reuse it rather
+    than writing a second description of the same screenshot that can drift
+    away from the first. */
+function captionFor(src) {
+  for (const study of Object.values(caseStudies)) {
+    const hit = study.artifacts?.find((a) => a.src === src);
+    if (hit) return hit.alt;
+  }
+  return '';
+}
+
+/**
+ * What actually backs a row.
+ *
+ * "detected" on its own is a claim; a capture is a demonstration. The table
+ * was letting a reader assume the second from the first, so this renders the
+ * absence as plainly as the proof — a row with nothing published says so, in
+ * the same place the capture would have gone.
+ */
+function Evidence({ r }) {
+  const e = r.evidence;
+
+  if (!e) {
+    return (
+      <p className="prose-text text-[12px] leading-relaxed text-[var(--color-dim)]">
+        No capture published for this one yet. The technique and the detection
+        reasoning are written up; the alert firing has not been screenshotted.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-2 text-[12px] leading-relaxed">
+      {e.from && <p className="text-[var(--color-cyan)]">{e.from}</p>}
+      {e.ran && (
+        <p>
+          <span className="text-[var(--color-acid)]">ran: </span>
+          <span className="prose-text text-[var(--color-dim)]">{e.ran}</span>
+        </p>
+      )}
+      {e.rule && (
+        <p>
+          <span className="text-[var(--color-acid)]">rule: </span>
+          <span className="text-[var(--color-dim)]">{e.rule}</span>
+        </p>
+      )}
+      {e.quiet && (
+        <p>
+          <span className="text-[var(--color-acid)]">stayed quiet on: </span>
+          <span className="prose-text text-[var(--color-dim)]">{e.quiet}</span>
+        </p>
+      )}
+      {e.log && (
+        <pre className="max-w-full overflow-x-auto border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(4,7,10,0.85)] p-3 text-[11px] text-[var(--color-bone)]">
+          <code>{e.log}</code>
+        </pre>
+      )}
+      {e.capture && (
+        <figure className="border border-[rgb(var(--acid-rgb)/0.14)]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={e.capture} alt={captionFor(e.capture)} className="w-full" />
+        </figure>
+      )}
+      {e.study && (
+        <Link
+          href={'/work/' + e.study}
+          className="inline-block text-[var(--color-acid)] underline decoration-dotted underline-offset-2"
+        >
+          the rule and the write-up →
+        </Link>
+      )}
+    </div>
+  );
+}
 
 /** Enterprise tactics in kill-chain order — empty columns are honest gaps. */
 const TACTICS = [
@@ -165,7 +241,7 @@ export default function Coverage() {
       {/* desktop table */}
       <Reveal delay={0.08}>
         <div className="hidden max-w-full overflow-x-auto border border-[rgb(var(--acid-rgb)/0.14)] lg:block">
-          <table className="w-full min-w-[900px] text-left text-[13px]">
+          <table className="w-full min-w-[1000px] text-left text-[13px]">
             <thead>
               <tr className="border-b border-[rgb(var(--acid-rgb)/0.14)] text-[11px] uppercase tracking-[0.14em] text-[var(--color-dim)]">
                 <th className="px-4 py-3 font-normal">id</th>
@@ -174,12 +250,13 @@ export default function Coverage() {
                 <th className="px-4 py-3 font-normal">what was run</th>
                 <th className="px-4 py-3 font-normal">what caught it</th>
                 <th className="px-4 py-3 font-normal">status</th>
+                <th className="px-4 py-3 font-normal">evidence</th>
               </tr>
             </thead>
             <tbody>
               {coverage.map((r, i) => (
+                <Fragment key={r.id}>
                 <tr
-                  key={r.id}
                   onMouseEnter={enter(i, r)}
                   onMouseLeave={leave}
                   className={`border-b border-[rgb(var(--acid-rgb)/0.08)] transition-all last:border-0 hover:bg-[rgb(var(--acid-rgb)/0.04)] ${
@@ -199,7 +276,35 @@ export default function Coverage() {
                       {STATUS[r.status].label}
                     </span>
                   </td>
+                  {/* The at-a-glance answer to "is this shown or asserted". */}
+                  <td className="whitespace-nowrap px-4 py-3">
+                    {r.evidence ? (
+                      <span className="text-[var(--color-acid)]">capture</span>
+                    ) : (
+                      <span className="text-[var(--color-dim)]" title="no capture published">
+                        —
+                      </span>
+                    )}
+                  </td>
                 </tr>
+
+                {r.evidence && (
+                  <tr className="border-b border-[rgb(var(--acid-rgb)/0.08)] last:border-0">
+                    <td colSpan={7} className="px-4 pb-4">
+                      {/* Collapsed by default: a screenshot per row would bury
+                          the table this section exists to show. */}
+                      <details>
+                        <summary className="tap cursor-pointer text-[11px] uppercase tracking-[0.14em] text-[var(--color-dim)] hover:text-[var(--color-acid)]">
+                          show the capture
+                        </summary>
+                        <div className="mt-3 max-w-3xl">
+                          <Evidence r={r} />
+                        </div>
+                      </details>
+                    </td>
+                  </tr>
+                )}
+                </Fragment>
               ))}
             </tbody>
           </table>
@@ -241,6 +346,15 @@ export default function Coverage() {
                   <dd className="inline text-[var(--color-dim)]">{r.where}</dd>
                 </div>
               </dl>
+
+              <details className="mt-3 border-t border-[rgb(var(--acid-rgb)/0.1)] pt-3">
+                <summary className="tap cursor-pointer text-[11px] uppercase tracking-[0.14em] text-[var(--color-dim)]">
+                  {r.evidence ? 'show the capture' : 'what backs this'}
+                </summary>
+                <div className="mt-3">
+                  <Evidence r={r} />
+                </div>
+              </details>
             </div>
           </Reveal>
         ))}
@@ -260,7 +374,12 @@ export default function Coverage() {
           >
             case studies
           </Link>
-          . Dashboard captures are being added as the lab is rebuilt; the rules there are marked{' '}
+. The{' '}
+          <span className="text-[var(--color-cyan)]">evidence</span> column says which rows are
+          demonstrated rather than asserted: <span className="text-[var(--color-acid)]">capture</span>{' '}
+          opens the alert firing, the rule that caught it, and what stayed quiet alongside it. A{' '}
+          <span className="text-[var(--color-dim)]">—</span> means the write-up exists but the
+          screenshot does not yet, and the row is a claim until it does. Rules are marked{' '}
           <span className="text-[#ffd166]">draft</span> until they have fired against a controlled run.
         </p>
       </Reveal>

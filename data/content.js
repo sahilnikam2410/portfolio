@@ -196,6 +196,19 @@ export const coverage = [
     status: 'detected',
     where: 'ESCOSS internship',
     source: 'Resume: "Configured active-response automation to auto-contain suspicious activity such as brute-force login attempts"',
+    evidence: {
+      // Deliberately not claiming the internship itself is captured — that
+      // work sat on a client's stack and nothing from it is publishable. What
+      // is published is the same technique reproduced in the owned lab, and
+      // the row says so rather than letting one stand in for the other.
+      from: 'Reproduced in the Silent Operator lab, 5 Sep 2026',
+      ran: 'Repeated Windows logon failures from a single source against WIN-SERVER-2022',
+      rule: '100211 · level 12 · frequency 5 / timeframe 60 · validated 2026-09-05',
+      quiet:
+        'Isolated failures at 21:34 and 21:31 raised nothing — the threshold staying quiet on noise, which is the half usually cropped out of a screenshot.',
+      capture: '/artifacts/bruteforce-100211.png',
+      study: 'silent-operator',
+    },
   },
   {
     id: 'T1059',
@@ -290,6 +303,19 @@ export const timeline = [
  *
  *   artifacts: [{ src: '/artifacts/wazuh-agents.png', alt: 'Wazuh agent fleet' }]
  *              → screenshot strip. Redact hostnames, public IPs, agent keys.
+ *
+ *   coverage[].evidence — what actually backs a 'detected' row.
+ *     { from:    'where the capture came from, if not the where column',
+ *       ran:     'the thing executed, in one line',
+ *       rule:    'rule id · level · validated date',
+ *       quiet:   'what did NOT alert, if the capture shows it',
+ *       log:     'redacted log excerpt',
+ *       capture: '/artifacts/x.png',
+ *       study:   'case-study-id' }
+ *     Every key optional; omit the whole object and the row reads
+ *     'no capture published', which is the honest default. A row that says
+ *     detected without one is a claim, not a demonstration — the table
+ *     shows which is which rather than letting the reader assume.
  *
  *   rules: [{ title: 'Brute force → active response',
  *             lang: 'xml',
