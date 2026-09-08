@@ -23,14 +23,14 @@ import Scramble from './Scramble';
  */
 export function Section({ id, index, title, subtitle, children, wide = false }) {
   return (
-    <section id={id} className="relative mx-auto max-w-6xl scroll-mt-24 px-5 py-24 sm:py-32">
+    <section id={id} className="relative mx-auto max-w-6xl scroll-mt-24 px-5 py-14 sm:py-24 lg:py-32">
       {wide ? (
         <>
           <SectionHeading index={index} title={title} subtitle={subtitle} wide />
           {children}
         </>
       ) : (
-        <div className="grid gap-x-12 gap-y-10 lg:grid-cols-12">
+        <div className="grid gap-x-12 gap-y-6 sm:gap-y-10 lg:grid-cols-12">
           {/* self-start, or the cell stretches to the row and sticky has no
               room left to travel in */}
           <div className="lg:col-span-4 lg:sticky lg:top-28 lg:self-start">
@@ -50,7 +50,7 @@ export function SectionHeading({ index, title, subtitle, wide = false }) {
     <Reveal>
       <div
         className={
-          wide ? 'mb-12 border-b border-[rgb(var(--acid-rgb)/0.14)] pb-6' : 'mb-2'
+          wide ? 'mb-8 sm:mb-12 border-b border-[rgb(var(--acid-rgb)/0.14)] pb-6' : 'mb-2'
         }
       >
         <div className={wide ? 'flex items-start gap-5' : ''}>

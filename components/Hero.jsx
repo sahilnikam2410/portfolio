@@ -63,7 +63,7 @@ export default function Hero() {
   const { lines, typing, done } = useBootSequence();
 
   return (
-    <section id="top" className="relative flex min-h-screen items-center px-5 pt-28 pb-16">
+    <section id="top" className="relative flex min-h-screen items-center px-5 pt-24 pb-12 sm:pt-28 sm:pb-16">
       <div className="mx-auto grid w-full max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
         {/* left: identity */}
         <div className="readable">
@@ -71,7 +71,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="mb-5 inline-flex items-center gap-2 border border-[rgb(var(--acid-rgb)/0.28)] px-3 py-1.5 text-[11px] text-[var(--color-acid)]"
+            className="mb-4 inline-flex sm:mb-5 items-center gap-2 border border-[rgb(var(--acid-rgb)/0.28)] px-3 py-1.5 text-[11px] text-[var(--color-acid)]"
           >
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-acid)] opacity-70" />
@@ -113,7 +113,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.24 }}
-            className="t-lead mt-7 text-[var(--color-dim)]"
+            className="t-lead mt-5 sm:mt-7 text-[var(--color-dim)]"
           >
             {identity.tagline}
           </motion.p>
@@ -149,7 +149,7 @@ export default function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.7, delay: 0.45 }}
-            className="mt-10 grid grid-cols-2 gap-px border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgb(var(--acid-rgb)/0.14)] sm:grid-cols-4"
+            className="mt-7 grid grid-cols-2 sm:mt-10 gap-px border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgb(var(--acid-rgb)/0.14)] sm:grid-cols-4"
           >
             {stats.map((s) => (
               <li key={s.label} className="bg-[rgba(4,7,10,0.9)] px-4 py-3">

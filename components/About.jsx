@@ -17,7 +17,7 @@ export default function About() {
           timeline at 142px — fr tracks cannot shrink below their content, so
           the prose column took what it needed and the dates were squeezed
           into a ribbon. Stacked, both get the whole measure. */}
-      <div className="grid gap-14">
+      <div className="grid gap-10 sm:gap-14">
         <div className="space-y-5">
           {identity.bio.map((p, i) => (
             <Reveal key={i} delay={i * 0.08}>
