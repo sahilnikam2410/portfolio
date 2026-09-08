@@ -22,7 +22,7 @@ export default function CopyButton({ value, label = 'copy', className = '' }) {
       onClick={copy}
       data-cursor="copy"
       aria-label={`Copy ${value}`}
-      className={`border px-2 py-0.5 text-[11px] transition-colors ${
+      className={`tap border px-2 py-0.5 text-[11px] transition-colors ${
         state === 'done'
           ? 'border-[var(--color-acid)] text-[var(--color-acid)]'
           : state === 'failed'

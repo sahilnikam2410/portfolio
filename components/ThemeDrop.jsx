@@ -94,7 +94,7 @@ export default function ThemeDrop() {
       {/* the burst on impact: a web thrown outward from where it landed */}
       {phase === 'landed' && (
         <>
-          <div className="spider-burst absolute left-1/2 top-[46vh] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[var(--color-acid)]" />
+          <div className="spider-burst absolute left-1/2 top-[46dvh] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[var(--color-acid)]" />
           <div className="spider-flash absolute inset-0 bg-[var(--color-acid)]" />
         </>
       )}

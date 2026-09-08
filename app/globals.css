@@ -26,6 +26,10 @@ html {
   scroll-behavior: smooth;
   /* body already hides it; the document element can still carry the width */
   overflow-x: clip;
+  /* iOS Safari inflates text when a phone is turned to landscape, which
+     reflows the page and undoes every measure tuned above. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -34,6 +38,64 @@ body {
   font-family: var(--font-mono);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  /* Android and iOS paint a grey box over whatever is tapped. Tinted rather
+     than removed: taking it away entirely leaves a touch with no feedback at
+     all, since a finger never triggers the hover state a mouse does. */
+  -webkit-tap-highlight-color: rgb(var(--acid-rgb) / 0.18);
+}
+
+/* ---------------------------------------------------------------------------
+   Touch, and viewports that move
+   ---------------------------------------------------------------------------
+   Everything here is about the devices that are not a desktop browser window:
+   phones whose address bar slides away, tablets held in either orientation,
+   and any screen driven by a finger rather than a cursor.
+   --------------------------------------------------------------------------- */
+
+/* 100vh on a phone is the viewport with the address bar HIDDEN, so anything
+   sized to it is taller than what you can actually see and pushes its own
+   last element off the bottom. svh is the viewport with the bar SHOWN, which
+   is the measurement that is always true — and unlike dvh it does not change
+   mid-scroll, so nothing reflows as the bar retracts. */
+.min-h-viewport {
+  min-height: 100vh;
+}
+@supports (min-height: 100svh) {
+  .min-h-viewport {
+    min-height: 100svh;
+  }
+}
+
+/* Anything a finger has to land on. 44px is Apple's minimum and clears the
+   24px WCAG 2.5.8 floor with room to spare. Gated on a coarse pointer, so a
+   mouse still gets the compact control the design wants. */
+@media (pointer: coarse) {
+  .tap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Drops the ~300ms a mobile browser holds every tap for, in case it turns
+   into a double-tap zoom. Pinch zoom is untouched. */
+a,
+button,
+[role='button'],
+input,
+select,
+textarea,
+summary {
+  touch-action: manipulation;
+}
+
+/* A sideways swipe inside the technique matrix or a rule listing used to run
+   off the end of the scroller and become the browser's back gesture, which
+   navigates away mid-read on both iOS and Android. */
+.overflow-x-auto {
+  overscroll-behavior-x: contain;
 }
 
 /* scanline overlay — kept faint so it never competes with body copy */
@@ -61,10 +123,16 @@ body::after {
   position: relative;
   z-index: 1;
 }
+/* The wash bleeds past the text so its edge is never a visible line. The
+   horizontal bleed has to stay inside the page gutter, though: at -3rem it
+   reached 48px past a column whose gutter is 20px below lg, so it pushed the
+   document 28px wider than the screen and the page grew a horizontal scroll
+   that overflow-x had to clip. It only gets the full bleed once there is room
+   for it. */
 .readable::before {
   content: '';
   position: absolute;
-  inset: -2rem -3rem;
+  inset: -2rem -1.25rem;
   z-index: 0;
   pointer-events: none;
   background: radial-gradient(
@@ -73,6 +141,11 @@ body::after {
     rgba(4, 7, 10, 0.75) 45%,
     rgba(4, 7, 10, 0) 78%
   );
+}
+@media (min-width: 1024px) {
+  .readable::before {
+    inset: -2rem -3rem;
+  }
 }
 
 ::selection {

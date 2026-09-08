@@ -52,7 +52,7 @@ export default function Nav() {
       }`}
     >
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
-        <a href="#top" className="group flex items-center gap-2 text-sm">
+        <a href="#top" className="group -my-3 flex items-center gap-2 py-3 text-sm">
           <span className="inline-block h-2 w-2 rounded-full bg-[var(--color-acid)] shadow-[0_0_10px_var(--color-acid)]" />
           <span className="text-[var(--color-bone)]">{identity.handle}</span>
           <span className="text-[var(--color-dim)] transition-colors group-hover:text-[var(--color-acid)]">
@@ -60,12 +60,17 @@ export default function Nav() {
           </span>
         </a>
 
-        <ul className="hidden items-center gap-1 text-xs sm:flex">
+        {/* The full row measures ~860px with the logo. It used to appear at
+            sm (640), so on an iPad held upright — 768 — it ran 40px past the
+            edge and the resume button, the one thing a recruiter is looking
+            for, was clipped off-screen by the page overflow guard. It waits
+            for lg now; a tablet gets the menu, which fits. */}
+        <ul className="hidden items-center gap-1 text-xs lg:flex">
           {links.map((l) => (
             <li key={l.id}>
               <a
                 href={`#${l.id}`}
-                className={`px-3 py-2 transition-colors ${
+                className={`tap px-3 py-2 transition-colors ${
                   active === l.id
                     ? 'text-[var(--color-acid)]'
                     : 'text-[var(--color-dim)] hover:text-[var(--color-bone)]'
@@ -89,7 +94,7 @@ export default function Nav() {
               }
               title={theme === 'spider' ? 'terminal palette' : 'spider palette'}
               data-cursor="palette"
-              className="ml-2 flex items-center border border-[rgb(var(--acid-rgb)/0.2)] px-2.5 py-2 text-[var(--color-dim)] transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)] disabled:opacity-40"
+              className="tap ml-2 flex items-center border border-[rgb(var(--acid-rgb)/0.2)] px-2.5 py-2 text-[var(--color-dim)] transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)] disabled:opacity-40"
             >
               <SpiderGlyph size={16} />
             </button>
@@ -99,7 +104,7 @@ export default function Nav() {
             <button
               onClick={togglePalette}
               data-cursor="⌘k"
-              className="ml-2 whitespace-nowrap border border-[rgb(var(--acid-rgb)/0.2)] px-3 py-2 text-[var(--color-dim)] transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)]"
+              className="tap ml-2 whitespace-nowrap border border-[rgb(var(--acid-rgb)/0.2)] px-3 py-2 text-[var(--color-dim)] transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)]"
             >
               ctrl k
             </button>
@@ -107,7 +112,7 @@ export default function Nav() {
           <li>
             <a
               href={identity.resumeUrl}
-              className="ml-1 whitespace-nowrap border border-[rgb(var(--acid-rgb)/0.35)] px-3 py-2 text-[var(--color-acid)] transition-colors hover:bg-[rgb(var(--acid-rgb)/0.1)]"
+              className="tap ml-1 whitespace-nowrap border border-[rgb(var(--acid-rgb)/0.35)] px-3 py-2 text-[var(--color-acid)] transition-colors hover:bg-[rgb(var(--acid-rgb)/0.1)]"
             >
               resume.pdf
             </a>
@@ -118,27 +123,27 @@ export default function Nav() {
           onClick={() => setOpen((v) => !v)}
           aria-label="Toggle menu"
           aria-expanded={open}
-          className="border border-[rgb(var(--acid-rgb)/0.25)] px-3 py-1.5 text-xs text-[var(--color-acid)] sm:hidden"
+          className="tap border border-[rgb(var(--acid-rgb)/0.25)] px-3 py-1.5 text-xs text-[var(--color-acid)] lg:hidden"
         >
           {open ? 'esc' : 'menu'}
         </button>
       </nav>
 
       {open && (
-        <ul className="border-t border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(4,7,10,0.96)] px-5 pb-4 text-sm sm:hidden">
+        <ul className="border-t border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(4,7,10,0.96)] px-5 pb-4 text-sm lg:hidden">
           {links.map((l) => (
             <li key={l.id}>
               <a
                 href={`#${l.id}`}
                 onClick={() => setOpen(false)}
-                className="block py-2.5 text-[var(--color-dim)]"
+                className="block py-3 text-[var(--color-dim)]"
               >
                 <span className="text-[var(--color-acid)]">&gt;</span> {l.label}
               </a>
             </li>
           ))}
           <li>
-            <a href={identity.resumeUrl} className="block py-2.5 text-[var(--color-acid)]">
+            <a href={identity.resumeUrl} className="block py-3 text-[var(--color-acid)]">
               &gt; resume.pdf
             </a>
           </li>
@@ -155,7 +160,7 @@ export default function Nav() {
                 setSwitching(true);
               }}
               disabled={switching}
-              className="flex w-full items-center gap-2 py-2.5 text-left text-[var(--color-dim)] disabled:opacity-40"
+              className="flex w-full items-center gap-2 py-3 text-left text-[var(--color-dim)] disabled:opacity-40"
             >
               <span className="text-[var(--color-acid)]">&gt;</span>
               <SpiderGlyph size={14} />

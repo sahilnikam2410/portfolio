@@ -539,7 +539,7 @@ export default function Terminal() {
                     run(c);
                     inputRef.current?.focus();
                   }}
-                  className="hidden border border-[rgb(var(--acid-rgb)/0.2)] px-2 py-0.5 text-[10px] text-[var(--color-dim)] transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)] sm:block"
+                  className="tap hidden border border-[rgb(var(--acid-rgb)/0.2)] px-2 py-0.5 text-[10px] text-[var(--color-dim)] transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)] sm:block"
                 >
                   {c}
                 </button>

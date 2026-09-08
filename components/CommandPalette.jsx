@@ -145,7 +145,7 @@ export default function CommandPalette() {
           role="dialog"
           aria-modal="true"
           aria-label="Command palette"
-          className="fixed inset-0 z-[80] flex items-start justify-center bg-[rgba(2,4,6,0.72)] px-4 pt-[14vh] backdrop-blur-sm"
+          className="fixed inset-0 z-[80] flex items-start justify-center bg-[rgba(2,4,6,0.72)] px-4 pt-[14dvh] backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -180,7 +180,7 @@ export default function CommandPalette() {
               </kbd>
             </div>
 
-            <ul className="max-h-[52vh] overflow-y-auto py-1">
+            <ul className="max-h-[52dvh] overflow-y-auto py-1">
               {results.length === 0 && (
                 <li className="px-4 py-6 text-center text-[13px] text-[var(--color-dim)]">
                   no matches

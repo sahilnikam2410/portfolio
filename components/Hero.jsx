@@ -63,7 +63,7 @@ export default function Hero() {
   const { lines, typing, done } = useBootSequence();
 
   return (
-    <section id="top" className="relative flex min-h-screen items-center px-5 pt-24 pb-12 sm:pt-28 sm:pb-16">
+    <section id="top" className="min-h-viewport relative flex items-center px-5 pt-24 pb-12 sm:pt-28 sm:pb-16">
       <div className="mx-auto grid w-full max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
         {/* left: identity */}
         <div className="readable">
@@ -224,7 +224,7 @@ export default function Hero() {
 
       <a
         href="#about"
-        className="absolute inset-x-0 bottom-6 mx-auto w-fit text-[11px] text-[var(--color-dim)] transition-colors hover:text-[var(--color-acid)]"
+        className="tap absolute inset-x-0 bottom-6 mx-auto w-fit px-4 text-[11px] text-[var(--color-dim)] transition-colors hover:text-[var(--color-acid)]"
       >
         scroll ↓
       </a>

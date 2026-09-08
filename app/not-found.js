@@ -6,7 +6,7 @@ export const metadata = {
 
 export default function NotFound() {
   return (
-    <main id="main" tabIndex={-1} className="relative flex min-h-screen items-center justify-center px-5">
+    <main id="main" tabIndex={-1} className="min-h-viewport relative flex items-center justify-center px-5">
       <div className="grid-lines pointer-events-none absolute inset-0 opacity-25" />
 
       <div className="relative w-full max-w-lg border border-[rgb(var(--acid-rgb)/0.2)] bg-[rgba(8,13,18,0.85)]">
