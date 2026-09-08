@@ -50,7 +50,7 @@ function Evidence({ r }) {
 
   if (!e) {
     return (
-      <p className="prose-text text-[12px] leading-relaxed text-[var(--color-dim)]">
+      <p className="prose-text text-[12px] leading-relaxed text-[var(--color-prose)]">
         No capture published for this one yet. The technique and the detection
         reasoning are written up; the alert firing has not been screenshotted.
       </p>
@@ -63,7 +63,7 @@ function Evidence({ r }) {
       {e.ran && (
         <p>
           <span className="text-[var(--color-acid)]">ran: </span>
-          <span className="prose-text text-[var(--color-dim)]">{e.ran}</span>
+          <span className="prose-text text-[var(--color-prose)]">{e.ran}</span>
         </p>
       )}
       {e.rule && (
@@ -75,7 +75,7 @@ function Evidence({ r }) {
       {e.quiet && (
         <p>
           <span className="text-[var(--color-acid)]">stayed quiet on: </span>
-          <span className="prose-text text-[var(--color-dim)]">{e.quiet}</span>
+          <span className="prose-text text-[var(--color-prose)]">{e.quiet}</span>
         </p>
       )}
       {e.log && (
@@ -364,7 +364,7 @@ export default function Coverage() {
           has to guess whether "detected" means a live capture. The `where`
           column already cites the real context of each row. */}
       <Reveal delay={0.1}>
-        <p className="prose-text mt-6 border-l-2 border-[rgb(var(--acid-rgb)/0.3)] pl-4 text-[12px] leading-relaxed text-[var(--color-dim)]">
+        <p className="prose-text mt-6 border-l-2 border-[rgb(var(--acid-rgb)/0.3)] pl-4 text-[12px] leading-relaxed text-[var(--color-prose)]">
           Each row cites its context in the <span className="text-[var(--color-cyan)]">where</span>{' '}
           column — internship, a lab project, or production at Vrikaan. The reproducible parts —
           detection rules and the pipeline diagrams — live on the{' '}

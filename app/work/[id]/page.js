@@ -65,7 +65,7 @@ export default async function CaseStudy({ params }) {
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--color-bone)] sm:text-4xl">
             {project.title}
           </h1>
-          <p className="prose-text mt-5 text-[15px] leading-[1.85] text-[var(--color-dim)]">
+          <p className="prose-text mt-5 text-[15px] leading-[1.85] text-[var(--color-prose)]">
             {project.summary}
           </p>
 
@@ -168,7 +168,7 @@ export default async function CaseStudy({ params }) {
                       <code>{r.code}</code>
                     </pre>
                     {r.note && (
-                      <p className="prose-text mt-2 text-[12px] leading-relaxed text-[var(--color-dim)]">
+                      <p className="prose-text mt-2 text-[12px] leading-relaxed text-[var(--color-prose)]">
                         {r.note}
                       </p>
                     )}
@@ -221,7 +221,7 @@ export default async function CaseStudy({ params }) {
             )}
 
           <Block label="scope">
-            <p className="prose-text text-[13px] leading-relaxed text-[var(--color-dim)]">{ethics.body}</p>
+            <p className="prose-text text-[13px] leading-relaxed text-[var(--color-prose)]">{ethics.body}</p>
           </Block>
         </div>
 

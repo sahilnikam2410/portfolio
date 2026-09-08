@@ -68,7 +68,7 @@ export default function Projects() {
                 <div className="text-[11px] text-[var(--color-cyan)]">{current.kind}</div>
                 <h3 className="mt-2 text-2xl text-[var(--color-bone)]">{current.title}</h3>
 
-                <p className="prose-text mt-4 max-w-2xl text-[14px] leading-[1.8] text-[var(--color-dim)]">
+                <p className="prose-text mt-4 max-w-2xl text-[14px] leading-[1.8] text-[var(--color-prose)]">
                   {current.summary}
                 </p>
 

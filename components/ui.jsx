@@ -22,20 +22,20 @@ import Scramble from './Scramble';
  */
 export function Section({ id, index, title, subtitle, children, wide = false }) {
   return (
-    <section id={id} className="relative mx-auto max-w-6xl scroll-mt-24 px-5 py-14 sm:py-24 lg:py-32">
+    <section id={id} className="relative mx-auto max-w-6xl scroll-mt-24 px-5 py-20 sm:py-32 lg:py-44">
       {wide ? (
         <>
           <SectionHeading index={index} title={title} subtitle={subtitle} wide />
           {children}
         </>
       ) : (
-        <div className="grid gap-x-12 gap-y-6 sm:gap-y-10 lg:grid-cols-12">
+        <div className="grid gap-x-16 gap-y-10 sm:gap-y-14 lg:grid-cols-12">
           {/* self-start, or the cell stretches to the row and sticky has no
               room left to travel in */}
           <div className="lg:col-span-4 lg:sticky lg:top-28 lg:self-start">
             <SectionHeading index={index} title={title} subtitle={subtitle} />
           </div>
-          <div className="min-w-0 lg:col-span-8 lg:border-l lg:border-[rgb(var(--acid-rgb)/0.14)] lg:pl-12">
+          <div className="min-w-0 lg:col-span-8 lg:border-l lg:border-[rgb(var(--acid-rgb)/0.14)] lg:pl-16">
             {children}
           </div>
         </div>
@@ -49,7 +49,7 @@ export function SectionHeading({ index, title, subtitle, wide = false }) {
     <Reveal>
       <div
         className={
-          wide ? 'mb-8 sm:mb-12 border-b border-[rgb(var(--acid-rgb)/0.14)] pb-6' : 'mb-2'
+          wide ? 'mb-12 sm:mb-16 border-b border-[rgb(var(--acid-rgb)/0.14)] pb-8' : 'mb-2'
         }
       >
         {/* The wide heading sets its numeral beside the title, which is the
@@ -70,7 +70,7 @@ export function SectionHeading({ index, title, subtitle, wide = false }) {
               text={title}
               className="t-h2 block font-bold text-[var(--color-bone)]"
             />
-            {subtitle && <p className="t-body mt-4 text-[var(--color-dim)]">{subtitle}</p>}
+            {subtitle && <p className="t-body mt-5 text-[var(--color-prose)]">{subtitle}</p>}
           </div>
         </div>
       </div>
