@@ -38,6 +38,7 @@ import {
 } from './shaders';
 import { useSceneStore } from './sceneStore';
 import { COVERAGE_NODES, CHAIN } from './coverageLayout';
+import { chain, tickChain, beatLabel, LOOP_INDEX } from './killChain';
 
 import {
   ACID,
@@ -652,6 +653,112 @@ function PaletteDriver({ onSettled }) {
  * research reads cool. Someone who never looks at the table still sees that
  * not every technique is claimed equally — which is the honest version.
  */
+/**
+ * The kill chain, drawn as links, and the loop played along it.
+ *
+ * The links are the point. Nodes alone are a scatter plot; a chain that stops
+ * at one of them is an argument. During the gap beat the link past T1110 is
+ * simply not drawn — the sequence dead-ends on screen the way it dead-ended
+ * in the lab, and only closes once the rule exists.
+ */
+function KillChain({ radius = 2.06 }) {
+  const lines = useRef([]);
+  const ring = useRef(null);
+  const said = useRef(null);
+  const setLabel = useSceneStore((s) => s.setLabel);
+
+  // one arc per consecutive pair, built once
+  const links = useMemo(
+    () =>
+      CHAIN.slice(0, -1).map((from, i) =>
+        arcPoints(
+          COVERAGE_NODES[from].position.clone().multiplyScalar(radius),
+          COVERAGE_NODES[CHAIN[i + 1]].position.clone().multiplyScalar(radius),
+          radius,
+          30
+        )
+      ),
+    [radius]
+  );
+
+  const ringPos = useMemo(
+    () => COVERAGE_NODES[LOOP_INDEX].position.clone().multiplyScalar(radius * 1.02),
+    [radius]
+  );
+
+  // A torus lies in its own XY plane, so left alone it would stand edge-on to
+  // most of the globe. Turned to face out along the node's own normal it sits
+  // flat against the surface, which is what makes it read as closing around
+  // the node rather than hovering near it.
+  const ringTurn = useMemo(
+    () =>
+      new THREE.Quaternion().setFromUnitVectors(
+        new THREE.Vector3(0, 0, 1),
+        COVERAGE_NODES[LOOP_INDEX].position.clone().normalize()
+      ),
+    []
+  );
+
+  useFrame((state, delta) => {
+    const { section } = useSceneStore.getState();
+    tickChain(delta, section === 'coverage');
+
+    // the HUD only hears about beat changes, never frames
+    const next = beatLabel();
+    if (next !== said.current) {
+      said.current = next;
+      setLabel(next);
+    }
+
+    lines.current.forEach((l, i) => {
+      if (!l) return;
+      // a link is drawn to the extent the pulse has passed through it
+      const reach = THREE.MathUtils.clamp(chain.head - i, 0, 1);
+      const m = l.material;
+      m.opacity = THREE.MathUtils.damp(m.opacity, chain.playing ? reach * 0.85 : 0, 7, delta);
+      m.color.lerp(chain.beat === 'gap' ? RED : chain.fired > 0 ? ACID : CYAN, 0.08);
+      m.dashOffset = -state.clock.elapsedTime * 0.9;
+    });
+
+    if (ring.current) {
+      // the rule writing itself in: a ring closing around the node that was
+      // missed, then holding while the re-run passes through it
+      const s = 0.0001 + chain.rule * 0.13;
+      ring.current.scale.setScalar(s);
+      ring.current.material.opacity = chain.rule * (0.35 + chain.fired * 0.55);
+      ring.current.rotation.z += delta * (1.6 - chain.rule);
+      ring.current.material.color.lerp(chain.fired > 0 ? ACID : AMBER, 0.1);
+    }
+  });
+
+  return (
+    <group>
+      {links.map((pts, i) => (
+        <Line
+          key={i}
+          ref={(el) => {
+            lines.current[i] = el;
+          }}
+          points={pts}
+          color={HEX.cyan}
+          lineWidth={1.6}
+          dashed
+          dashSize={0.12}
+          gapSize={0.08}
+          transparent
+          opacity={0}
+          toneMapped={false}
+        />
+      ))}
+
+      <mesh ref={ring} position={ringPos} quaternion={ringTurn}>
+        <torusGeometry args={[1, 0.14, 8, 40]} />
+        <meshBasicMaterial transparent opacity={0} toneMapped={false} />
+      </mesh>
+    </group>
+  );
+}
+
 function CoverageLattice({ radius = 2.06 }) {
   const group = useRef(null);
   const marks = useRef([]);
@@ -684,7 +791,11 @@ function CoverageLattice({ radius = 2.06 }) {
 
       const onChain = alert ? Math.max(0, 1 - Math.abs(CHAIN.indexOf(i) - head) * 0.9) : 0;
       const lit = i === highlight || i === hovered ? 1 : 0;
-      const heat = Math.max(lit, onChain);
+      // while the loop is playing, the pulse lights nodes as it reaches them
+      const onLoop = chain.playing
+        ? Math.max(0, 1 - Math.abs(CHAIN.indexOf(i) - chain.head) * 1.1)
+        : 0;
+      const heat = Math.max(lit, onChain, onLoop);
 
       // breathe when idle so the lattice never looks like a static diagram
       const idle = 0.9 + Math.sin(t * 1.3 + i) * 0.08;
@@ -696,7 +807,22 @@ function CoverageLattice({ radius = 2.06 }) {
       m.position.copy(row.position).multiplyScalar(radius * (1 + heat * 0.09));
 
       const mat = m.material;
-      mat.color.lerp(heat > 0.5 ? CYAN : (tint[row.status] ?? ACID), 1 - Math.pow(0.02, delta));
+      // the technique under test reads the beat: red where nothing fired,
+      // amber while the rule is being written, acid once it does
+      const beatTint =
+        chain.playing && i === LOOP_INDEX
+          ? chain.beat === 'gap'
+            ? RED
+            : chain.fired > 0
+            ? ACID
+            : chain.rule > 0
+            ? AMBER
+            : null
+          : null;
+      mat.color.lerp(
+        beatTint ?? (heat > 0.5 ? CYAN : (tint[row.status] ?? ACID)),
+        1 - Math.pow(0.02, delta)
+      );
       mat.opacity = THREE.MathUtils.damp(mat.opacity, 0.45 + heat * 0.55, 8, delta);
     });
 
@@ -1532,6 +1658,7 @@ export default function Scene() {
             <HoloGlobe />
             <Nodes count={lite ? 42 : 90} />
             <CoverageLattice />
+            {!lite && <KillChain />}
             <Traffic count={lite ? 4 : 10} />
             <Shockwave count={lite ? 2 : 3} />
             <InstrumentRing radius={2.35} tilt={[Math.PI / 2.1, 0, 0.22]} speed={0.1} ticks={48} />
