@@ -24,6 +24,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* body already hides it; the document element can still carry the width */
+  overflow-x: clip;
 }
 
 body {

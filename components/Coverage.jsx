@@ -121,7 +121,7 @@ export default function Coverage() {
 
       {/* ATT&CK matrix — one column per tactic, cells are the techniques covered */}
       <Reveal delay={0.04}>
-        <div className="mb-6 overflow-x-auto border border-[rgb(var(--acid-rgb)/0.14)] p-4">
+        <div className="mb-6 max-w-full overflow-x-auto border border-[rgb(var(--acid-rgb)/0.14)] p-4">
           <div className="mb-3 text-[11px] uppercase tracking-[0.2em] text-[var(--color-dim)]">
             ATT&amp;CK matrix — covered tactics
           </div>
@@ -164,7 +164,7 @@ export default function Coverage() {
 
       {/* desktop table */}
       <Reveal delay={0.08}>
-        <div className="hidden overflow-x-auto border border-[rgb(var(--acid-rgb)/0.14)] lg:block">
+        <div className="hidden max-w-full overflow-x-auto border border-[rgb(var(--acid-rgb)/0.14)] lg:block">
           <table className="w-full min-w-[900px] text-left text-[13px]">
             <thead>
               <tr className="border-b border-[rgb(var(--acid-rgb)/0.14)] text-[11px] uppercase tracking-[0.14em] text-[var(--color-dim)]">

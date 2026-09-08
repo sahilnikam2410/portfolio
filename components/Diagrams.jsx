@@ -30,7 +30,7 @@ function Arrow({ id = 'dgm-arrow', color = '#35ff9e' }) {
 
 function Frame({ title, children, viewBox, minWidth = 620 }) {
   return (
-    <figure className="overflow-x-auto border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(8,13,18,0.55)] p-4">
+    <figure className="max-w-full overflow-x-auto border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(8,13,18,0.55)] p-4">
       <figcaption className="mb-3 text-[11px] uppercase tracking-[0.2em] text-[var(--color-dim)]">
         {title}
       </figcaption>

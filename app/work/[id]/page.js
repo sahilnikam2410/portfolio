@@ -164,7 +164,7 @@ export default async function CaseStudy({ params }) {
                           : 'draft — not yet run'}
                       </span>
                     </figcaption>
-                    <pre className="overflow-x-auto border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(4,7,10,0.85)] p-4 text-[12px] leading-relaxed text-[var(--color-bone)]">
+                    <pre className="max-w-full overflow-x-auto border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(4,7,10,0.85)] p-4 text-[12px] leading-relaxed text-[var(--color-bone)]">
                       <code>{r.code}</code>
                     </pre>
                     {r.note && (
