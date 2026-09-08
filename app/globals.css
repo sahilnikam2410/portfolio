@@ -347,8 +347,12 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .marquee,
   .flicker,
-  .caret {
+  .caret,
+  .anim-rise {
     animation: none !important;
+  }
+  .reveal {
+    transition: none !important;
   }
   html {
     scroll-behavior: auto;
@@ -667,6 +671,42 @@ body::after {
    --------------------------------------------------------------------------- */
 .rise {
   animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* The rest of the hero's cascade, on the same principle: a CSS animation runs
+   off the stylesheet, so nothing above the fold waits for a JS bundle to
+   become visible. Delay is passed per element rather than minted as a class
+   each time. */
+.anim-rise {
+  animation: anim-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--anim-delay, 0s);
+}
+@keyframes anim-rise {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Scroll-in reveal.
+   Fails open, which the framer version did not: that server-rendered its own
+   opacity:0, so if the bundle never arrived the page stayed blank. Here the
+   hidden state is scoped to [data-anim='on'], set by the boot script only
+   when JS is alive and motion is wanted. No script, no hiding — the content
+   is simply there. */
+.reveal {
+  transition:
+    opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0s);
+}
+[data-anim='on'] .reveal:not(.is-shown) {
+  opacity: 0;
+  transform: translateY(18px);
 }
 @keyframes rise {
   from {

@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
 import Scramble from './Scramble';
 
 /**
@@ -87,6 +86,12 @@ export function SectionHeading({ index, title, subtitle, wide = false }) {
  * a deep link to #coverage, a command-palette jump, a browser-restored scroll
  * position, or a hot reload. Content that never appears is worse than content
  * that never animates, so this drives itself and fails open.
+ *
+ * No longer a motion component either. This module is imported by every
+ * section on the page, so framer came with it into the first chunk the
+ * browser parses — for an effect that is one class toggle and a transition.
+ * The hidden state now lives in CSS behind [data-anim='on'], which also
+ * closes the hole where a bundle that never arrived left the page blank.
  */
 export function Reveal({ children, delay = 0 }) {
   const ref = useRef(null);
@@ -117,14 +122,13 @@ export function Reveal({ children, delay = 0 }) {
   }, []);
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{ opacity: 0, y: 18 }}
-      animate={shown ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
-      transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
+      className={`reveal${shown ? ' is-shown' : ''}`}
+      style={delay ? { '--reveal-delay': `${delay}s` } : undefined}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 

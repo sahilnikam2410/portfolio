@@ -57,11 +57,18 @@ export default function RootLayout({ children }) {
       <head>
         {/* Runs before first paint so a saved palette never flashes the wrong
             colours. Kept inline and tiny for that reason; anything deferred
-            would repaint after the user already saw the default. */}
+            would repaint after the user already saw the default.
+            
+            Also stamps data-anim, which is what arms the scroll-in reveal.
+            The hidden state is scoped to that attribute so it can only ever
+            be set by a script that ran: if JS is blocked or the bundle fails,
+            nothing hides the content and the page reads as plain HTML. It is
+            withheld under reduced motion for the same reason — no attribute,
+            no animation to opt out of. */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{var t=localStorage.getItem('site-theme');if(t==='spider')document.documentElement.dataset.theme=t;}catch(e){}",
+              "try{var t=localStorage.getItem('site-theme');if(t==='spider')document.documentElement.dataset.theme=t;}catch(e){}try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.dataset.anim='on';}catch(e){}",
           }}
         />
       </head>

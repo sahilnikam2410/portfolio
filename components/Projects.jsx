@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
 import { projects } from '@/data/content';
 import { Section, Panel, Tag, Reveal } from './ui';
 
@@ -61,14 +60,11 @@ export default function Projects() {
         {/* detail pane */}
         <Reveal delay={0.1}>
           <Panel className="min-h-[420px] p-6 sm:p-8">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={current.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.28 }}
-              >
+            {/* Keyed on the project id, so switching remounts and the CSS
+                entrance runs again. framer's exit animation goes with it —
+                that is the one thing CSS cannot do here, and it cost this
+                page the whole animation library in its first chunk. */}
+            <div key={current.id} className="anim-rise">
                 <div className="text-[11px] text-[var(--color-cyan)]">{current.kind}</div>
                 <h3 className="mt-2 text-2xl text-[var(--color-bone)]">{current.title}</h3>
 
@@ -111,8 +107,7 @@ export default function Projects() {
                     </a>
                   )}
                 </div>
-              </motion.div>
-            </AnimatePresence>
+            </div>
           </Panel>
         </Reveal>
       </div>

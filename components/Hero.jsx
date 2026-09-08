@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 import { identity, stats, socials, terminalBoot } from '@/data/content';
 import { Panel } from './ui';
 import Magnetic from './Magnetic';
@@ -67,18 +66,13 @@ export default function Hero() {
       <div className="mx-auto grid w-full max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
         {/* left: identity */}
         <div className="readable">
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mb-4 inline-flex sm:mb-5 items-center gap-2 border border-[rgb(var(--acid-rgb)/0.28)] px-3 py-1.5 text-[11px] text-[var(--color-acid)]"
-          >
+          <div className="anim-rise mb-4 inline-flex sm:mb-5 items-center gap-2 border border-[rgb(var(--acid-rgb)/0.28)] px-3 py-1.5 text-[11px] text-[var(--color-acid)]">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-acid)] opacity-70" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--color-acid)]" />
             </span>
             {identity.status}
-          </motion.div>
+          </div>
 
           {/* Plain h1 with a CSS entrance, not motion.h1. framer server-renders
               its initial state, so this shipped at opacity:0 and the biggest
@@ -99,29 +93,23 @@ export default function Hero() {
             </span>
           </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.16 }}
-            className="mt-3 text-sm text-[var(--color-cyan)] sm:text-base"
+          <p
+            className="anim-rise mt-3 text-sm text-[var(--color-cyan)] sm:text-base"
+            style={{ '--anim-delay': '0.16s' }}
           >
             {identity.role}
-          </motion.p>
+          </p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.24 }}
-            className="t-lead mt-5 sm:mt-7 text-[var(--color-dim)]"
+          <p
+            className="anim-rise t-lead mt-5 sm:mt-7 text-[var(--color-dim)]"
+            style={{ '--anim-delay': '0.24s' }}
           >
             {identity.tagline}
-          </motion.p>
+          </p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.32 }}
-            className="mt-8 flex flex-wrap items-center gap-3"
+          <div
+            className="anim-rise mt-8 flex flex-wrap items-center gap-3"
+            style={{ '--anim-delay': '0.32s' }}
           >
             <Magnetic>
               <a
@@ -142,13 +130,11 @@ export default function Hero() {
               </a>
             </Magnetic>
             <span className="text-xs text-[var(--color-dim)]">{identity.location}</span>
-          </motion.div>
+          </div>
 
-          <motion.ul
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.7, delay: 0.45 }}
-            className="mt-7 grid grid-cols-2 sm:mt-10 gap-px border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgb(var(--acid-rgb)/0.14)] sm:grid-cols-4"
+          <ul
+            className="anim-rise mt-7 grid grid-cols-2 sm:mt-10 gap-px border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgb(var(--acid-rgb)/0.14)] sm:grid-cols-4"
+            style={{ '--anim-delay': '0.45s' }}
           >
             {stats.map((s) => (
               <li key={s.label} className="bg-[rgba(4,7,10,0.9)] px-4 py-3">
@@ -158,15 +144,11 @@ export default function Hero() {
                 <div className="mt-1 text-[11px] leading-[1.35] text-[var(--color-dim)]">{s.label}</div>
               </li>
             ))}
-          </motion.ul>
+          </ul>
         </div>
 
         {/* right: live terminal */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.97 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
+        <div className="anim-rise" style={{ '--anim-delay': '0.2s' }}>
           <Panel className="shadow-[0_0_60px_rgb(var(--acid-rgb)/0.07)]">
             <div className="flex items-center gap-2 border-b border-[rgb(var(--acid-rgb)/0.14)] px-4 py-2.5">
               <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
@@ -218,7 +200,7 @@ export default function Hero() {
               )}
             </div>
           </Panel>
-        </motion.div>
+        </div>
       </div>
 
       <a
