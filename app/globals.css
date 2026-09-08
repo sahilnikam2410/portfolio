@@ -648,6 +648,41 @@ body::after {
   mix-blend-mode: screen;
 }
 
+/* ---------------------------------------------------------------------------
+   The headline's entrance
+   ---------------------------------------------------------------------------
+   This is the largest element on the page, so it is the one Lighthouse times
+   LCP against. It used to arrive through framer-motion, which server-renders
+   its own starting state — the markup shipped as
+   style="opacity:0;transform:translateY(24px)" and the text stayed invisible
+   until React had hydrated and run the animation. Under Lighthouse's
+   simulated CPU throttle that was 2.6s of render delay, 85% of an LCP of
+   3.1s, while every other metric on the page scored 100.
+
+   CSS instead, and transform only. The animation starts at first paint rather
+   than waiting for a bundle, and because opacity is never touched the text is
+   painted and visible the whole way through — so it counts the moment it
+   lands, not when it finishes moving. It also survives JS failing entirely,
+   which the old version did not: that left the headline permanently blank.
+   --------------------------------------------------------------------------- */
+.rise {
+  animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes rise {
+  from {
+    transform: translateY(24px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .spider-silk,
   .spider-drop,

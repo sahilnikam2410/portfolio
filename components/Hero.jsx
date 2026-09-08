@@ -80,12 +80,11 @@ export default function Hero() {
             {identity.status}
           </motion.div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-            className="relative"
-          >
+          {/* Plain h1 with a CSS entrance, not motion.h1. framer server-renders
+              its initial state, so this shipped at opacity:0 and the biggest
+              text on the page stayed invisible until hydration — 2.6s of LCP
+              render delay. See .rise in globals.css. */}
+          <h1 className="rise relative">
             {/* offset outline copy — must be w-full or it sizes to max-content
                 and overflows instead of wrapping with the solid copy */}
             <span
@@ -98,7 +97,7 @@ export default function Hero() {
               {identity.name}
               <span className="glow text-[var(--color-acid)]">.</span>
             </span>
-          </motion.h1>
+          </h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
