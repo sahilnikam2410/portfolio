@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useEffect, useRef, useState } from 'react';
 import { useSceneStore } from './sceneStore';
+import { decideScene } from '@/lib/scene';
 import SceneBoundary from './SceneBoundary';
 
 // Browser-only, and split out so three.js never lands in the initial payload.
@@ -32,68 +33,16 @@ export default function Backdrop() {
 
   useEffect(() => {
     /**
-     * ?scene=off — a URL that renders the page without the canvas.
-     *
-     * Lighthouse could only ever measure the scene running, and a canvas that
-     * animates every frame never lets the main thread idle, so the score said
-     * more about WebGL than about this page. That left performance ungated
-     * entirely. This is the same page a phone actually gets — the scene is
-     * withheld there and offered instead — so it is the honest thing to hold
-     * a budget against, and CI now does.
-     *
-     * Query only, deliberately: it does not touch localStorage, so auditing
-     * the page never changes what a real visitor is served next time.
+     * The rule lives in lib/scene.js so the preloader cannot disagree with
+     * this about whether a scene is coming. 'never' means the visitor already
+     * answered — say nothing. 'offer' means they were never asked, so a phone
+     * gets the fast page and a control rather than an ambush: 639 KB of
+     * three.js used to land on the devices least able to afford it and then
+     * render a degraded scene anyway, which measured 36.
      */
-    let forced = null;
-    try {
-      forced = new URLSearchParams(window.location.search).get('scene');
-    } catch {
-      // malformed query string — fall through to the normal path
-    }
-    if (forced === 'off') return;
-
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    let saved = null;
-    let asked = null;
-    try {
-      saved = localStorage.getItem('scene-quality');
-      asked = localStorage.getItem('scene-mobile');
-    } catch {
-      // storage blocked — fall through to capability detection
-    }
-
-    if (saved === 'off') return; // an explicit no stays no
-
-    /**
-     * Phones were downloading 639 KB of three.js and then rendering the
-     * reduced scene anyway, because a small screen drops to "lite" — but only
-     * after the payload has already landed. That is the worst of both: the
-     * full cost of the scene and a degraded version of it, on the devices
-     * least able to afford either. It measured 36 on mobile.
-     *
-     * So a phone gets the fast page and an offer instead of an ambush. The
-     * scene is one tap away and the choice sticks, rather than being decided
-     * for someone on a train.
-     */
-    // A width of zero means the page has not been laid out yet — a background
-    // tab, or a pane still sizing itself. `max-width: 767px` matches that
-    // happily, which would withhold the scene from a desktop that simply had
-    // not measured itself. Trust a coarse pointer on its own; trust a width
-    // only once there is one.
-    const coarse = window.matchMedia('(pointer: coarse)').matches;
-    const w = window.innerWidth;
-    const small = coarse || (w > 0 && w < 768);
-
-    /**
-     * Reduced motion used to return here with nothing shown and nothing
-     * offered — no scene, and no control to ask for one. On a phone with the
-     * system setting on, which is common, that left a flat page and no way
-     * back from it. The setting is still honoured: the scene never starts on
-     * its own. It is offered instead, and an explicit tap outranks a default,
-     * the same way it does for a small screen.
-     */
-    if ((small || reduce) && asked !== 'on') {
+    const decision = decideScene();
+    if (decision === 'never') return;
+    if (decision === 'offer') {
       setOffer(true);
       return;
     }

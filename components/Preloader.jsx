@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSceneStore } from './sceneStore';
+import { decideScene } from '@/lib/scene';
 
 const STEPS = [
   'mounting /dev/portfolio',
@@ -20,7 +21,30 @@ export default function Preloader() {
   const [gone, setGone] = useState(false);
   const setBooted = useSceneStore((s) => s.setBooted);
 
+  /**
+    * The boot sequence is a set-piece for the scene it is covering for. When
+    * no scene is coming it is covering for nothing, and the steps it recites
+    * — "initialising webgl context", "compiling shaders" — describe work that
+    * will not happen. So it stands down.
+    *
+    * That was also the whole LCP deficit. The hero headline is the largest
+    * element on the page, and this overlay sat on top of it for
+    * DURATION + 420ms; Lighthouse measured 2618ms of render delay against a
+    * 2620ms curtain, which is the same number. Every other metric already
+    * scored 100.
+    *
+    * Layout effect, not effect: it runs before the browser paints the
+    * hydrated tree, so the hero is what lands rather than a curtain that
+    * lifts a frame later.
+    */
+  useLayoutEffect(() => {
+    if (decideScene() === 'load') return;
+    setBooted(true);
+    setGone(true);
+  }, [setBooted]);
+
   useEffect(() => {
+    if (gone) return; // stood down above; do not start the clock
     const DURATION = 2200;
     const start = performance.now();
     let raf = 0;
@@ -65,7 +89,7 @@ export default function Preloader() {
       cancelAnimationFrame(raf);
       clearTimeout(guard);
     };
-  }, [setBooted]);
+  }, [setBooted, gone]);
 
   return (
     <AnimatePresence>
