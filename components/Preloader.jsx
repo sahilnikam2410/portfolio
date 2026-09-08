@@ -19,6 +19,12 @@ export default function Preloader() {
   const [pct, setPct] = useState(0);
   const [step, setStep] = useState(0);
   const [gone, setGone] = useState(false);
+  // Distinct from `gone`, which is the end of a boot that ran. Standing down
+  // means it never starts, and it must not exit through AnimatePresence to do
+  // it: an exit animation keeps the node mounted until it finishes, so a
+  // curtain that should never have appeared still gets half a second of
+  // screen — and if frames are not being served at all, it never leaves.
+  const [stoodDown, setStoodDown] = useState(false);
   const setBooted = useSceneStore((s) => s.setBooted);
 
   /**
@@ -40,11 +46,11 @@ export default function Preloader() {
   useLayoutEffect(() => {
     if (decideScene() === 'load') return;
     setBooted(true);
-    setGone(true);
+    setStoodDown(true);
   }, [setBooted]);
 
   useEffect(() => {
-    if (gone) return; // stood down above; do not start the clock
+    if (stoodDown) return; // never started; do not run the clock
     const DURATION = 2200;
     const start = performance.now();
     let raf = 0;
@@ -89,7 +95,9 @@ export default function Preloader() {
       cancelAnimationFrame(raf);
       clearTimeout(guard);
     };
-  }, [setBooted, gone]);
+  }, [setBooted, stoodDown]);
+
+  if (stoodDown) return null;
 
   return (
     <AnimatePresence>
