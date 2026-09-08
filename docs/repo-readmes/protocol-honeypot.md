@@ -35,7 +35,14 @@ third-party infrastructure.
 
 ## Setup
 
-<!-- TODO -->
+<!-- TODO (Sahil): this one cannot be written from the rest of the README,
+     because the README never names the stack. Needed, in order:
+       1. the honeypot software and which services it exposes
+       2. the IDS running alongside it, and its ruleset
+       3. where the two sets of logs are collected and correlated
+       4. the network the whole thing sits on
+     Steps 1 and 2 are the ones a reader cannot guess; without them the
+     Detections section above has nothing to be about. -->
 
 ---
 

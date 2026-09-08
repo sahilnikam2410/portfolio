@@ -86,7 +86,32 @@ Every host in this lab is mine and runs inside an isolated lab environment. No l
 
 ## Rebuild it
 
-<!-- TODO: setup steps, or a link to your lab-build video -->
+Everything runs on one machine under a type-2 hypervisor, on a host-only
+network with no route out. Build order matters — the manager has to be
+listening before an agent can enrol, and telemetry has to be proven before
+any result about it means anything.
+
+1. **Network first.** Create the host-only network and put every VM on it.
+   No NAT adapter. The lab must not be able to reach the internet, the host's
+   LAN, or anything it does not own.
+2. **Wazuh manager and indexer** on the Linux server VM. Confirm the
+   dashboard loads before touching anything else.
+3. **Agents** on the Windows and Linux endpoints, enrolled against the
+   manager's host-only address. Each should read *active* in the dashboard.
+4. **Sysmon on Windows**, with a config that logs process creation and
+   network connections, and the Wazuh agent pointed at the Sysmon channel.
+   Skip this and process telemetry never reaches the manager — which looks
+   identical to a detection gap.
+5. **Prove ingestion before attacking.** Generate one known event — a failed
+   logon does it — and find it in the dashboard. Every "gap" recorded later
+   is only meaningful once the pipeline is known to work.
+6. **Kali** on the same host-only network, last.
+
+Then run the loop in [Method](#method): map the technique, execute it, hunt
+it, and write the rule if nothing fired.
+
+<!-- TODO (Sahil): exact versions and the Sysmon config used, so this is
+     reproducible rather than merely followable. -->
 
 ---
 
