@@ -250,7 +250,7 @@ export default function Coverage() {
           has to guess whether "detected" means a live capture. The `where`
           column already cites the real context of each row. */}
       <Reveal delay={0.1}>
-        <p className="mt-6 border-l-2 border-[rgb(var(--acid-rgb)/0.3)] pl-4 text-[12px] leading-relaxed text-[var(--color-dim)]">
+        <p className="prose-text mt-6 border-l-2 border-[rgb(var(--acid-rgb)/0.3)] pl-4 text-[12px] leading-relaxed text-[var(--color-dim)]">
           Each row cites its context in the <span className="text-[var(--color-cyan)]">where</span>{' '}
           column — internship, a lab project, or production at Vrikaan. The reproducible parts —
           detection rules and the pipeline diagrams — live on the{' '}

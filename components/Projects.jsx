@@ -72,13 +72,13 @@ export default function Projects() {
                 <div className="text-[11px] text-[var(--color-cyan)]">{current.kind}</div>
                 <h3 className="mt-2 text-2xl text-[var(--color-bone)]">{current.title}</h3>
 
-                <p className="mt-4 max-w-2xl text-[14px] leading-[1.8] text-[var(--color-dim)]">
+                <p className="prose-text mt-4 max-w-2xl text-[14px] leading-[1.8] text-[var(--color-dim)]">
                   {current.summary}
                 </p>
 
                 <ul className="mt-6 space-y-2">
                   {current.highlights.map((h) => (
-                    <li key={h} className="flex gap-3 text-[13px] text-[var(--color-bone)]">
+                    <li key={h} className="prose-text flex gap-3 text-[13px] text-[var(--color-bone)]">
                       <span className="mt-0.5 text-[var(--color-acid)]">$</span>
                       <span className="text-[var(--color-dim)]">{h}</span>
                     </li>

@@ -42,14 +42,19 @@ export default function RecruiterMode() {
         onClick={() => setOpen(true)}
         data-print="hide"
         data-cursor="brief"
-        className="fixed bottom-5 left-1/2 z-[64] -translate-x-1/2 border border-[rgb(var(--acid-rgb)/0.3)] bg-[rgba(8,13,18,0.92)] px-4 py-2 text-[11px] text-[var(--color-dim)] backdrop-blur transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)] lg:left-auto lg:right-5 lg:translate-x-0"
+        /* Centred along the bottom of a phone, this sat squarely on top of
+           the reading column and covered whole words of body copy as you
+           scrolled. A floating control always overlaps something; the corner
+           is where it overlaps the least, and the label goes short so it is a
+           chip rather than a two-line block across the text. */
+        className="fixed bottom-5 right-4 z-[64] whitespace-nowrap border border-[rgb(var(--acid-rgb)/0.3)] bg-[rgba(8,13,18,0.92)] px-4 py-2 text-[11px] text-[var(--color-dim)] backdrop-blur transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)] lg:right-5"
       >
         {/* A phone has no r to press. The keyboard hint is for the devices
             that have one; everyone else gets the plain invitation. */}
         <span className="hidden lg:inline">
           hiring? press <kbd className="text-[var(--color-acid)]">r</kbd> for the one-page brief
         </span>
-        <span className="lg:hidden">hiring? the one-page brief</span>
+        <span className="lg:hidden">one-page brief</span>
       </button>
 
       <AnimatePresence>

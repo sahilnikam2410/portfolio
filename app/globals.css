@@ -430,6 +430,32 @@ body::after {
 
   /* prose stops at a measure the eye can track without losing its place */
   --measure: 66ch;
+
+  /* A text face for running prose.
+
+     Mono is the identity of this site and it stays everywhere it means
+     something: headings, labels, nav, the shell, every code listing. It is
+     the wrong tool for paragraphs on a phone. At 375px the reading column is
+     335px, which in JetBrains Mono is 39 characters — well under the 45 a
+     line of prose needs — so every wrap left a hole and the right edge swung
+     by seven characters. A fixed-width face makes that worse, not better:
+     the glyph grid is exactly what the eye uses to notice the jag.
+
+     Justifying it was worse still — measured, the word gaps stretched from
+     8.5px to 30px. So the paragraphs get a proportional face and the rag
+     drops on its own. System stack, so it costs nothing to download. */
+  --font-text: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+
+  /* prose runs a touch larger than mono at the same nominal size, because a
+     text face carries its x-height differently */
+  --step-0-text: clamp(0.97rem, 0.93rem + 0.2vw, 1.06rem);
+}
+
+/* Running prose. Anything the visitor reads a paragraph of at a time. */
+.prose-text {
+  font-family: var(--font-text);
+  text-wrap: pretty;
 }
 
 /* Display: the largest type on the page. Tracking goes negative because
@@ -457,8 +483,9 @@ body::after {
 }
 
 .t-body {
-  font-size: var(--step-0);
-  line-height: 1.75;
+  font-family: var(--font-text);
+  font-size: var(--step-0-text);
+  line-height: 1.7;
   letter-spacing: 0;
   max-width: var(--measure);
   /* avoids a short last line hanging alone under a full paragraph */
@@ -466,6 +493,7 @@ body::after {
 }
 
 .t-lead {
+  font-family: var(--font-text);
   font-size: var(--step-1);
   line-height: 1.6;
   letter-spacing: -0.012em;

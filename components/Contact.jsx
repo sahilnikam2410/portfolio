@@ -29,7 +29,7 @@ export default function Contact() {
                 </a>
                 <CopyButton value={identity.email} />
               </div>
-              <p className="mt-5 max-w-md text-[14px] leading-relaxed text-[var(--color-dim)]">
+              <p className="prose-text mt-5 max-w-md text-[14px] leading-relaxed text-[var(--color-dim)]">
                 Fastest reply is email — {identity.phone} works too. Include the role or the target
                 scope and I will tell you straight whether I am the right fit.
               </p>

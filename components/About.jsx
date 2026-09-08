@@ -43,7 +43,7 @@ export default function About() {
                 <span>⚠</span>
                 {ethics.title}
               </div>
-              <p className="text-[13px] leading-relaxed text-[var(--color-dim)]">{ethics.body}</p>
+              <p className="prose-text text-[13px] leading-relaxed text-[var(--color-dim)]">{ethics.body}</p>
             </Panel>
           </Reveal>
         </div>
@@ -55,7 +55,7 @@ export default function About() {
                 <span className="absolute -left-[5px] mt-1.5 h-2.5 w-2.5 rounded-full bg-[var(--color-acid)] shadow-[0_0_10px_var(--color-acid)]" />
                 <div className="text-xs text-[var(--color-cyan)]">{t.year}</div>
                 <div className="mt-1 text-[15px] text-[var(--color-bone)]">{t.title}</div>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--color-dim)]">{t.body}</p>
+                <p className="prose-text mt-1.5 text-[13px] leading-relaxed text-[var(--color-dim)]">{t.body}</p>
               </li>
             ))}
           </ol>

@@ -65,7 +65,7 @@ export default async function CaseStudy({ params }) {
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--color-bone)] sm:text-4xl">
             {project.title}
           </h1>
-          <p className="mt-5 text-[15px] leading-[1.85] text-[var(--color-dim)]">
+          <p className="prose-text mt-5 text-[15px] leading-[1.85] text-[var(--color-dim)]">
             {project.summary}
           </p>
 
@@ -84,7 +84,7 @@ export default async function CaseStudy({ params }) {
         <div className="mt-10">
           {study?.objective && (
             <Block label="objective">
-              <p className="text-[15px] leading-[1.85] text-[var(--color-bone)]">
+              <p className="prose-text text-[15px] leading-[1.85] text-[var(--color-bone)]">
                 {study.objective}
               </p>
             </Block>
@@ -109,7 +109,7 @@ export default async function CaseStudy({ params }) {
             <Block label="approach">
               <ol className="space-y-4">
                 {study.approach.map((a, i) => (
-                  <li key={i} className="flex gap-4 text-[14px] leading-[1.8]">
+                  <li key={i} className="prose-text flex gap-4 text-[14px] leading-[1.8]">
                     <span className="shrink-0 text-[var(--color-acid)]">
                       {String(i + 1).padStart(2, '0')}
                     </span>
@@ -124,7 +124,7 @@ export default async function CaseStudy({ params }) {
             <Block label="outcome">
               <ul className="space-y-3">
                 {study.outcome.map((o, i) => (
-                  <li key={i} className="flex gap-3 text-[14px] leading-[1.8]">
+                  <li key={i} className="prose-text flex gap-3 text-[14px] leading-[1.8]">
                     <span className="text-[var(--color-acid)]">›</span>
                     <span className="text-[var(--color-dim)]">{o}</span>
                   </li>
@@ -168,7 +168,7 @@ export default async function CaseStudy({ params }) {
                       <code>{r.code}</code>
                     </pre>
                     {r.note && (
-                      <p className="mt-2 text-[12px] leading-relaxed text-[var(--color-dim)]">
+                      <p className="prose-text mt-2 text-[12px] leading-relaxed text-[var(--color-dim)]">
                         {r.note}
                       </p>
                     )}
@@ -197,7 +197,7 @@ export default async function CaseStudy({ params }) {
           <Block label="highlights">
             <ul className="space-y-2">
               {project.highlights.map((h) => (
-                <li key={h} className="flex gap-3 text-[14px] leading-[1.8]">
+                <li key={h} className="prose-text flex gap-3 text-[14px] leading-[1.8]">
                   <span className="text-[var(--color-acid)]">$</span>
                   <span className="text-[var(--color-dim)]">{h}</span>
                 </li>
@@ -210,7 +210,7 @@ export default async function CaseStudy({ params }) {
             !study?.artifacts?.length &&
             !study?.rules?.length && (
               <Block label="todo — dev only">
-                <p className="text-[13px] leading-relaxed text-[#ffd166]">
+                <p className="prose-text text-[13px] leading-relaxed text-[#ffd166]">
                   No artifacts or detection logic on this case study yet. Add screenshots to{' '}
                   <code>public/artifacts</code> and list them in{' '}
                   <code>caseStudies[&apos;{id}&apos;].artifacts</code>, and paste real rules into{' '}
@@ -221,7 +221,7 @@ export default async function CaseStudy({ params }) {
             )}
 
           <Block label="scope">
-            <p className="text-[13px] leading-relaxed text-[var(--color-dim)]">{ethics.body}</p>
+            <p className="prose-text text-[13px] leading-relaxed text-[var(--color-dim)]">{ethics.body}</p>
           </Block>
         </div>
 
