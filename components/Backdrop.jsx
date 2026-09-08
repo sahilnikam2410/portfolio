@@ -185,7 +185,9 @@ export default function Backdrop() {
           type="button"
           onClick={takeUpOffer}
           data-print="hide"
-          className="fixed bottom-4 left-4 z-[71] border border-[rgb(var(--acid-rgb)/0.35)] bg-[rgba(4,7,10,0.9)] px-4 py-3 text-[11px] uppercase tracking-[0.16em] text-[var(--color-acid)] backdrop-blur-sm"
+          /* Clear of the brief button, which centres itself along the bottom
+             of a phone and sat straight on top of this one. */
+          className="fixed bottom-20 left-4 z-[71] border border-[rgb(var(--acid-rgb)/0.35)] bg-[rgba(4,7,10,0.9)] px-4 py-3 text-[11px] uppercase tracking-[0.16em] text-[var(--color-acid)] backdrop-blur-sm lg:bottom-4"
         >
           enable 3D scene
         </button>
