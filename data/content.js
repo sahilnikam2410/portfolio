@@ -195,6 +195,11 @@ export const coverage = [
     signal: 'Wazuh alerting, with active response configured to auto-contain the source',
     status: 'detected',
     where: 'ESCOSS internship',
+    telemetry: [
+      'Windows Security 4625 — a failed logon, one per attempt',
+      'Windows Security 4624 — a success following a burst is the part that matters',
+      'Wazuh 60122 as the base event a correlation rule counts',
+    ],
     source: 'Resume: "Configured active-response automation to auto-contain suspicious activity such as brute-force login attempts"',
     evidence: {
       // Deliberately not claiming the internship itself is captured — that
@@ -228,6 +233,12 @@ export const coverage = [
     signal: 'Sysmon and system logs correlated in Wazuh; custom alert rules',
     status: 'detected',
     where: 'The Silent Operator',
+    telemetry: [
+      'Sysmon Event ID 1 — process creation, with the full command line',
+      'Windows Security 4688 — process creation, where Sysmon is not deployed',
+      'PowerShell 4104 — script block logging, which survives most obfuscation',
+      'Parent-child anomalies: an office application or a web server spawning a shell',
+    ],
     source: 'Resume: Sysmon + system log ingestion, red-team techniques detected via log correlation and custom alert rules',
   },
   {
@@ -238,6 +249,11 @@ export const coverage = [
     signal: 'Honeypot and network IDS capture, correlated into actionable alerts',
     status: 'detected',
     where: 'Protocol Honeypot',
+    telemetry: [
+      'Sysmon Event ID 3 — network connection, one per probe',
+      'One source reaching many ports, or many hosts, inside a short window',
+      'Firewall or Zeek conn.log showing a fan-out that is mostly rejected connections',
+    ],
     source: 'Resume: IDS + honeypot capturing unauthorised access and reconnaissance traffic',
   },
   {
@@ -248,6 +264,11 @@ export const coverage = [
     signal: 'Findings documented with remediation guidance per issue',
     status: 'assessed',
     where: 'WAPT module',
+    telemetry: [
+      'Web server access logs — unusual paths, long query strings, encoded payloads',
+      'A shift in response codes from one source: a 200 among a run of 404s',
+      'IDS HTTP signatures, and anything the web server process spawns afterwards',
+    ],
     source: 'Resume: WAPT methodology on DVWA, SQL injection, structured vulnerability reporting with remediation guidance',
   },
   {
@@ -258,6 +279,11 @@ export const coverage = [
     signal: 'Detection logic for anomalous outbound channels derived from the observed traffic',
     status: 'research',
     where: 'Protocol Cinema',
+    telemetry: [
+      'Outbound sessions at regular intervals — beaconing is a timing pattern, not a payload one',
+      'Long-lived connections to one destination moving small, even amounts of data',
+      'Proxy logs: a rare user agent, or a client talking to an API nothing else uses',
+    ],
     source: 'Resume: steganographic C2 over public APIs, TTPs translated into detection logic mapped to ATT&CK',
   },
   {
@@ -268,6 +294,11 @@ export const coverage = [
     signal: 'Converted into automated detection and classification logic',
     status: 'detected',
     where: 'Vrikaan',
+    telemetry: [
+      'Mail gateway logs — sender reputation, attachment type, URL rewriting hits',
+      'The click rather than the delivery: proxy or DNS resolution of the lure domain',
+      'What the attachment spawns, which is where this becomes T1059',
+    ],
     source: 'Resume: analysed live phishing campaigns, converted attacker techniques into automated detection and classification logic',
   },
 ];

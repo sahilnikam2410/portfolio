@@ -64,6 +64,38 @@ function captionFor(src) {
  * absence as plainly as the proof — a row with nothing published says so, in
  * the same place the capture would have gone.
  */
+/**
+ * Where a technique shows up in logs.
+ *
+ * Public reference, not a finding: these are the event IDs and sources any
+ * defender watches for the technique, and none of it says anything about
+ * whether this lab saw them. It is separated from the evidence for exactly
+ * that reason — a reader who cannot tell the difference between what is
+ * known and what was observed has no reason to trust either.
+ *
+ * It earns its place because knowing where to look is the work. The rows with
+ * no capture were showing an absence and nothing else; this at least shows
+ * what the absence is an absence of.
+ */
+function Telemetry({ lines }) {
+  if (!lines?.length) return null;
+  return (
+    <div className="mt-3 border-t border-[rgb(var(--acid-rgb)/0.1)] pt-3">
+      <div className="mb-1.5 text-[10px] uppercase tracking-[0.16em] text-[var(--color-dim)]">
+        where it shows up — public reference, not a finding
+      </div>
+      <ul className="space-y-1">
+        {lines.map((l) => (
+          <li key={l} className="flex gap-2 text-[12px] leading-relaxed">
+            <span className="text-[rgb(var(--cyan-rgb)/0.6)]">·</span>
+            <span className="prose-text text-[var(--color-prose)]">{l}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function Evidence({ r }) {
   const e = r.evidence;
 
@@ -95,6 +127,7 @@ function Evidence({ r }) {
           does the rule that catches it and the log line it matched, which a
           reader can check against their own stack.
         </p>
+        <Telemetry lines={r.telemetry} />
       </div>
     );
   }
@@ -132,6 +165,7 @@ function Evidence({ r }) {
           <img src={e.capture} alt={captionFor(e.capture)} className="w-full" />
         </figure>
       )}
+      <Telemetry lines={r.telemetry} />
       {e.study && (
         <Link
           href={'/work/' + e.study}
