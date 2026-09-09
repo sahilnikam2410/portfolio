@@ -27,6 +27,23 @@ const STATUS = {
   },
 };
 
+/**
+ * What kind of evidence a row carries.
+ *
+ * A screenshot is not the only proof, and treating it as the only one
+ * undersold rows that could carry a rule and the log line it matched — those
+ * are checkable against a reader's own stack, which an image is not. But they
+ * are not the same claim either: a capture says this alert fired at this
+ * level on this host at this time, and a rule says this is what would catch
+ * it. The column names which, instead of flattening both into a tick.
+ */
+function grade(e) {
+  if (!e) return null;
+  if (e.capture) return { label: 'capture', tone: 'text-[var(--color-acid)]', hint: 'the alert firing, captured' };
+  if (e.rule || e.log) return { label: 'rule', tone: 'text-[var(--color-cyan)]', hint: 'the detection logic, not a capture of it firing' };
+  return { label: 'noted', tone: 'text-[var(--color-dim)]', hint: 'context only' };
+}
+
 /** The artifact alt text is authored once, on the case study. Reuse it rather
     than writing a second description of the same screenshot that can drift
     away from the first. */
@@ -52,8 +69,9 @@ function Evidence({ r }) {
   if (!e) {
     return (
       <p className="prose-text text-[12px] leading-relaxed text-[var(--color-prose)]">
-        No capture published for this one yet. The technique and the detection
-        reasoning are written up; the alert firing has not been screenshotted.
+        Nothing published for this one yet. A screenshot of the alert is one
+        way to close that; the rule that catches it and the log line it matched
+        are another, and a reader can check those against their own stack.
       </p>
     );
   }
@@ -305,15 +323,20 @@ export default function Coverage() {
                       {STATUS[r.status].label}
                     </span>
                   </td>
-                  {/* The at-a-glance answer to "is this shown or asserted". */}
+                  {/* The at-a-glance answer to "is this shown, or asserted". */}
                   <td className="whitespace-nowrap px-4 py-3">
-                    {r.evidence ? (
-                      <span className="text-[var(--color-acid)]">capture</span>
-                    ) : (
-                      <span className="text-[var(--color-dim)]" title="no capture published">
-                        —
-                      </span>
-                    )}
+                    {(() => {
+                      const g = grade(r.evidence);
+                      return g ? (
+                        <span className={g.tone} title={g.hint}>
+                          {g.label}
+                        </span>
+                      ) : (
+                        <span className="text-[var(--color-dim)]" title="nothing published for this row yet">
+                          —
+                        </span>
+                      );
+                    })()}
                   </td>
                 </tr>
 
@@ -404,11 +427,13 @@ export default function Coverage() {
             case studies
           </Link>
 . The{' '}
-          <span className="text-[var(--color-cyan)]">evidence</span> column says which rows are
-          demonstrated rather than asserted: <span className="text-[var(--color-acid)]">capture</span>{' '}
-          opens the alert firing, the rule that caught it, and what stayed quiet alongside it. A{' '}
-          <span className="text-[var(--color-dim)]">—</span> means the write-up exists but the
-          screenshot does not yet, and the row is a claim until it does. Rules are marked{' '}
+          <span className="text-[var(--color-cyan)]">evidence</span> column says what backs each
+          row. <span className="text-[var(--color-acid)]">capture</span> opens the alert firing,
+          the rule that caught it, and what stayed quiet alongside it.{' '}
+          <span className="text-[var(--color-cyan)]">rule</span> means the detection logic is
+          published but not a picture of it firing — checkable, and a weaker claim, so it is not
+          called the same thing. A <span className="text-[var(--color-dim)]">—</span> means neither
+          is published yet and the row is an assertion until one is. Rules are marked{' '}
           <span className="text-[#ffd166]">draft</span> until they have fired against a controlled run.
         </p>
       </Reveal>
