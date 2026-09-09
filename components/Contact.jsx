@@ -9,7 +9,7 @@ export default function Contact() {
   return (
     <Section
       id="contact"
-      index="06"
+      index="07"
       title="establish connection"
       subtitle="Hiring, contract testing, or a question about something I published — all fine."
     >

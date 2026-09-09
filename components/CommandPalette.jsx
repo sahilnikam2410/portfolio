@@ -46,6 +46,7 @@ export default function CommandPalette() {
       { group: 'navigate', label: 'Engagements', hint: 'work', run: go('#work') },
       { group: 'navigate', label: 'Detection coverage', hint: 'attack → detection', run: go('#coverage') },
       { group: 'navigate', label: 'Shell', hint: 'interactive terminal', run: go('#shell') },
+      { group: 'navigate', label: 'Published elsewhere', hint: 'posts, press', run: go('#posts') },
       { group: 'navigate', label: 'Contact', hint: 'reach me', run: go('#contact') },
       ...projects.map((p) => ({
         group: 'engagements',

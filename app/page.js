@@ -8,6 +8,7 @@ import Skills from '@/components/Skills';
 import Projects from '@/components/Projects';
 import Coverage from '@/components/Coverage';
 import Terminal from '@/components/Terminal';
+import Feed from '@/components/Feed';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 
@@ -25,6 +26,7 @@ export default function Page() {
         <Projects />
         <Coverage />
         <Terminal />
+        <Feed />
         <Contact />
       </main>
       <Footer />

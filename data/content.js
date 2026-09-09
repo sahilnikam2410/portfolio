@@ -530,3 +530,32 @@ export const terminalBoot = [
   },
   { cmd: './portfolio --render', out: ['[ok] scene loaded', '[ok] scroll, or press ctrl+k'] },
 ];
+
+/**
+ * Things published elsewhere.
+ *
+ * Deliberately not an embedded feed. LinkedIn has no public API for a
+ * member's own posts and Instagram's needs a business account, an approved
+ * Meta app and a token that expires every sixty days — and both want their
+ * script running on this domain, which would mean opening a CSP that
+ * currently allows nothing but this origin. A security portfolio loading
+ * third-party trackers to prove it is active would be arguing against
+ * itself.
+ *
+ * So: curated, self-hosted, and linking out. Nothing here loads until it is
+ * clicked, images live in public/feed, and an entry costs one object.
+ *
+ *   platform  linkedin | instagram | press | vrikaan | youtube
+ *   image     optional, a path under /feed — omit and the card is text
+ *   date      ISO, used for ordering
+ */
+export const feed = [
+  {
+    platform: 'press',
+    title: 'The Cyber 50 — India’s Elite Founders List',
+    blurb:
+      'Named alongside founders and veterans of the Indian cyber-defence ecosystem, for Vrikaan.',
+    url: 'https://www.indianstartuptimes.com/news/the-cyber-50-indias-elite-founders-list/',
+    date: '2026-01-01',
+  },
+];
