@@ -42,12 +42,18 @@ Final-year project, 2025–2026.
 
 **Wazuh — Windows brute-force detection**
 
-The deployed rule that fired on `WIN-SERVER-2022` is **rule 100211, level 12**. It correlates repeated Windows logon-failure events (Wazuh rule `60122`) and fires after five matches within 60 seconds.
+The deployed rule that fired on `WIN-SERVER-2022` is **rule 100211, level 12**. It correlates repeated Windows logon-failure events (Wazuh rule `60122`) and fires after five matches **from the same source** within 60 seconds.
+
+`same_source_ip` is the load-bearing line. Without it the rule counts five
+failures from any mix of sources, so five different machines each failing once
+would raise a brute-force alert — a different detection with a much worse
+false-positive rate.
 
 ```xml
-<group name="local,authentication_failures,">
+<group name="authentication_failures,windows,">
   <rule id="100211" level="12" frequency="5" timeframe="60">
     <if_matched_sid>60122</if_matched_sid>
+    <same_source_ip />
     <description>Brute-force attack detected - multiple Windows logon failures</description>
     <mitre>
       <id>T1110</id>
