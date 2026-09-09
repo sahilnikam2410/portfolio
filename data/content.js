@@ -177,6 +177,9 @@ export const projects = [
       'Recognised in "The Cyber 50 — India\'s Elite Founders List"',
     ],
     site: 'https://vrikaan.com',
+    // The only project here with an implementation behind it, and it was the
+    // only one not linking to one.
+    repo: 'https://github.com/sahilnikam2410/vrikaan',
   },
 ];
 

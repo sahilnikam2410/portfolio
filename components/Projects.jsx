@@ -96,9 +96,12 @@ export default function Projects() {
                     case study →
                   </Link>
 
-                  {(current.repo || current.site) && (
+                  {/* Both, where both exist. Picking one meant the project
+                      with a live product and a repository showed a single
+                      button and hid whichever it did not choose. */}
+                  {current.repo && (
                     <a
-                      href={current.repo ?? current.site}
+                      href={current.repo}
                       target="_blank"
                       rel="noreferrer"
                       title={
@@ -108,14 +111,20 @@ export default function Projects() {
                       }
                       className="border border-[rgb(var(--acid-rgb)/0.2)] px-4 py-2 text-[13px] text-[var(--color-bone)] transition-colors hover:border-[var(--color-acid)]"
                     >
-                      {current.repo
-                        ? current.repoKind === 'writeup'
-                          ? 'write-up'
-                          : 'repository'
-                        : 'live site'}{' '}
-                      ↗
+                      {current.repoKind === 'writeup' ? 'write-up' : 'repository'} ↗
                     </a>
                   )}
+
+                  {current.site && (
+                    <a
+                      href={current.site}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="border border-[rgb(var(--acid-rgb)/0.35)] px-4 py-2 text-[13px] text-[var(--color-acid)] transition-colors hover:bg-[rgb(var(--acid-rgb)/0.1)]"
+                    >
+                      live site ↗
+                    </a>
+                                    )}
                 </div>
             </div>
           </Panel>

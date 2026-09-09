@@ -241,6 +241,16 @@ export default async function CaseStudy({ params }) {
               {project.repoKind === 'writeup' ? 'write-up' : 'repository'} →
             </a>
           )}
+          {project.site && (
+            <a
+              href={project.site}
+              target="_blank"
+              rel="noreferrer"
+              className="border border-[rgb(var(--acid-rgb)/0.35)] px-4 py-2 text-[13px] text-[var(--color-acid)] transition-colors hover:bg-[rgb(var(--acid-rgb)/0.1)]"
+            >
+              live site →
+            </a>
+          )}
           <a
             href={`mailto:${identity.email}?subject=${encodeURIComponent(project.title)}`}
             className="border border-[rgb(var(--acid-rgb)/0.2)] px-4 py-2 text-[13px] text-[var(--color-bone)] transition-colors hover:border-[var(--color-acid)]"
