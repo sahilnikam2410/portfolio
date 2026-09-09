@@ -43,7 +43,15 @@ export const stats = [
   { value: '5/5', label: 'SOC program modules certified' },
   { value: '3 mo', label: 'Enterprise SOC internship' },
   { value: '8.53', label: 'B.Tech CGPA / 10' },
-  { value: 'Cyber 50', label: "India's elite founders list" },
+  {
+    value: 'Cyber 50',
+    label: "India's elite founders list",
+    // The one claim on this page a reader can check in a single click. The
+    // article names him: "Sahil A. Nikam leads VRIKAAN, an emerging
+    // AI-powered cybersecurity venture focused on intelligent threat
+    // detection and automated defence."
+    href: 'https://www.indianstartuptimes.com/news/the-cyber-50-indias-elite-founders-list/',
+  },
 ];
 
 // Grouped by where the evidence comes from — no invented proficiency numbers.

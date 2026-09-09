@@ -136,14 +136,41 @@ export default function Hero() {
             className="anim-rise mt-7 grid grid-cols-2 sm:mt-10 gap-px border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgb(var(--acid-rgb)/0.14)] sm:grid-cols-4"
             style={{ '--anim-delay': '0.45s' }}
           >
-            {stats.map((s) => (
-              <li key={s.label} className="bg-[rgba(4,7,10,0.9)] px-4 py-3">
+            {stats.map((s) => {
+              const value = (
                 <div className="t-num text-[var(--color-acid)]" style={{ fontSize: 'var(--step-2)' }}>
                   {s.value}
                 </div>
-                <div className="mt-1 text-[11px] leading-[1.35] text-[var(--color-dim)]">{s.label}</div>
-              </li>
-            ))}
+              );
+              return (
+                <li key={s.label} className="bg-[rgba(4,7,10,0.9)] px-4 py-3">
+                  {/* A figure that can cite itself should. Only one of these
+                      has a public source; it links, the rest do not pretend
+                      to. */}
+                  {s.href ? (
+                    <a
+                      href={s.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group/stat block"
+                      title="Read the listing"
+                    >
+                      {value}
+                      <span className="mt-1 block text-[11px] leading-[1.35] text-[var(--color-dim)] underline decoration-dotted underline-offset-2 group-hover/stat:text-[var(--color-acid)]">
+                        {s.label} ↗
+                      </span>
+                    </a>
+                  ) : (
+                    <>
+                      {value}
+                      <div className="mt-1 text-[11px] leading-[1.35] text-[var(--color-dim)]">
+                        {s.label}
+                      </div>
+                    </>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
 
