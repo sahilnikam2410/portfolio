@@ -2,6 +2,7 @@
 
 import { Fragment, useEffect } from 'react';
 import ChainDiagram from './ChainDiagram';
+import RuleDiagram from './RuleDiagram';
 import Link from 'next/link';
 import { coverage, projects, caseStudies } from '@/data/content';
 import { Section, Reveal } from './ui';
@@ -40,7 +41,7 @@ const STATUS = {
 function grade(e) {
   if (!e) return null;
   if (e.capture) return { label: 'capture', tone: 'text-[var(--color-acid)]', hint: 'the alert firing, captured' };
-  if (e.rule || e.log) return { label: 'rule', tone: 'text-[var(--color-cyan)]', hint: 'the detection logic, not a capture of it firing' };
+  if (e.rule || e.log || e.logic) return { label: 'rule', tone: 'text-[var(--color-cyan)]', hint: 'the detection logic, not a capture of it firing' };
   return { label: 'noted', tone: 'text-[var(--color-dim)]', hint: 'context only' };
 }
 
@@ -97,6 +98,7 @@ function Evidence({ r }) {
           <span className="prose-text text-[var(--color-prose)]">{e.quiet}</span>
         </p>
       )}
+      {e.logic && <RuleDiagram logic={e.logic} />}
       {e.log && (
         <pre className="max-w-full overflow-x-auto border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(4,7,10,0.85)] p-3 text-[11px] text-[var(--color-bone)]">
           <code>{e.log}</code>

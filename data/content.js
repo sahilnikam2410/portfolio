@@ -208,6 +208,16 @@ export const coverage = [
         'Isolated failures at 21:34 and 21:31 raised nothing — the threshold staying quiet on noise, which is the half usually cropped out of a screenshot.',
       capture: '/artifacts/bruteforce-100211.png',
       study: 'silent-operator',
+      // Read off rule 100211 as this file publishes it. same_source_ip is
+      // load-bearing: without it the rule counts five failures from any mix
+      // of sources, which is a different detection and a much noisier one.
+      logic: {
+        source: 'Windows Security log',
+        base: '60122 · logon failure',
+        correlate: '5 in 60s · same source IP',
+        fires: '100211 · level 12',
+        attack: 'T1110',
+      },
     },
   },
   {
