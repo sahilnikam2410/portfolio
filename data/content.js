@@ -170,11 +170,13 @@ export const projects = [
     kind: 'Founder & Security Lead · 2024–present',
     summary:
       'Consumer-facing platform for phishing and scam detection, real-time monitoring and dark-web exposure scanning. Live phishing and social-engineering campaigns are analysed and converted into automated detection and classification logic.',
-    stack: ['Threat detection', 'Phishing analysis', 'LLM routing', 'Production ops'],
+    stack: ['Threat detection', 'Phishing analysis', 'Serverless', 'Firebase', 'Production ops'],
     highlights: [
-      'Multi-tier routing architecture: heavy reasoning vs high-volume classification',
-      'Attacker techniques turned into automated classification logic',
-      'Recognised in "The Cyber 50 — India\'s Elite Founders List"',
+      'Rate limiting and quota enforcement in front of the scanning endpoints — a URL scanner without them is a free proxy for reconnaissance someone else is doing',
+      'Payments verified server-side twice: a session, a webhook, then an independent confirmation, because a client claiming it paid is not evidence that it did',
+      'Secret boundary enforced by naming: anything VITE_ prefixed compiles into the browser and is treated as public, and the keys are not',
+      'Attacker techniques turned into classification logic, written back into language a non-specialist can act on',
+      'Scheduled backups and a runbook written for whoever is on call, not for its author',
     ],
     site: 'https://vrikaan.com',
     // The only project here with an implementation behind it, and it was the
