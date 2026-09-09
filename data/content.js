@@ -574,8 +574,31 @@ export const feed = [
     blurb:
       'Launch announcement for the platform: threat detection, fraud analysis and dark-web monitoring, built solo.',
     url: 'https://vrikaan.com',
-    image: '/feed/vrikaan-launch.png',
-    alt: 'Vrikaan launch card on a dark ground. A "just launched" badge, the wordmark VRIKAAN, and the line "is now live — AI-powered cyber defence for everyone in India". Three pills read Threat Detection, Fraud Analysis and Dark Web Monitor. Footer: built solo, made in India, vrikaan.com.',
+    // The launch carousel as it ran, all five slides. Alt text describes what
+    // is on each one: the cards carry figures and a product screenshot, so a
+    // reader who cannot see them would otherwise get nothing.
+    slides: [
+      {
+        src: '/feed/vrikaan-1.png',
+        alt: 'Launch card. A "just launched" badge over the wordmark VRIKAAN and the line "is now live — AI-powered cyber defence for everyone in India". Three pills: Threat Detection, Fraud Analysis, Dark Web Monitor. Footer reads built solo, made in India, vrikaan.com.',
+      },
+      {
+        src: '/feed/vrikaan-2.png',
+        alt: 'The problem. "Cybercrime in India is exploding" over ₹100Cr+ lost to scams in 2024 alone, with a bar chart rising year on year: ₹14Cr in 2020, ₹19Cr in 2021, ₹38Cr in 2022, ₹66Cr in 2023, ₹100Cr+ in 2024. Caption: existing tools are too technical, too expensive, or built only for enterprises.',
+      },
+      {
+        src: '/feed/vrikaan-3.png',
+        alt: 'The solution. "Cyber defense for real people — built for parents, students, freelancers and SMBs, not enterprise IT teams." A product screenshot shows an email scan returning three breaches found across LinkedIn 2021, Adobe 2019 and Canva 2019, a password strength result of strong and not in any breach, and a prompt to set up dark web monitoring.',
+      },
+      {
+        src: '/feed/vrikaan-4.png',
+        alt: 'What is inside. Eight tools in one platform: Email Breach Scan, Phishing Analyzer, Live Threat Map, Password Vault, Dark Web Monitor, Fraud AI Detection, Vulnerability Scan and Learn Academy. Footer: all free to start, no credit card, 25 AI credits to begin.',
+      },
+      {
+        src: '/feed/vrikaan-5.png',
+        alt: 'The call to action. "Try it free. Right now." with five stars and the line "built by a SOC analyst, for everyone", a note that it is built solo and feedback shapes what ships next, and a QR panel reading vrikaan.com — free, no card, setup in 30 seconds. Signed Sahil Anil Nikam, founder.',
+      },
+    ],
     date: '2026-08-06',
   },
   {
