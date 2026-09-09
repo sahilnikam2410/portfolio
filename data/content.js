@@ -551,6 +551,19 @@ export const terminalBoot = [
  */
 export const feed = [
   {
+    platform: 'linkedin',
+    // A daily series, so this is one card that moves rather than a hundred
+    // that accumulate. Bump the day and the url as it goes.
+    title: '100 Days of SOC — day 3',
+    blurb:
+      'Learning in public, one SOC concept a day. Day three is who actually works inside a SOC: how L1, L2 and L3 split the work, and why a SOC is a set of responsibilities rather than a room full of dashboards.',
+    // tracking parameters stripped — utm_source, utm_medium and rcm identify
+    // the share, not the post
+    url: 'https://www.linkedin.com/posts/sahilnikam-soc_100daysofsoc-cybersecurity-soc-activity-7503293662047662080-RghO',
+    // decoded from the activity id: its high bits are a millisecond timestamp
+    date: '2026-09-09',
+  },
+  {
     platform: 'vrikaan',
     title: 'Vrikaan is live',
     blurb:
