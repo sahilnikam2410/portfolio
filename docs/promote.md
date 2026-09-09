@@ -88,7 +88,7 @@ their contents. On your next export, put it in the contact line beside the
 email:
 
 ```
-sahilnikam133@gmail.com · +91 8329935878 · hackwithsahil.vercel.app · linkedin.com/in/sahil-nikam
+sahilnikam133@gmail.com · +91 8329935878 · hackwithsahil.vercel.app · linkedin.com/in/sahilnikam-soc
 ```
 
 Drop the updated files back into `public/resumes` with the same filenames and

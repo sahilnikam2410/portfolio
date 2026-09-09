@@ -33,7 +33,7 @@ export const resumes = [
 
 export const socials = [
   { label: 'GitHub', href: 'https://github.com/sahilnikam2410', handle: 'sahilnikam2410' },
-  { label: 'LinkedIn', href: 'https://linkedin.com/in/sahil-nikam', handle: '/in/sahil-nikam' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/sahilnikam-soc', handle: '/in/sahilnikam-soc' },
   { label: 'YouTube', href: 'https://www.youtube.com/@HackWithSahilYT', handle: '@HackWithSahilYT' },
   { label: 'Vrikaan', href: 'https://vrikaan.com', handle: 'vrikaan.com' },
   { label: 'Email', href: 'mailto:sahilnikam133@gmail.com', handle: 'sahilnikam133@gmail.com' },
@@ -172,7 +172,8 @@ export const projects = [
       'Consumer-facing platform for phishing and scam detection, real-time monitoring and dark-web exposure scanning. Live phishing and social-engineering campaigns are analysed and converted into automated detection and classification logic.',
     stack: ['Threat detection', 'Phishing analysis', 'Serverless', 'Firebase', 'Production ops'],
     highlights: [
-      'Rate limiting and quota enforcement in front of the scanning endpoints — a URL scanner without them is a free proxy for reconnaissance someone else is doing',
+      'Found and fixed a quota bypass: the free-tier counter was a per-instance in-memory map, so on serverless it died at every cold start and a documented three-a-day limit was in practice unbounded — a caller only had to spread requests across instances. Counters moved into Firestore transactions',
+      'Quota scopes are hashed before storage, so enforcing a per-IP limit does not mean keeping a list of IPs',
       'Payments verified server-side twice: a session, a webhook, then an independent confirmation, because a client claiming it paid is not evidence that it did',
       'Secret boundary enforced by naming: anything VITE_ prefixed compiles into the browser and is treated as public, and the keys are not',
       'Attacker techniques turned into classification logic, written back into language a non-specialist can act on',
