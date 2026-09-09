@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment } from 'react';
+import { Fragment, useEffect } from 'react';
 import ChainDiagram from './ChainDiagram';
 import Link from 'next/link';
 import { coverage, projects, caseStudies } from '@/data/content';
@@ -122,6 +122,29 @@ const TACTICS = [
 export default function Coverage() {
   const setHighlight = useSceneStore((s) => s.setHighlight);
   const setLabel = useSceneStore((s) => s.setLabel);
+  const reveal = useSceneStore((s) => s.reveal);
+
+  /**
+   * A technique clicked in the scene, or on the diagram a phone gets, opens
+   * the thing that backs it here.
+   *
+   * Both layouts are in the DOM at once and CSS decides which is shown, so
+   * this opens every disclosure for that id and lets the hidden one be
+   * hidden. Scrolling targets whichever one actually has a box — the other
+   * measures zero.
+   */
+  useEffect(() => {
+    if (!reveal?.id) return;
+    const found = document.querySelectorAll(`details[data-evidence="${reveal.id}"]`);
+    let target = null;
+    found.forEach((d) => {
+      d.open = true;
+      if (!target && d.getBoundingClientRect().height > 0) target = d;
+    });
+    if (!target) return;
+    if (window.__lenis) window.__lenis.scrollTo(target, { offset: -120 });
+    else target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [reveal]);
 
   // hovering a row lights the matching node out in the 3D scene
   const enter = (i, r) => () => {
@@ -299,7 +322,7 @@ export default function Coverage() {
                     <td colSpan={7} className="px-4 pb-4">
                       {/* Collapsed by default: a screenshot per row would bury
                           the table this section exists to show. */}
-                      <details>
+                      <details data-evidence={r.id}>
                         <summary className="tap cursor-pointer text-[11px] uppercase tracking-[0.14em] text-[var(--color-dim)] hover:text-[var(--color-acid)]">
                           show the capture
                         </summary>
@@ -353,7 +376,7 @@ export default function Coverage() {
                 </div>
               </dl>
 
-              <details className="mt-3 border-t border-[rgb(var(--acid-rgb)/0.1)] pt-3">
+              <details data-evidence={r.id} className="mt-3 border-t border-[rgb(var(--acid-rgb)/0.1)] pt-3">
                 <summary className="tap cursor-pointer text-[11px] uppercase tracking-[0.14em] text-[var(--color-dim)]">
                   {r.evidence ? 'show the capture' : 'what backs this'}
                 </summary>

@@ -21,6 +21,10 @@ export const useSceneStore = create((set) => ({
   // The camera reads both — the position to aim at, the timestamp to know how
   // long it has been holding there.
   focus: null,
+  // A technique asked to be shown: which row, and when. Separate from
+  // `highlight`, which a mouse sets merely by passing over a row — opening
+  // a capture is a request, not a hover.
+  reveal: null,
   booted: false,
   paletteOpen: false,
 
@@ -52,6 +56,7 @@ export const useSceneStore = create((set) => ({
   },
   setSwitching: (switching) => set({ switching }),
   setFocus: (focus) => set({ focus }),
+  setReveal: (reveal) => set({ reveal }),
   setBooted: (booted) => set({ booted }),
   setPaletteOpen: (paletteOpen) => set({ paletteOpen }),
   togglePalette: () => set((s) => ({ paletteOpen: !s.paletteOpen })),

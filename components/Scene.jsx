@@ -945,6 +945,7 @@ function CoverageLattice({ radius = 2.06 }) {
   const setLabel = useSceneStore((s) => s.setLabel);
   const setHighlight = useSceneStore((s) => s.setHighlight);
   const setFocus = useSceneStore((s) => s.setFocus);
+  const setReveal = useSceneStore((s) => s.setReveal);
   const [hovered, setHovered] = useState(-1);
   const world = useMemo(() => new THREE.Vector3(), []);
 
@@ -1036,6 +1037,9 @@ function CoverageLattice({ radius = 2.06 }) {
             marks.current[i]?.getWorldPosition(world);
             setFocus({ pos: world.toArray(), at: performance.now() });
             setHighlight(i);
+            // and open what backs it, so the click lands on the evidence
+            // rather than merely on the row's name
+            setReveal({ id: row.id, at: performance.now() });
             // and take the reader to the row it belongs to, so the click
             // lands somewhere rather than only moving the camera
             const table = document.getElementById('coverage');
