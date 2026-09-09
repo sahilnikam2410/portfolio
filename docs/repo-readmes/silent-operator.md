@@ -65,6 +65,13 @@ false-positive rate.
 
 **Validation receipt:** Wazuh Threat Hunting captured rule `100211` at **level 12** on `WIN-SERVER-2022` at approximately **21:39 on 5 Sep 2026**, preceded by multiple `60122` logon-failure events. The evidence image is `public/artifacts/bruteforce-100211.png`.
 
+**Provenance of the XML above:** transcribed from the lab notes, not re-read
+off a running manager since the rebuild. It was published two ways at one
+point — one copy carried `same_source_ip` and one did not — and this is the
+reconciled version. Anyone rebuilding from it should confirm the line is
+present in their own `local_rules.xml` before trusting the false-positive
+behaviour described here.
+
 **False positives to tune:** service accounts with stale cached credentials and password managers retrying after a password change can create legitimate failure bursts.
 
 ## Sigma equivalent
