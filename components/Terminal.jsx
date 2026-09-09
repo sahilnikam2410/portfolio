@@ -49,11 +49,60 @@ function buildFs() {
         }`,
       ])
     ),
+    /**
+     * The same account of a technique that the table gives.
+     *
+     * This used to stop at status and signal, so the shell and the page
+     * disagreed about how much was known: the page had grown evidence,
+     * telemetry and rule logic, and reading the file here made a row look
+     * thinner than it is. Two views of one dataset should not tell different
+     * stories about what has been shown.
+     */
     coverage: Object.fromEntries(
-      coverage.map((c) => [
-        `${c.id}.md`,
-        `# ${c.id} — ${c.technique}\ntactic: ${c.tactic}\nwhere:  ${c.where}\nstatus: ${c.status}\n\nrun:\n  ${c.run}\n\ncaught by:\n  ${c.signal}`,
-      ])
+      coverage.map((c) => {
+        const e = c.evidence;
+        const L = e?.logic;
+        const lines = [
+          '# ' + c.id + ' — ' + c.technique,
+          'tactic: ' + c.tactic,
+          'where:  ' + c.where,
+          'status: ' + c.status,
+          '',
+          'run:',
+          '  ' + c.run,
+          '',
+          'caught by:',
+          '  ' + c.signal,
+          '',
+          'evidence:',
+        ];
+
+        if (!e) {
+          lines.push('  none published. the status says what happened in the lab,');
+          lines.push('  this says what has been shown, and they are different');
+          lines.push('  questions with different answers');
+        } else {
+          if (e.from) lines.push('  from:    ' + e.from);
+          if (e.ran) lines.push('  ran:     ' + e.ran);
+          if (e.rule) lines.push('  rule:    ' + e.rule);
+          if (e.quiet) lines.push('  quiet:   ' + e.quiet);
+          if (e.capture) lines.push('  capture: ' + e.capture);
+          if (L) {
+            lines.push('', '  how the rule is built:');
+            if (L.source) lines.push('    source     ' + L.source);
+            if (L.base) lines.push('    base       ' + L.base);
+            if (L.correlate) lines.push('    correlates ' + L.correlate);
+            if (L.fires) lines.push('    raises     ' + L.fires);
+          }
+        }
+
+        if (c.telemetry && c.telemetry.length) {
+          lines.push('', 'where it shows up (public reference, not a finding):');
+          c.telemetry.forEach((t) => lines.push('  - ' + t));
+        }
+
+        return [c.id + '.md', lines.join('\n')];
+      })
     ),
   };
 }
@@ -68,7 +117,29 @@ const BANNER = String.raw`
 /* ── command implementations ────────────────────────────────── */
 
 function createShell({ fs, setCwd, clear, openLink }) {
-  const resolve = (cwd) => cwd.reduce((node, part) => node?.[part], fs);
+  /**
+   * Path segments, from parts that may contain slashes.
+   *
+   * resolve() used to reduce over its arguments directly, so a path was only
+   * ever a single key lookup: `cat coverage/T1110.md` asked for a file
+   * literally named "coverage/T1110.md" and got "no such file or directory".
+   * Meanwhile `tree` prints a nested tree, which invites exactly that. The
+   * shell now understands the paths it prints.
+   */
+  const segments = (parts) =>
+    parts
+      .flatMap((p) => String(p).split('/'))
+      .reduce((acc, seg) => {
+        if (!seg || seg === '.') return acc;
+        if (seg === '..') {
+          acc.pop();
+          return acc;
+        }
+        acc.push(seg);
+        return acc;
+      }, []);
+
+  const resolve = (cwd) => segments(cwd).reduce((node, part) => node?.[part], fs);
 
   const commands = {
     help: () => [
@@ -128,7 +199,7 @@ function createShell({ fs, setCwd, clear, openLink }) {
       const next = resolve([...cwd, arg]);
       if (!next) return [`cd: ${arg}: no such file or directory`];
       if (typeof next === 'string') return [`cd: ${arg}: not a directory`];
-      setCwd([...cwd, arg]);
+      setCwd(segments([...cwd, arg]));
       return [];
     },
 
