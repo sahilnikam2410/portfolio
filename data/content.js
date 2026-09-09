@@ -587,3 +587,49 @@ export const feed = [
     date: '2026-01-01',
   },
 ];
+
+/**
+ * The shape of the 100-day series.
+ *
+ * Only the phases, not all hundred days: a plan is not work, and listing a
+ * hundred unwritten titles on a portfolio would be announcing intent at
+ * length. What the phases do earn is the one thing that separates a daily
+ * series from daily posting — that it was structured before it started, and
+ * moves from fundamentals through telemetry and SIEM to detection
+ * engineering rather than wandering.
+ *
+ * `to` is the last day of the phase, so the current phase is derivable from
+ * a day number alone.
+ */
+export const socRoadmap = [
+  { to: 10, name: 'SOC fundamentals' },
+  { to: 20, name: 'Logs and telemetry' },
+  { to: 30, name: 'SIEM and Wazuh' },
+  { to: 40, name: 'Network security' },
+  { to: 50, name: 'Common attacks' },
+  { to: 60, name: 'MITRE ATT&CK' },
+  { to: 70, name: 'Threat hunting' },
+  { to: 80, name: 'Incident response' },
+  { to: 90, name: 'Detection engineering' },
+  { to: 100, name: 'Advanced SOC and career' },
+];
+
+/**
+ * Days that land on a technique this site already claims.
+ *
+ * Not rendered anywhere. It exists so that when one of these days is
+ * published, the write-up attaches to the row it belongs to instead of
+ * someone having to remember the mapping months later. A planned day is
+ * deliberately not shown on a coverage row: that table is about what has
+ * been done, and pre-announcing a post there would be the same category
+ * error as counting a written rule as a fired one.
+ */
+export const socDayTechnique = {
+  6: 'T1110',
+  36: 'T1046',
+  37: 'T1046',
+  41: 'T1110',
+  43: 'T1566',
+  46: 'T1071.001',
+  54: 'T1059',
+};

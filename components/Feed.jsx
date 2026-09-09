@@ -1,6 +1,6 @@
 'use client';
 
-import { feed } from '@/data/content';
+import { feed, socRoadmap } from '@/data/content';
 import { Section, Reveal } from './ui';
 
 /**
@@ -24,6 +24,11 @@ const PLATFORM = {
   press: { label: 'Press', tone: 'text-[var(--color-acid)]' },
   vrikaan: { label: 'Vrikaan', tone: 'text-[var(--color-acid)]' },
 };
+
+/** Which phase a day falls in — the roadmap is ordered by its last day. */
+function phaseFor(day) {
+  return socRoadmap.find((p) => day <= p.to)?.name ?? null;
+}
 
 function when(iso) {
   const d = new Date(iso);
@@ -93,7 +98,15 @@ export default function Feed() {
                     {item.series && item.day && (
                       <div className="mt-3">
                         <div className="mb-1.5 flex items-baseline justify-between text-[11px]">
-                          <span className="text-[var(--color-dim)]">{item.series}</span>
+                          <span className="text-[var(--color-dim)]">
+                            {item.series}
+                            {phaseFor(item.day) && (
+                              <span className="text-[rgb(var(--dim-rgb)/0.7)]">
+                                {' · '}
+                                {phaseFor(item.day)}
+                              </span>
+                            )}
+                          </span>
                           <span className="t-num text-[var(--color-acid)]">
                             {item.day}
                             {item.of ? (
