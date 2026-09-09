@@ -52,7 +52,11 @@ export default function Feed() {
         {items.map((item, i) => {
           const p = PLATFORM[item.platform] ?? { label: item.platform, tone: 'text-[var(--color-dim)]' };
           return (
-            <li key={item.url}>
+            /* h-full on the anchor was doing nothing: Reveal renders a div
+               between the grid item and the card, and that div was auto
+               height, so a card with an image ran taller than one without and
+               the row left a gap. Both the item and the wrapper stretch now. */
+            <li key={item.url} className="h-full [&>div]:h-full">
               <Reveal delay={i * 0.05}>
                 <a
                   href={item.url}
