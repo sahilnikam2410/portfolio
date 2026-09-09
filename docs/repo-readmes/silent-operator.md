@@ -65,12 +65,58 @@ false-positive rate.
 
 **Validation receipt:** Wazuh Threat Hunting captured rule `100211` at **level 12** on `WIN-SERVER-2022` at approximately **21:39 on 5 Sep 2026**, preceded by multiple `60122` logon-failure events. The evidence image is `public/artifacts/bruteforce-100211.png`.
 
-**Provenance of the XML above:** transcribed from the lab notes, not re-read
-off a running manager since the rebuild. It was published two ways at one
-point — one copy carried `same_source_ip` and one did not — and this is the
-reconciled version. Anyone rebuilding from it should confirm the line is
-present in their own `local_rules.xml` before trusting the false-positive
-behaviour described here.
+**Provenance of the XML above:** the level and the base rule are read
+directly off the capture — `100211` at level 12 on `WIN-SERVER-2022` at
+21:39:08 on 5 Sep 2026, preceded by four `60122` logon failures at level 5.
+The `frequency` and `timeframe` values come from the lab notes and cannot be
+confirmed: a dashboard shows what fired, not the rule that fired it, and the
+lab has since been decommissioned. Treat those two numbers as a starting
+point to tune rather than a measurement.
+
+## The chain as designed — written, never validated
+
+The rule above is what the manager was actually running on 5 Sep 2026. It is
+not the rule this project set out to build. The intended detection was a
+three-stage chain, and it never got a validated run against it:
+
+```xml
+<group name="local,authentication_failures,">
+  <!-- 4625: an account failed to log on -->
+  <rule id="100210" level="5">
+    <if_sid>60122</if_sid>
+    <description>Windows logon failure</description>
+    <mitre><id>T1110</id></mitre>
+  </rule>
+
+  <!-- six failures from one source inside two minutes -->
+  <rule id="100211" level="10" frequency="6" timeframe="120">
+    <if_matched_sid>100210</if_matched_sid>
+    <same_source_ip />
+    <description>Brute force: 6 failed logons from $(srcip) in 120s</description>
+    <mitre><id>T1110</id></mitre>
+  </rule>
+
+  <!-- a success straight after the burst is the one to wake up for -->
+  <rule id="100212" level="12">
+    <if_sid>60106</if_sid>
+    <if_matched_sid>100211</if_matched_sid>
+    <same_source_ip />
+    <description>Brute force succeeded from $(srcip)</description>
+    <mitre><id>T1110</id></mitre>
+  </rule>
+</group>
+```
+
+`100212` is the one worth having. A burst of failures is noise until one of
+them succeeds; the success straight after the burst is the difference between
+someone knocking and someone inside. Neither `100210` nor `100212` appears
+anywhere in the capture, so neither has ever been observed firing.
+
+**Warning for anyone rebuilding from this:** `100211` means two different
+things across these two blocks — level 12 chaining off `60122` in what ran,
+level 10 chaining off `100210` in what was designed. Deploy the designed
+chain over a manager holding the other and the id collides. Renumber before
+loading it.
 
 **False positives to tune:** service accounts with stale cached credentials and password managers retrying after a password change can create legitimate failure bursts.
 
