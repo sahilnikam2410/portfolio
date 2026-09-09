@@ -231,9 +231,14 @@ export default async function CaseStudy({ params }) {
               href={project.repo}
               target="_blank"
               rel="noreferrer"
+              title={
+                project.repoKind === 'writeup'
+                  ? 'the write-up and the detection rules; the implementation is not published there yet'
+                  : undefined
+              }
               className="border border-[rgb(var(--acid-rgb)/0.35)] px-4 py-2 text-[13px] text-[var(--color-acid)] transition-colors hover:bg-[rgb(var(--acid-rgb)/0.1)]"
             >
-              repository →
+              {project.repoKind === 'writeup' ? 'write-up' : 'repository'} →
             </a>
           )}
           <a

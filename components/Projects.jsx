@@ -101,9 +101,19 @@ export default function Projects() {
                       href={current.repo ?? current.site}
                       target="_blank"
                       rel="noreferrer"
+                      title={
+                        current.repoKind === 'writeup'
+                          ? 'the write-up and the detection rules; the implementation is not published there yet'
+                          : undefined
+                      }
                       className="border border-[rgb(var(--acid-rgb)/0.2)] px-4 py-2 text-[13px] text-[var(--color-bone)] transition-colors hover:border-[var(--color-acid)]"
                     >
-                      {current.repo ? 'repository' : 'live site'} ↗
+                      {current.repo
+                        ? current.repoKind === 'writeup'
+                          ? 'write-up'
+                          : 'repository'
+                        : 'live site'}{' '}
+                      ↗
                     </a>
                   )}
                 </div>

@@ -113,6 +113,8 @@ export const projects = [
       'Exposed detection gaps, then closed them with new rules',
     ],
     repo: 'https://github.com/sahilnikam2410/silent-operator',
+    // README and the write-up; the implementation is not published there yet
+    repoKind: 'writeup',
   },
   {
     id: 'protocol-honeypot',
@@ -127,6 +129,8 @@ export const projects = [
       'Profiles technique patterns rather than single events',
     ],
     repo: 'https://github.com/sahilnikam2410/protocol-honeypot',
+    // README and the write-up; the implementation is not published there yet
+    repoKind: 'writeup',
   },
   {
     id: 'protocol-cinema',
@@ -141,6 +145,8 @@ export const projects = [
       'Lab-only — no live third-party infrastructure involved',
     ],
     repo: 'https://github.com/sahilnikam2410/protocol-cinema',
+    // README and the write-up; the implementation is not published there yet
+    repoKind: 'writeup',
   },
   {
     id: 'monitoring-lab',
@@ -155,6 +161,8 @@ export const projects = [
       'Dashboards built for network and system telemetry',
     ],
     repo: 'https://github.com/sahilnikam2410/monitoring-lab',
+    // README and the write-up; the implementation is not published there yet
+    repoKind: 'writeup',
   },
   {
     id: 'vrikaan',
