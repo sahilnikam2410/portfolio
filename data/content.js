@@ -551,6 +551,16 @@ export const terminalBoot = [
  */
 export const feed = [
   {
+    platform: 'vrikaan',
+    title: 'Vrikaan is live',
+    blurb:
+      'Launch announcement for the platform: threat detection, fraud analysis and dark-web monitoring, built solo.',
+    url: 'https://vrikaan.com',
+    image: '/feed/vrikaan-launch.png',
+    alt: 'Vrikaan launch card on a dark ground. A "just launched" badge, the wordmark VRIKAAN, and the line "is now live — AI-powered cyber defence for everyone in India". Three pills read Threat Detection, Fraud Analysis and Dark Web Monitor. Footer: built solo, made in India, vrikaan.com.',
+    date: '2026-08-06',
+  },
+  {
     platform: 'press',
     title: 'The Cyber 50 — India’s Elite Founders List',
     blurb:
