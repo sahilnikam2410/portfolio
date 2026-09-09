@@ -18,31 +18,27 @@ attacker behaviour and tune detection before pointing it at production.
 - Runs a network IDS alongside it to catch scan and enumeration patterns.
 - Correlates repeated behaviour into attacker profiles rather than isolated hits.
 
-## Detections
+## What is not published here
 
-<!-- TODO: the actual rules/signatures. What patterns do you alert on?
-     Scan rate? Port sequence? Specific probes? Show the logic. -->
+The honeypot software, the IDS and its ruleset, the collector, and the tuned
+scan and probe thresholds are not in this repository, and they are not coming.
+The lab was decommissioned and no configuration or rule file survived it.
 
-## Sample capture
+That is a real limitation and it is written here rather than left as an empty
+heading, because an unfinished section reads like work in progress and this is
+not in progress. What the project established is above: a honeypot has no
+legitimate users, so every interaction with it is signal, and correlating
+repeated behaviour into a profile is more useful to an analyst than alerting
+on each hit.
 
-<!-- TODO: a redacted log excerpt showing a real capture.
-     Redact any source IP that is not RFC1918. -->
+Anyone wanting the thresholds should treat that as the open question it is.
+Publishing invented ones would make this look finished and be worth less than
+saying nothing.
 
 ## Scope
 
 Deployed inside my own lab. Nothing in this repository targets or probes
 third-party infrastructure.
-
-## Setup
-
-<!-- TODO (Sahil): this one cannot be written from the rest of the README,
-     because the README never names the stack. Needed, in order:
-       1. the honeypot software and which services it exposes
-       2. the IDS running alongside it, and its ruleset
-       3. where the two sets of logs are collected and correlated
-       4. the network the whole thing sits on
-     Steps 1 and 2 are the ones a reader cannot guess; without them the
-     Detections section above has nothing to be about. -->
 
 ---
 
