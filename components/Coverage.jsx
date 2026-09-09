@@ -96,6 +96,41 @@ function Telemetry({ lines }) {
   );
 }
 
+/**
+ * Things written about a technique, as opposed to evidence of catching one.
+ *
+ * A post explaining brute force is not a record of brute force being
+ * detected, and this site would be worth less if it blurred those. So this
+ * sits apart from the evidence, does not change how a row grades, and says
+ * what it is. What it does do is answer a fair question a dash leaves open:
+ * whether the person listing the technique understands it.
+ */
+function Writeups({ items }) {
+  if (!items?.length) return null;
+  return (
+    <div className="mt-3 border-t border-[rgb(var(--acid-rgb)/0.1)] pt-3">
+      <div className="mb-1.5 text-[10px] uppercase tracking-[0.16em] text-[var(--color-dim)]">
+        written about this — not a record of catching it
+      </div>
+      <ul className="space-y-1">
+        {items.map((w) => (
+          <li key={w.url} className="text-[12px] leading-relaxed">
+            <a
+              href={w.url}
+              target="_blank"
+              rel="noreferrer"
+              className="text-[var(--color-acid)] underline decoration-dotted underline-offset-2"
+            >
+              {w.title}
+            </a>
+            {w.where && <span className="text-[var(--color-dim)]"> · {w.where}</span>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function Evidence({ r }) {
   const e = r.evidence;
 
@@ -128,6 +163,7 @@ function Evidence({ r }) {
           reader can check against their own stack.
         </p>
         <Telemetry lines={r.telemetry} />
+        <Writeups items={r.writeups} />
       </div>
     );
   }
@@ -166,6 +202,7 @@ function Evidence({ r }) {
         </figure>
       )}
       <Telemetry lines={r.telemetry} />
+      <Writeups items={r.writeups} />
       {e.study && (
         <Link
           href={'/work/' + e.study}

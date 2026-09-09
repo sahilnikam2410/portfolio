@@ -86,6 +86,36 @@ export default function Feed() {
                       </p>
                     )}
 
+                    {/* A running series shows its position. Three of a hundred
+                        is not much and says so; the number is the whole point
+                        of a daily challenge, and hiding it early would make it
+                        worthless later. */}
+                    {item.series && item.day && (
+                      <div className="mt-3">
+                        <div className="mb-1.5 flex items-baseline justify-between text-[11px]">
+                          <span className="text-[var(--color-dim)]">{item.series}</span>
+                          <span className="t-num text-[var(--color-acid)]">
+                            {item.day}
+                            {item.of ? (
+                              <span className="text-[var(--color-dim)]"> / {item.of}</span>
+                            ) : null}
+                          </span>
+                        </div>
+                        {item.of ? (
+                          <div
+                            className="h-[2px] w-full bg-[rgb(var(--acid-rgb)/0.15)]"
+                            role="img"
+                            aria-label={`Day ${item.day} of ${item.of}`}
+                          >
+                            <div
+                              className="h-full bg-[var(--color-acid)]"
+                              style={{ width: `${Math.min(100, (item.day / item.of) * 100)}%` }}
+                            />
+                          </div>
+                        ) : null}
+                      </div>
+                    )}
+
                     <span className="mt-3 inline-block text-[12px] text-[var(--color-dim)] group-hover:text-[var(--color-acid)]">
                       open ↗
                     </span>
