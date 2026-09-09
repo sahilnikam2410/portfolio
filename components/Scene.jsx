@@ -1737,6 +1737,21 @@ export default function Scene() {
       setDpr(1.25);
       return;
     }
+    /**
+     * Asking for the full tier was not possible before this.
+     *
+     * The sniffing below drops any machine reporting four cores or fewer to
+     * lite, which is most laptops, and there was no way to overrule it — so
+     * the heavier half of the scene was unreachable on the hardware most
+     * likely to be looking at it, including well capable machines that simply
+     * report a low core count. An explicit choice outranks a guess about the
+     * hardware, the same way 'off' and 'lite' already do.
+     */
+    if (quality === 'full') {
+      setMode('full');
+      setDpr(1.5);
+      return;
+    }
 
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const small = window.innerWidth < 768;

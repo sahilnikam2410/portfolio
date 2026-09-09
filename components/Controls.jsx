@@ -14,7 +14,7 @@ const SHORTCUTS = [
   { keys: ['g'], what: 'top of page' },
   { keys: ['G'], what: 'bottom of page' },
   { keys: ['/'], what: 'focus the shell' },
-  { keys: ['q'], what: 'cycle scene quality — full · lite · off' },
+  { keys: ['q'], what: 'cycle scene quality — auto · full · lite · off' },
   { keys: ['t'], what: 'switch palette — terminal · spider' },
   { keys: ['r'], what: 'recruiter brief — one screen, no scrolling' },
   { keys: ['p'], what: 'print / save as PDF' },
@@ -22,7 +22,9 @@ const SHORTCUTS = [
   { keys: ['esc'], what: 'close' },
 ];
 
-const QUALITY_ORDER = ['auto', 'lite', 'off'];
+// 'auto' sniffs the hardware; 'full' overrules it. They were the same entry
+// before, which meant a machine sniffed down to lite had no way back up.
+const QUALITY_ORDER = ['auto', 'full', 'lite', 'off'];
 
 /** Keyboard-first navigation, a shortcut sheet, and a scene-quality override. */
 export default function Controls() {
@@ -143,7 +145,7 @@ export default function Controls() {
           const next =
             QUALITY_ORDER[(QUALITY_ORDER.indexOf(quality) + 1) % QUALITY_ORDER.length];
           setQuality(next);
-          flash(`scene: ${next === 'auto' ? 'full (auto)' : next}`);
+          flash(`scene: ${next}`);
           break;
         }
         default:
