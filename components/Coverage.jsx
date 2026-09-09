@@ -1,6 +1,7 @@
 'use client';
 
 import { Fragment } from 'react';
+import ChainDiagram from './ChainDiagram';
 import Link from 'next/link';
 import { coverage, projects, caseStudies } from '@/data/content';
 import { Section, Reveal } from './ui';
@@ -237,6 +238,11 @@ export default function Coverage() {
           </div>
         </div>
       </Reveal>
+
+      {/* The loop, for the screens that never get the scene. Below lg the
+          WebGL layer is withheld entirely, so this is where a phone sees the
+          argument the globe is making for everyone else. */}
+      <ChainDiagram />
 
       {/* desktop table */}
       <Reveal delay={0.08}>

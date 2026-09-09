@@ -60,6 +60,36 @@ const ease = (x) => 1 - Math.pow(1 - x, 3);
 const span = (t, from, to) => Math.min(1, Math.max(0, (t - from) / (to - from)));
 
 /**
+ * The loop at a moment in time. Pure, so the WebGL scene and the flat SVG the
+ * phones get can both read from it and cannot drift out of step — one is a
+ * drawing of the other, and two copies of this timing would eventually
+ * disagree about when the gap happens.
+ */
+export function phaseAt(t) {
+  let beat = BEATS[0].name;
+  for (const b of BEATS) if (t >= b.at) beat = b.name;
+
+  if (t < BEATS[1].at) {
+    // run: the pulse travels only as far as the technique under test
+    return { beat, head: ease(span(t, 0, BEATS[1].at)) * LOOP_POS, rule: 0, fired: 0 };
+  }
+  if (t < BEATS[2].at) {
+    // gap: it arrives and nothing happens. The chain stops here.
+    return { beat, head: LOOP_POS, rule: 0, fired: 0 };
+  }
+  if (t < BEATS[3].at) {
+    // rule: written at the node that stayed dark
+    return { beat, head: LOOP_POS, rule: ease(span(t, BEATS[2].at, BEATS[3].at)), fired: 0 };
+  }
+  if (t < BEATS[4].at) {
+    // re-run: from the top, and this time it carries past the gap
+    return { beat, head: ease(span(t, BEATS[3].at, BEATS[4].at)) * LAST, rule: 1, fired: 0 };
+  }
+  // fired: the whole chain stands, and the node that closed confirms
+  return { beat, head: LAST, rule: 1, fired: Math.min(1, span(t, BEATS[4].at, BEATS[4].at + 0.5)) };
+}
+
+/**
  * Advances the loop. `playing` is false whenever the coverage section is not
  * the one being read, and the clock resets rather than pausing — arriving at
  * the section should start the story, not drop the reader into its middle.
@@ -77,38 +107,7 @@ export function tickChain(delta, playing) {
 
   chain.playing = true;
   chain.t = (chain.t + delta) % CYCLE;
-  const t = chain.t;
-
-  let beat = BEATS[0].name;
-  for (const b of BEATS) if (t >= b.at) beat = b.name;
-  chain.beat = beat;
-
-  if (t < BEATS[1].at) {
-    // run: the pulse travels only as far as the technique under test
-    chain.head = ease(span(t, 0, BEATS[1].at)) * LOOP_POS;
-    chain.rule = 0;
-    chain.fired = 0;
-  } else if (t < BEATS[2].at) {
-    // gap: it arrives and nothing happens. The chain stops here.
-    chain.head = LOOP_POS;
-    chain.rule = 0;
-    chain.fired = 0;
-  } else if (t < BEATS[3].at) {
-    // rule: written at the node that stayed dark
-    chain.head = LOOP_POS;
-    chain.rule = ease(span(t, BEATS[2].at, BEATS[3].at));
-    chain.fired = 0;
-  } else if (t < BEATS[4].at) {
-    // re-run: from the top, and this time it carries past the gap
-    chain.head = ease(span(t, BEATS[3].at, BEATS[4].at)) * LAST;
-    chain.rule = 1;
-    chain.fired = 0;
-  } else {
-    // fired: the whole chain stands, and the node that closed confirms
-    chain.head = LAST;
-    chain.rule = 1;
-    chain.fired = Math.min(1, span(t, BEATS[4].at, BEATS[4].at + 0.5));
-  }
+  Object.assign(chain, phaseAt(chain.t));
 }
 
 /** The label for the current beat, or null when the loop is not running. */
