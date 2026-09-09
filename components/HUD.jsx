@@ -71,11 +71,11 @@ export default function HUD() {
         </span>
         <span className="text-[var(--color-cyan)]">{label ?? 'idle'}</span>
         <span>
-          <kbd className="border border-[rgb(var(--acid-rgb)/0.25)] px-1">ctrl</kbd>
+          <kbd className="border border-[var(--edge-mid)] px-1">ctrl</kbd>
           <span className="px-1">+</span>
-          <kbd className="border border-[rgb(var(--acid-rgb)/0.25)] px-1">k</kbd>
+          <kbd className="border border-[var(--edge-mid)] px-1">k</kbd>
           <span className="px-1.5 text-[rgb(var(--dim-rgb)/0.5)]">·</span>
-          <kbd className="border border-[rgb(var(--acid-rgb)/0.25)] px-1">?</kbd>
+          <kbd className="border border-[var(--edge-mid)] px-1">?</kbd>
         </span>
       </div>
     </>

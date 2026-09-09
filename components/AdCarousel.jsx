@@ -95,7 +95,7 @@ export default function AdCarousel({ slides, label }) {
         ))}
       </div>
 
-      <div className="flex items-center gap-2 border-t border-[rgb(var(--acid-rgb)/0.14)] px-4 py-2.5">
+      <div className="flex items-center gap-2 border-t border-[var(--edge)] px-4 py-2.5">
         {slides.map((s, i) => (
           <button
             key={s.src}

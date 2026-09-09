@@ -35,7 +35,7 @@ export function Section({ id, index, title, subtitle, children, wide = false }) 
           <div className="lg:col-span-4 lg:sticky lg:top-28 lg:self-start">
             <SectionHeading index={index} title={title} subtitle={subtitle} />
           </div>
-          <div className="min-w-0 lg:col-span-8 lg:border-l lg:border-[rgb(var(--acid-rgb)/0.14)] lg:pl-16">
+          <div className="min-w-0 lg:col-span-8 lg:border-l lg:border-[var(--edge)] lg:pl-16">
             {children}
           </div>
         </div>
@@ -49,7 +49,7 @@ export function SectionHeading({ index, title, subtitle, wide = false }) {
     <Reveal>
       <div
         className={
-          wide ? 'mb-12 sm:mb-16 border-b border-[rgb(var(--acid-rgb)/0.14)] pb-8' : 'mb-2'
+          wide ? 'mb-12 sm:mb-16 border-b border-[var(--edge)] pb-8' : 'mb-2'
         }
       >
         {/* The wide heading sets its numeral beside the title, which is the
@@ -135,7 +135,7 @@ export function Reveal({ children, delay = 0 }) {
 export function Panel({ children, className = '' }) {
   return (
     <div
-      className={`relative border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(8,13,18,0.72)] backdrop-blur-sm ${className}`}
+      className={`relative border border-[var(--edge)] bg-[var(--surface)] backdrop-blur-sm ${className}`}
     >
       <Corner className="-left-px -top-px border-l border-t" />
       <Corner className="-right-px -top-px border-r border-t" />

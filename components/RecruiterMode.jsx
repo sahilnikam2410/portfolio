@@ -47,7 +47,7 @@ export default function RecruiterMode() {
            scrolled. A floating control always overlaps something; the corner
            is where it overlaps the least, and the label goes short so it is a
            chip rather than a two-line block across the text. */
-        className="fixed bottom-5 right-4 z-[64] whitespace-nowrap border border-[rgb(var(--acid-rgb)/0.3)] bg-[rgba(8,13,18,0.92)] px-4 py-2 text-[11px] text-[var(--color-dim)] backdrop-blur transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)] lg:right-5"
+        className="fixed bottom-5 right-4 z-[64] whitespace-nowrap border border-[var(--edge-strong)] bg-[var(--surface-raised)] px-4 py-2 text-[11px] text-[var(--color-dim)] backdrop-blur transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)] lg:right-5"
       >
         {/* A phone has no r to press. The keyboard hint is for the devices
             that have one; everyone else gets the plain invitation. */}
@@ -70,7 +70,7 @@ export default function RecruiterMode() {
             role="dialog"
             aria-modal="true"
             aria-label="Candidate brief"
-            className="fixed inset-0 z-[84] overflow-y-auto bg-[rgba(2,4,6,0.9)] backdrop-blur-md"
+            className="fixed inset-0 z-[84] overflow-y-auto bg-[var(--scrim-strong)] backdrop-blur-md"
             onClick={() => setOpen(false)}
           >
             <motion.div
@@ -79,13 +79,13 @@ export default function RecruiterMode() {
               exit={{ y: 10, opacity: 0 }}
               transition={{ duration: 0.22 }}
               onClick={(e) => e.stopPropagation()}
-              className="mx-auto my-6 w-[min(96vw,1000px)] border border-[rgb(var(--acid-rgb)/0.25)] bg-[rgba(6,10,14,0.98)]"
+              className="mx-auto my-6 w-[min(96vw,1000px)] border border-[var(--edge-mid)] bg-[var(--surface-sheet)]"
             >
-              <div className="flex items-center justify-between border-b border-[rgb(var(--acid-rgb)/0.16)] px-5 py-3">
+              <div className="flex items-center justify-between border-b border-[var(--edge)] px-5 py-3">
                 <span className="text-[12px] text-[var(--color-acid)]">candidate brief</span>
                 <button
                   onClick={() => setOpen(false)}
-                  className="border border-[rgb(var(--acid-rgb)/0.25)] px-2 py-0.5 text-[11px] text-[var(--color-dim)] hover:text-[var(--color-acid)]"
+                  className="border border-[var(--edge-mid)] px-2 py-0.5 text-[11px] text-[var(--color-dim)] hover:text-[var(--color-acid)]"
                 >
                   esc
                 </button>
@@ -93,26 +93,26 @@ export default function RecruiterMode() {
 
               <div className="grid gap-px bg-[rgb(var(--acid-rgb)/0.14)] lg:grid-cols-[1.15fr_0.85fr]">
                 {/* left column */}
-                <div className="space-y-5 bg-[rgba(6,10,14,0.98)] p-5">
+                <div className="space-y-5 bg-[var(--surface-sheet)] p-5">
                   <div>
                     <div className="text-2xl text-[var(--color-bone)]">{identity.name}</div>
                     <div className="mt-1 text-[13px] text-[var(--color-cyan)]">{identity.role}</div>
                     <div className="mt-1 text-[12px] text-[var(--color-dim)]">
                       {identity.location}
                     </div>
-                    <div className="mt-2 inline-block border border-[rgb(var(--acid-rgb)/0.3)] px-2 py-0.5 text-[11px] text-[var(--color-acid)]">
+                    <div className="mt-2 inline-block border border-[var(--edge-strong)] px-2 py-0.5 text-[11px] text-[var(--color-acid)]">
                       {identity.status}
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-px border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgb(var(--acid-rgb)/0.14)] sm:grid-cols-4">
+                  <div className="grid grid-cols-2 gap-px border border-[var(--edge)] bg-[rgb(var(--acid-rgb)/0.14)] sm:grid-cols-4">
                     {[
                       ['5/5', 'SOC modules certified'],
                       ['3 mo', 'enterprise SOC internship'],
                       ['8.53', 'B.Tech CGPA'],
                       [`${detected}`, 'techniques detected'],
                     ].map(([v, l]) => (
-                      <div key={l} className="bg-[rgba(6,10,14,0.98)] px-3 py-2">
+                      <div key={l} className="bg-[var(--surface-sheet)] px-3 py-2">
                         <div className="text-[16px] text-[var(--color-acid)]">{v}</div>
                         <div className="text-[10px] leading-tight text-[var(--color-dim)]">{l}</div>
                       </div>
@@ -127,7 +127,7 @@ export default function RecruiterMode() {
                       {topSkills.map((s) => (
                         <li
                           key={s}
-                          className="border border-[rgb(var(--acid-rgb)/0.18)] px-2 py-0.5 text-[11px] text-[var(--color-bone)]"
+                          className="border border-[var(--edge)] px-2 py-0.5 text-[11px] text-[var(--color-bone)]"
                         >
                           {s}
                         </li>
@@ -151,7 +151,7 @@ export default function RecruiterMode() {
                 </div>
 
                 {/* right column */}
-                <div className="space-y-5 bg-[rgba(6,10,14,0.98)] p-5">
+                <div className="space-y-5 bg-[var(--surface-sheet)] p-5">
                   <div>
                     <div className="mb-2 text-[11px] uppercase tracking-[0.18em] text-[var(--color-dim)]">
                       contact
@@ -180,14 +180,14 @@ export default function RecruiterMode() {
                     <div className="mb-2 text-[11px] uppercase tracking-[0.18em] text-[var(--color-dim)]">
                       resume — pick the role
                     </div>
-                    <ul className="space-y-px border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgb(var(--acid-rgb)/0.14)]">
+                    <ul className="space-y-px border border-[var(--edge)] bg-[rgb(var(--acid-rgb)/0.14)]">
                       {resumes.map((r) => (
                         <li key={r.file}>
                           <a
                             href={r.file}
                             target="_blank"
                             rel="noreferrer"
-                            className="flex items-center justify-between gap-3 bg-[rgba(6,10,14,0.98)] px-3 py-2 text-[12px] transition-colors hover:bg-[rgb(var(--acid-rgb)/0.08)]"
+                            className="flex items-center justify-between gap-3 bg-[var(--surface-sheet)] px-3 py-2 text-[12px] transition-colors hover:bg-[rgb(var(--acid-rgb)/0.08)]"
                           >
                             <span className="text-[var(--color-bone)]">{r.role}</span>
                             <span className="text-[10px] text-[var(--color-dim)]">pdf ↗</span>
@@ -235,11 +235,11 @@ export default function RecruiterMode() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-4 border-t border-[rgb(var(--acid-rgb)/0.16)] px-5 py-3 text-[10px] text-[var(--color-dim)]">
+              <div className="flex flex-wrap items-center gap-4 border-t border-[var(--edge)] px-5 py-3 text-[10px] text-[var(--color-dim)]">
                 <span>every technique shown was run against systems he owns or was authorised to test</span>
                 <button
                   onClick={() => window.print()}
-                  className="ml-auto border border-[rgb(var(--acid-rgb)/0.25)] px-2 py-0.5 hover:text-[var(--color-acid)]"
+                  className="ml-auto border border-[var(--edge-mid)] px-2 py-0.5 hover:text-[var(--color-acid)]"
                 >
                   print
                 </button>

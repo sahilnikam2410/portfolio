@@ -594,7 +594,7 @@ export default function Terminal() {
             focused ? 'shadow-[0_0_50px_rgb(var(--acid-rgb)/0.12)]' : ''
           }`}
         >
-          <div className="flex items-center gap-2 border-b border-[rgb(var(--acid-rgb)/0.14)] px-4 py-2.5">
+          <div className="flex items-center gap-2 border-b border-[var(--edge)] px-4 py-2.5">
             <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
             <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
             <span className="h-2.5 w-2.5 rounded-full bg-[var(--color-acid)]" />
@@ -610,7 +610,7 @@ export default function Terminal() {
                     run(c);
                     inputRef.current?.focus();
                   }}
-                  className="tap hidden border border-[rgb(var(--acid-rgb)/0.2)] px-2 py-0.5 text-[10px] text-[var(--color-dim)] transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)] sm:block"
+                  className="tap hidden border border-[var(--edge-mid)] px-2 py-0.5 text-[10px] text-[var(--color-dim)] transition-colors hover:border-[var(--color-acid)] hover:text-[var(--color-acid)] sm:block"
                 >
                   {c}
                 </button>

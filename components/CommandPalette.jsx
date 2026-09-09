@@ -173,7 +173,7 @@ export default function CommandPalette() {
           role="dialog"
           aria-modal="true"
           aria-label="Command palette"
-          className="fixed inset-0 z-[80] flex items-start justify-center bg-[rgba(2,4,6,0.72)] px-4 pt-[14dvh] backdrop-blur-sm"
+          className="fixed inset-0 z-[80] flex items-start justify-center bg-[var(--scrim)] px-4 pt-[14dvh] backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -181,14 +181,14 @@ export default function CommandPalette() {
           onClick={() => setOpen(false)}
         >
           <motion.div
-            className="w-full max-w-lg border border-[rgb(var(--acid-rgb)/0.25)] bg-[rgba(8,13,18,0.96)] shadow-[0_0_60px_rgb(var(--acid-rgb)/0.1)]"
+            className="w-full max-w-lg border border-[var(--edge-mid)] bg-[var(--surface-raised)] shadow-[0_0_60px_rgb(var(--acid-rgb)/0.1)]"
             initial={{ y: -12, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -8, opacity: 0 }}
             transition={{ duration: 0.18 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center gap-3 border-b border-[rgb(var(--acid-rgb)/0.14)] px-4 py-3">
+            <div className="flex items-center gap-3 border-b border-[var(--edge)] px-4 py-3">
               <span className="text-[var(--color-acid)]">&gt;</span>
               <input
                 ref={inputRef}
@@ -203,7 +203,7 @@ export default function CommandPalette() {
                 aria-label="command palette"
                 className="w-full bg-transparent text-sm text-[var(--color-bone)] outline-none placeholder:text-[rgb(var(--dim-rgb)/0.6)]"
               />
-              <kbd className="border border-[rgb(var(--acid-rgb)/0.2)] px-1.5 py-0.5 text-[10px] text-[var(--color-dim)]">
+              <kbd className="border border-[var(--edge-mid)] px-1.5 py-0.5 text-[10px] text-[var(--color-dim)]">
                 esc
               </kbd>
             </div>
@@ -240,7 +240,7 @@ export default function CommandPalette() {
               ))}
             </ul>
 
-            <div className="flex items-center gap-4 border-t border-[rgb(var(--acid-rgb)/0.14)] px-4 py-2 text-[10px] text-[var(--color-dim)]">
+            <div className="flex items-center gap-4 border-t border-[var(--edge)] px-4 py-2 text-[10px] text-[var(--color-dim)]">
               <span>↑↓ move</span>
               <span>⏎ select</span>
               <span className="ml-auto">ctrl + k</span>

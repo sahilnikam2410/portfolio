@@ -66,7 +66,7 @@ export default function Hero() {
       <div className="mx-auto grid w-full max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
         {/* left: identity */}
         <div className="readable">
-          <div className="anim-rise mb-4 inline-flex sm:mb-5 items-center gap-2 border border-[rgb(var(--acid-rgb)/0.28)] px-3 py-1.5 text-[11px] text-[var(--color-acid)]">
+          <div className="anim-rise mb-4 inline-flex sm:mb-5 items-center gap-2 border border-[var(--edge-mid)] px-3 py-1.5 text-[11px] text-[var(--color-acid)]">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-acid)] opacity-70" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--color-acid)]" />
@@ -124,7 +124,7 @@ export default function Hero() {
               <a
                 href="#shell"
                 data-cursor="run"
-                className="block border border-[rgb(var(--acid-rgb)/0.2)] px-5 py-2.5 text-sm text-[var(--color-bone)] transition-colors hover:border-[var(--color-acid)]"
+                className="block border border-[var(--edge-mid)] px-5 py-2.5 text-sm text-[var(--color-bone)] transition-colors hover:border-[var(--color-acid)]"
               >
                 ./open_shell
               </a>
@@ -133,7 +133,7 @@ export default function Hero() {
           </div>
 
           <ul
-            className="anim-rise mt-7 grid grid-cols-2 sm:mt-10 gap-px border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgb(var(--acid-rgb)/0.14)] sm:grid-cols-4"
+            className="anim-rise mt-7 grid grid-cols-2 sm:mt-10 gap-px border border-[var(--edge)] bg-[rgb(var(--acid-rgb)/0.14)] sm:grid-cols-4"
             style={{ '--anim-delay': '0.45s' }}
           >
             {stats.map((s) => {
@@ -143,7 +143,7 @@ export default function Hero() {
                 </div>
               );
               return (
-                <li key={s.label} className="bg-[rgba(4,7,10,0.9)] px-4 py-3">
+                <li key={s.label} className="bg-[var(--surface-raised)] px-4 py-3">
                   {/* A figure that can cite itself should. Only one of these
                       has a public source; it links, the rest do not pretend
                       to. */}
@@ -177,7 +177,7 @@ export default function Hero() {
         {/* right: live terminal */}
         <div className="anim-rise" style={{ '--anim-delay': '0.2s' }}>
           <Panel className="shadow-[0_0_60px_rgb(var(--acid-rgb)/0.07)]">
-            <div className="flex items-center gap-2 border-b border-[rgb(var(--acid-rgb)/0.14)] px-4 py-2.5">
+            <div className="flex items-center gap-2 border-b border-[var(--edge)] px-4 py-2.5">
               <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
               <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
               <span className="h-2.5 w-2.5 rounded-full bg-[var(--color-acid)]" />

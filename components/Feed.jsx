@@ -78,7 +78,7 @@ export default function Feed() {
                    interactive, and nesting them in an anchor leaves both
                    unreachable by keyboard and ambiguous to a screen reader —
                    so this shape is a plain card that carries its own link. */
-                <div className="flex h-full flex-col border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(8,13,18,0.55)]">
+                <div className="flex h-full flex-col border border-[var(--edge)] bg-[var(--surface)]">
                   <AdCarousel slides={item.slides} label={`${item.title} — launch carousel`} />
                   <div className="p-4">
                     <Meta item={item} />
@@ -103,7 +103,7 @@ export default function Feed() {
                   href={item.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="group flex h-full flex-col border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(8,13,18,0.55)] p-4 transition-colors hover:border-[var(--color-acid)]"
+                  className="group flex h-full flex-col border border-[var(--edge)] bg-[var(--surface)] p-4 transition-colors hover:border-[var(--color-acid)]"
                 >
                   <Meta item={item} />
                   <div className="text-[15px] leading-snug text-[var(--color-bone)]">{item.title}</div>

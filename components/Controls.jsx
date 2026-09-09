@@ -167,7 +167,7 @@ export default function Controls() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
             data-print="hide"
-            className="fixed bottom-16 left-1/2 z-[76] -translate-x-1/2 border border-[rgb(var(--acid-rgb)/0.3)] bg-[rgba(8,13,18,0.95)] px-4 py-2 text-[12px] text-[var(--color-acid)]"
+            className="fixed bottom-16 left-1/2 z-[76] -translate-x-1/2 border border-[var(--edge-strong)] bg-[var(--surface-raised)] px-4 py-2 text-[12px] text-[var(--color-acid)]"
           >
             {toast}
           </motion.div>
@@ -188,16 +188,16 @@ export default function Controls() {
             role="dialog"
             aria-modal="true"
             aria-label="Keyboard shortcuts"
-            className="fixed inset-0 z-[82] flex items-center justify-center bg-[rgba(2,4,6,0.72)] px-4 backdrop-blur-sm"
+            className="fixed inset-0 z-[82] flex items-center justify-center bg-[var(--scrim)] px-4 backdrop-blur-sm"
           >
             <motion.div
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 6, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md border border-[rgb(var(--acid-rgb)/0.25)] bg-[rgba(8,13,18,0.97)]"
+              className="w-full max-w-md border border-[var(--edge-mid)] bg-[var(--surface-raised)]"
             >
-              <div className="flex items-center justify-between border-b border-[rgb(var(--acid-rgb)/0.14)] px-4 py-3 text-[12px]">
+              <div className="flex items-center justify-between border-b border-[var(--edge)] px-4 py-3 text-[12px]">
                 <span className="text-[var(--color-acid)]">keyboard</span>
                 <span className="text-[var(--color-dim)]">
                   scene: {quality === 'auto' ? 'auto' : quality} · palette:{' '}
@@ -216,7 +216,7 @@ export default function Controls() {
                       {s.keys.map((k) => (
                         <kbd
                           key={k}
-                          className="min-w-[22px] border border-[rgb(var(--acid-rgb)/0.25)] px-1.5 py-0.5 text-center text-[11px] text-[var(--color-bone)]"
+                          className="min-w-[22px] border border-[var(--edge-mid)] px-1.5 py-0.5 text-center text-[11px] text-[var(--color-bone)]"
                         >
                           {k}
                         </kbd>

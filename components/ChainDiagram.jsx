@@ -89,7 +89,7 @@ export default function ChainDiagram() {
       : 'var(--color-cyan)';
 
   return (
-    <div ref={host} className="mb-8 border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(8,13,18,0.55)] p-4 lg:hidden">
+    <div ref={host} className="mb-8 border border-[var(--edge)] bg-[var(--surface)] p-4 lg:hidden">
       <div className="mb-3 text-[11px] uppercase tracking-[0.2em] text-[var(--color-dim)]">
         the loop — run, gap, rule, re-run
       </div>

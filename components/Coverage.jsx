@@ -12,7 +12,7 @@ import { coverageMatches, projectMatches } from '@/lib/match';
 const STATUS = {
   detected: {
     label: 'detected',
-    className: 'text-[var(--color-acid)] border-[rgb(var(--acid-rgb)/0.35)]',
+    className: 'text-[var(--color-acid)] border-[var(--edge-strong)]',
   },
   assessed: {
     label: 'assessed',
@@ -80,7 +80,7 @@ function captionFor(src) {
 function Telemetry({ lines }) {
   if (!lines?.length) return null;
   return (
-    <div className="mt-3 border-t border-[rgb(var(--acid-rgb)/0.1)] pt-3">
+    <div className="mt-3 border-t border-[var(--edge-soft)] pt-3">
       <div className="mb-1.5 text-[10px] uppercase tracking-[0.16em] text-[var(--color-dim)]">
         where it shows up — public reference, not a finding
       </div>
@@ -108,7 +108,7 @@ function Telemetry({ lines }) {
 function Writeups({ items }) {
   if (!items?.length) return null;
   return (
-    <div className="mt-3 border-t border-[rgb(var(--acid-rgb)/0.1)] pt-3">
+    <div className="mt-3 border-t border-[var(--edge-soft)] pt-3">
       <div className="mb-1.5 text-[10px] uppercase tracking-[0.16em] text-[var(--color-dim)]">
         written about this — not a record of catching it
       </div>
@@ -191,12 +191,12 @@ function Evidence({ r }) {
       )}
       {e.logic && <RuleDiagram logic={e.logic} />}
       {e.log && (
-        <pre className="max-w-full overflow-x-auto border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(4,7,10,0.85)] p-3 text-[11px] text-[var(--color-bone)]">
+        <pre className="max-w-full overflow-x-auto border border-[var(--edge)] bg-[var(--surface-code)] p-3 text-[11px] text-[var(--color-bone)]">
           <code>{e.log}</code>
         </pre>
       )}
       {e.capture && (
-        <figure className="border border-[rgb(var(--acid-rgb)/0.14)]">
+        <figure className="border border-[var(--edge)]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={e.capture} alt={captionFor(e.capture)} className="w-full" />
         </figure>
@@ -316,15 +316,15 @@ export default function Coverage() {
 
       {/* summary strip */}
       <Reveal>
-        <div className="mb-6 flex flex-wrap gap-px border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgb(var(--acid-rgb)/0.14)]">
-          <div className="flex-1 bg-[rgba(4,7,10,0.9)] px-4 py-3">
+        <div className="mb-6 flex flex-wrap gap-px border border-[var(--edge)] bg-[rgb(var(--acid-rgb)/0.14)]">
+          <div className="flex-1 bg-[var(--surface-raised)] px-4 py-3">
             <div className="text-xl text-[var(--color-acid)]">{coverage.length}</div>
             <div className="text-[11px] text-[var(--color-dim)]">techniques exercised</div>
           </div>
           {Object.entries(STATUS)
             .filter(([key]) => counts[key])
             .map(([key, s]) => (
-              <div key={key} className="flex-1 bg-[rgba(4,7,10,0.9)] px-4 py-3">
+              <div key={key} className="flex-1 bg-[var(--surface-raised)] px-4 py-3">
                 <div className={`text-xl ${s.className.split(' ')[0]}`}>{counts[key]}</div>
                 <div className="text-[11px] text-[var(--color-dim)]">{s.label}</div>
               </div>
@@ -334,7 +334,7 @@ export default function Coverage() {
 
       {/* ATT&CK matrix — one column per tactic, cells are the techniques covered */}
       <Reveal delay={0.04}>
-        <div className="mb-6 max-w-full overflow-x-auto border border-[rgb(var(--acid-rgb)/0.14)] p-4">
+        <div className="mb-6 max-w-full overflow-x-auto border border-[var(--edge)] p-4">
           <div className="mb-3 text-[11px] uppercase tracking-[0.2em] text-[var(--color-dim)]">
             ATT&amp;CK matrix — covered tactics
           </div>
@@ -342,7 +342,7 @@ export default function Coverage() {
             {TACTICS.map((tactic) => {
               const rows = coverage.filter((r) => r.tactic === tactic);
               return (
-                <div key={tactic} className="flex-1 bg-[rgba(4,7,10,0.92)] p-2">
+                <div key={tactic} className="flex-1 bg-[var(--surface-raised)] p-2">
                   <div
                     className={`mb-2 text-[10px] leading-tight ${
                       rows.length ? 'text-[var(--color-cyan)]' : 'text-[rgb(var(--dim-rgb)/0.45)]'
@@ -352,7 +352,7 @@ export default function Coverage() {
                   </div>
                   <div className="space-y-1">
                     {rows.length === 0 && (
-                      <div className="h-8 border border-dashed border-[rgb(var(--acid-rgb)/0.08)]" />
+                      <div className="h-8 border border-dashed border-[var(--edge-soft)]" />
                     )}
                     {rows.map((r) => (
                       <div
@@ -382,10 +382,10 @@ export default function Coverage() {
 
       {/* desktop table */}
       <Reveal delay={0.08}>
-        <div className="hidden max-w-full overflow-x-auto border border-[rgb(var(--acid-rgb)/0.14)] lg:block">
+        <div className="hidden max-w-full overflow-x-auto border border-[var(--edge)] lg:block">
           <table className="w-full min-w-[1000px] text-left text-[13px]">
             <thead>
-              <tr className="border-b border-[rgb(var(--acid-rgb)/0.14)] text-[11px] uppercase tracking-[0.14em] text-[var(--color-dim)]">
+              <tr className="border-b border-[var(--edge)] text-[11px] uppercase tracking-[0.14em] text-[var(--color-dim)]">
                 <th className="px-4 py-3 font-normal">id</th>
                 <th className="px-4 py-3 font-normal">technique</th>
                 <th className="px-4 py-3 font-normal">tactic</th>
@@ -401,7 +401,7 @@ export default function Coverage() {
                 <tr
                   onMouseEnter={enter(i, r)}
                   onMouseLeave={leave}
-                  className={`border-b border-[rgb(var(--acid-rgb)/0.08)] transition-all last:border-0 hover:bg-[rgb(var(--acid-rgb)/0.04)] ${
+                  className={`border-b border-[var(--edge-soft)] transition-all last:border-0 hover:bg-[rgb(var(--acid-rgb)/0.04)] ${
                     dimmed(r) ? 'opacity-25' : ''
                   }`}
                 >
@@ -436,7 +436,7 @@ export default function Coverage() {
                 </tr>
 
                 {r.evidence && (
-                  <tr className="border-b border-[rgb(var(--acid-rgb)/0.08)] last:border-0">
+                  <tr className="border-b border-[var(--edge-soft)] last:border-0">
                     <td colSpan={7} className="px-4 pb-4">
                       {/* Collapsed by default: a screenshot per row would bury
                           the table this section exists to show. */}
@@ -463,7 +463,7 @@ export default function Coverage() {
         {coverage.map((r, i) => (
           <Reveal key={r.id} delay={i * 0.04}>
             <div
-              className={`border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgba(8,13,18,0.72)] p-4 transition-opacity ${
+              className={`border border-[var(--edge)] bg-[var(--surface)] p-4 transition-opacity ${
                 dimmed(r) ? 'opacity-25' : ''
               }`}
             >
@@ -494,7 +494,7 @@ export default function Coverage() {
                 </div>
               </dl>
 
-              <details data-evidence={r.id} className="mt-3 border-t border-[rgb(var(--acid-rgb)/0.1)] pt-3">
+              <details data-evidence={r.id} className="mt-3 border-t border-[var(--edge-soft)] pt-3">
                 <summary className="tap cursor-pointer text-[11px] uppercase tracking-[0.14em] text-[var(--color-dim)]">
                   {r.evidence ? 'show the capture' : 'what backs this'}
                 </summary>
@@ -511,7 +511,7 @@ export default function Coverage() {
           has to guess whether "detected" means a live capture. The `where`
           column already cites the real context of each row. */}
       <Reveal delay={0.1}>
-        <p className="prose-text mt-6 border-l-2 border-[rgb(var(--acid-rgb)/0.3)] pl-4 text-[12px] leading-relaxed text-[var(--color-prose)]">
+        <p className="prose-text mt-6 border-l-2 border-[var(--edge-strong)] pl-4 text-[12px] leading-relaxed text-[var(--color-prose)]">
           Each row cites its context in the <span className="text-[var(--color-cyan)]">where</span>{' '}
           column — internship, a lab project, or production at Vrikaan. The reproducible parts —
           detection rules and the pipeline diagrams — live on the{' '}

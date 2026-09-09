@@ -56,14 +56,14 @@ export default function Skills() {
                           className={`border px-2 py-1 text-[11px] transition-colors ${
                             active
                               ? 'border-[var(--color-acid)] bg-[rgb(var(--acid-rgb)/0.12)] text-[var(--color-acid)]'
-                              : 'border-[rgb(var(--acid-rgb)/0.16)] text-[var(--color-bone)] hover:border-[var(--color-acid)] hover:text-[var(--color-acid)]'
+                              : 'border-[var(--edge)] text-[var(--color-bone)] hover:border-[var(--color-acid)] hover:text-[var(--color-acid)]'
                           }`}
                         >
                           {s}
                           <span className="ml-1.5 text-[var(--color-dim)]">{n}</span>
                         </button>
                       ) : (
-                        <span className="inline-block border border-[rgb(var(--acid-rgb)/0.08)] px-2 py-1 text-[11px] text-[var(--color-dim)]">
+                        <span className="inline-block border border-[var(--edge-soft)] px-2 py-1 text-[11px] text-[var(--color-dim)]">
                           {s}
                         </span>
                       )}
@@ -77,9 +77,9 @@ export default function Skills() {
       </div>
 
       <Reveal delay={0.15}>
-        <div className="mt-5 grid gap-px border border-[rgb(var(--acid-rgb)/0.14)] bg-[rgb(var(--acid-rgb)/0.14)] sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-5 grid gap-px border border-[var(--edge)] bg-[rgb(var(--acid-rgb)/0.14)] sm:grid-cols-2 lg:grid-cols-3">
           {certs.map((c) => (
-            <div key={c.name} className="flex flex-col gap-1 bg-[rgba(8,13,18,0.85)] p-5">
+            <div key={c.name} className="flex flex-col gap-1 bg-[var(--surface-raised)] p-5">
               <div className="text-[14px] leading-snug text-[var(--color-bone)]">{c.name}</div>
               <div className="text-[12px] text-[var(--color-dim)]">{c.issuer}</div>
               <div className="mt-2 w-fit border border-[rgb(var(--cyan-rgb)/0.25)] px-2 py-0.5 text-[11px] text-[var(--color-cyan)]">

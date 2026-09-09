@@ -507,6 +507,46 @@ body::after {
   --step-5: clamp(2.18rem, 1.38rem + 3.99vw, 4.21rem);
   --step-6: clamp(2.61rem, 1.3rem + 6.55vw, 5.61rem);
 
+
+  /* ── surfaces ──────────────────────────────────────────────────────────
+     Thirteen different card backgrounds and ten border alphas had grown
+     across the components, each chosen in isolation and none of them wrong
+     on its own. Collectively they read as accident rather than decision,
+     which is most of what separates a considered site from a capable one.
+
+     Four surfaces and four edges, each with a job:
+
+       surface        a card sitting on the page, translucent enough that the
+                      scene shows through
+       surface-raised anything that has to occlude what is behind it — a
+                      dialog, the command palette, a chip over the canvas
+       surface-code   listings, where contrast against the text matters more
+                      than seeing through
+       surface-nav    the header, which must stay legible while remaining
+                      obviously in front of a moving background
+
+       edge-soft      divisions inside a component
+       edge           the default hairline; this is the one to reach for
+       edge-mid       a control that should look pressable
+       edge-strong    the primary action, and nothing else
+     ──────────────────────────────────────────────────────────────────── */
+  --surface: rgba(8, 13, 18, 0.6);
+  --surface-raised: rgba(4, 7, 10, 0.92);
+  --surface-code: rgba(4, 7, 10, 0.85);
+  --surface-nav: rgba(4, 7, 10, 0.82);
+
+  --edge-soft: rgb(var(--acid-rgb) / 0.09);
+  --edge: rgb(var(--acid-rgb) / 0.14);
+  --edge-mid: rgb(var(--acid-rgb) / 0.24);
+  --edge-strong: rgb(var(--acid-rgb) / 0.36);
+
+  /* Not surfaces. A scrim dims what is behind a dialog; the sheet is the
+     printable brief, which is nearly opaque because it is meant to survive
+     being sent to a printer. */
+  --scrim: rgba(2, 4, 6, 0.72);
+  --scrim-strong: rgba(2, 4, 6, 0.9);
+  --surface-sheet: rgba(6, 10, 14, 0.98);
+
   /* prose stops at a measure the eye can track without losing its place */
   --measure: 66ch;
 

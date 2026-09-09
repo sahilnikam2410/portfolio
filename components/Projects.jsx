@@ -91,7 +91,7 @@ export default function Projects() {
                   <Link
                     href={`/work/${current.id}`}
                     data-cursor="read"
-                    className="border border-[rgb(var(--acid-rgb)/0.35)] px-4 py-2 text-[13px] text-[var(--color-acid)] transition-colors hover:bg-[rgb(var(--acid-rgb)/0.1)]"
+                    className="border border-[var(--edge-strong)] px-4 py-2 text-[13px] text-[var(--color-acid)] transition-colors hover:bg-[rgb(var(--acid-rgb)/0.1)]"
                   >
                     case study →
                   </Link>
@@ -109,7 +109,7 @@ export default function Projects() {
                           ? 'the write-up and the detection rules; the implementation is not published there yet'
                           : undefined
                       }
-                      className="border border-[rgb(var(--acid-rgb)/0.2)] px-4 py-2 text-[13px] text-[var(--color-bone)] transition-colors hover:border-[var(--color-acid)]"
+                      className="border border-[var(--edge-mid)] px-4 py-2 text-[13px] text-[var(--color-bone)] transition-colors hover:border-[var(--color-acid)]"
                     >
                       {current.repoKind === 'writeup' ? 'write-up' : 'repository'} ↗
                     </a>
@@ -120,7 +120,7 @@ export default function Projects() {
                       href={current.site}
                       target="_blank"
                       rel="noreferrer"
-                      className="border border-[rgb(var(--acid-rgb)/0.35)] px-4 py-2 text-[13px] text-[var(--color-acid)] transition-colors hover:bg-[rgb(var(--acid-rgb)/0.1)]"
+                      className="border border-[var(--edge-strong)] px-4 py-2 text-[13px] text-[var(--color-acid)] transition-colors hover:bg-[rgb(var(--acid-rgb)/0.1)]"
                     >
                       live site ↗
                     </a>

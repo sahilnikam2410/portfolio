@@ -27,7 +27,7 @@ export default function CopyButton({ value, label = 'copy', className = '' }) {
           ? 'border-[var(--color-acid)] text-[var(--color-acid)]'
           : state === 'failed'
           ? 'border-[#ff6b6b] text-[#ff6b6b]'
-          : 'border-[rgb(var(--acid-rgb)/0.25)] text-[var(--color-dim)] hover:border-[var(--color-acid)] hover:text-[var(--color-acid)]'
+          : 'border-[var(--edge-mid)] text-[var(--color-dim)] hover:border-[var(--color-acid)] hover:text-[var(--color-acid)]'
       } ${className}`}
     >
       {state === 'done' ? 'copied' : state === 'failed' ? 'select it' : label}
