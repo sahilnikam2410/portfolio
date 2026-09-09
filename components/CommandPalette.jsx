@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { identity, socials, projects, resumes } from '@/data/content';
+import { identity, socials, projects, resumes, coverage } from '@/data/content';
 import { useSceneStore } from './sceneStore';
 import { useFocusTrap } from './useFocusTrap';
 
@@ -56,6 +56,33 @@ export default function CommandPalette() {
           if (window.__lenis && el) window.__lenis.scrollTo(el, { offset: -80 });
           else el?.scrollIntoView({ behavior: 'smooth' });
           window.dispatchEvent(new CustomEvent('select-project', { detail: p.id }));
+        },
+      })),
+      /**
+       * Techniques are searchable by ID, name or tactic.
+       *
+       * The palette knew about sections, projects and links but not the one
+       * dataset this site is organised around — typing T1110 found nothing.
+       * The hint carries what backs each row, so a search result says whether
+       * the thing it found is demonstrated or asserted before you open it.
+       */
+      ...coverage.map((c) => ({
+        group: 'techniques',
+        label: c.id + ' — ' + c.technique,
+        hint:
+          c.tactic +
+          ' · ' +
+          (c.evidence?.capture
+            ? 'capture'
+            : c.evidence?.rule || c.evidence?.logic
+              ? 'rule'
+              : 'nothing published'),
+        run: () => {
+          const el = document.querySelector('#coverage');
+          if (window.__lenis && el) window.__lenis.scrollTo(el, { offset: -80 });
+          else el?.scrollIntoView({ behavior: 'smooth' });
+          // same path a click on the node in the scene takes: open what backs it
+          useSceneStore.getState().setReveal({ id: c.id, at: performance.now() });
         },
       })),
       ...socials.map((s) => ({
