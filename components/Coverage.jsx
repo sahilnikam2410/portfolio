@@ -68,12 +68,34 @@ function Evidence({ r }) {
   const e = r.evidence;
 
   if (!e) {
+    /**
+     * A row with no capture is not a row with nothing behind it.
+     *
+     * The status says what happened in the lab; the evidence column says what
+     * has been published. Those are different claims, and collapsing them
+     * would mean either overstating the second or understating the first.
+     * What these rows do have is a provenance — the engagement it came from
+     * and the line it is drawn from — and hiding that made a dash read as
+     * "nothing" when it means "not published here".
+     */
     return (
-      <p className="prose-text text-[12px] leading-relaxed text-[var(--color-prose)]">
-        Nothing published for this one yet. A screenshot of the alert is one
-        way to close that; the rule that catches it and the log line it matched
-        are another, and a reader can check those against their own stack.
-      </p>
+      <div className="space-y-2 text-[12px] leading-relaxed">
+        <p>
+          <span className="text-[var(--color-acid)]">where: </span>
+          <span className="prose-text text-[var(--color-prose)]">{r.where}</span>
+        </p>
+        {r.source && (
+          <p>
+            <span className="text-[var(--color-acid)]">drawn from: </span>
+            <span className="prose-text text-[var(--color-prose)]">{r.source}</span>
+          </p>
+        )}
+        <p className="prose-text text-[var(--color-prose)]">
+          Nothing published here yet. A capture of the alert closes that; so
+          does the rule that catches it and the log line it matched, which a
+          reader can check against their own stack.
+        </p>
+      </div>
     );
   }
 
